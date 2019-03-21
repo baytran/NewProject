@@ -1,0 +1,47 @@
+'''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: DictionaryUtil UTIL_DictionaryUtil
+' This is the function group for dealing with Dictionary object
+'
+' List of functions here
+' @code
+'   Function UTIL_Dict_Keys(objDict) 
+'   Function UTIL_Dict_Values(objDict) 
+'   Function UTIL_Dict_KeyExists(objDict, strKey) 
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+'Get keys in a dictionary object
+'@param objDict dictionary object
+Function UTIL_Dict_Keys(objDict)
+   
+    strTypeName = typename(objDict) 
+    If strTypeName = "Dictionary" Then  
+		UTIL_Dict_Keys = objDict.Keys   ' Get the keys
+	End If
+End Function
+
+
+'Get items in a dictionary object
+'@param objDict dictionary object
+Function UTIL_Dict_Values(objDict)
+
+    strTypeName = typename(objDict) 
+    If strTypeName = "Dictionary" Then  
+		UTIL_Dict_Values = objDict.Items   ' Get the items.	
+	End If
+
+End Function
+
+
+'Check if a key exists a dictionary object
+'@param objDict dictionary object
+'@param strKey key
+Function UTIL_Dict_KeyExists(objDict, strKey) 
+
+	UTIL_Dict_KeyExists = objDict.Exists(strKey)
+	
+End Function
+
+'@}

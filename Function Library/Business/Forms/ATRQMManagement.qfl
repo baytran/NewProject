@@ -1,0 +1,254 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_ATRQMManagement BIZ_Forms_ATRQMManagement
+'
+'List of functions here
+'@code
+'   Function BIZ_ATRQMManagement_SetCreditInformation(strRowID)
+'   Function BIZ_Common_ATRQMManagement_SetCreditInformation(objParent, strRowID)
+'   Function BIZ_ATRQMManagement_SetQualification(strRowID)
+'   Function BIZ_Common_ATRQMManagement_SetQualification(objPArent, strRowID)
+'	Function BIZ_ATRQMManagement_SetATRQMEligibility(strRowID)
+'	Function BIZ_ATRQMManagement_CreateBorrower(strRowID)
+'   Function BIZ_ATRQMManagement_Verify_TotalSection32PointsAndFees (strRowID)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for set creidt information on ATR/QM Management Page
+'@code
+'    BIZ_ATRQMManagement_SetCreditInformation(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ATRQMManagement_SetCreditInformation(strRowID)
+
+    FRM_Logger_ReportInfoEvent "ATR/QM Management", "Set data using Row Id '"&strRowID&"' in the SetCreditInformation datasheet", null
+	
+	BIZ_Forms_Open "ATR/QM Management"
+	BIZ_Common_ATRQMManagement_SetCreditInformation SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0"), strRowID
+End Function
+
+
+
+'This function is common function for set creidt information on ATR/QM Management Page
+'@code
+'    BIZ_Common_ATRQMManagement_SetCreditInformation(objParent, strRowID)
+'@endcode
+'@param objPArent object for the page
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_ATRQMManagement_SetCreditInformation(objParent, strRowID)
+
+
+    	Set objData = FRM_DS_GetTestData("Forms_ATRQMManagement", "SetCreditInformation", strRowID)
+
+    	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VASUMM.X23_CreditScore")) Then	
+		GUI_WebEdit_Set objParent.WebEdit("html id:=TextBox7","index:=0"), FRM_DS_GetValue(objData, "VASUMM.X23_CreditScore") 	
+	End If	
+	
+	Set objData = Nothing	
+	
+End Function
+
+
+
+'This function is for set qualification information on ATR/QM Management Page
+'@code
+'    BIZ_ATRQMManagement_SetQualification(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ATRQMManagement_SetQualification(strRowID)
+
+    FRM_Logger_ReportInfoEvent "ATR/QM Management", "Set data using Row Id '"&strRowID&"' in the SetQualification datasheet", null
+	
+	BIZ_Forms_Open "ATR/QM Management"
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControlForm"), "Qualification"
+	BIZ_Common_ATRQMManagement_SetQualification SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0"),strRowID
+End Function
+
+
+
+'This function is common function for set qualification information on ATR/QM Management Page
+'@code
+'    BIZ_Common_ATRQMManagement_SetQualification(objParent, strRowID)
+'@endcode
+'@param objPArent object for the page
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_ATRQMManagement_SetQualification(objParent, strRowID)
+
+    Set objData = FRM_DS_GetTestData("Forms_ATRQMManagement", "SetQualification", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "761_RateLockDate")) Then	
+		GUI_WebEdit_Set objParent.WebEdit("html id:=TextBox44","index:=0"), FRM_DS_GetValue(objData, "761_RateLockDate") 	
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "3293_UndiscountedRate")) Then	
+		GUI_WebEdit_Set objParent.WebEdit("html id:=TextBox4","index:=0"), FRM_DS_GetValue(objData, "3293_UndiscountedRate") 	
+	End If	
+	
+	Set objData = Nothing	
+	
+End Function
+
+
+
+'This function is for set eligbility information on ATR/QM Management Page
+'@code
+'    BIZ_ATRQMManagement_SetATRQMEligibility(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ATRQMManagement_SetATRQMEligibility(strRowID)
+	Set objData = FRM_DS_GetTestData("Forms_ATRQMManagement", "SetATRQMEligibility", strRowID)
+	
+	Set objMain = SwfWindow("swfname:=MainForm").Page("micClass:=Page")
+
+	'=== Open ATR/QM Management Form ===
+	BIZ_Forms_Open "ATR/QM Management"
+
+	'=== Fill details in ATR/QM Management form ====
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControlForm"), "ATR/QM Eligibility"
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "QualifiedMortgageLoanType")) Then
+		If GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=l_X24"),"disabled") = 0 Then
+			GUI_WebList_Select SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=l_X24"), FRM_DS_GetValue(objData, "QualifiedMortgageLoanType")
+		Else
+			GUI_WebButton_Click SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebButton("html id:=FieldLock2")
+			GUI_WebList_Select SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=l_X24"), FRM_DS_GetValue(objData, "QualifiedMortgageLoanType")
+		End If
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "TransactionIsExtended")) Then
+		GUI_WebCheckbox_Set SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebCheckBox("html id:=__cid_CheckBox1_Ctrl"), FRM_DS_GetValue(objData, "TransactionIsExtended")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CreditorType")) Then
+		GUI_WebCheckbox_Set SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebCheckBox("html id:=__cid_CheckBox2_Ctrl"), "ON"
+		GUI_WebList_Select SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=DropdownBox3"), FRM_DS_GetValue(objData, "CreditorType")
+	End If
+	
+	'Ability to repay Loan Type QM.X23
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "QMX23_AbilityToRepay")) Then 
+		If GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=l_X23"),"disabled") = 1 Then
+			GUI_WebButton_Click SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebButton("html id:=FieldLock1")
+			GUI_WebList_Select SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=l_X23"), FRM_DS_GetValue(objData, "QMX23_AbilityToRepay")
+		Else
+			GUI_WebList_Select SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=l_X23"), FRM_DS_GetValue(objData, "QMX23_AbilityToRepay")
+		End If
+	End If
+	
+	'Is Loan Eligible for Safe Harbor? QM.X25
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "QMX25_SafeHarborEligible")) Then 
+		If GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=l_X25"),"disabled") = 1 Then
+			GUI_WebButton_Click SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebButton("html id:=FieldLock3")
+			GUI_WebList_Select SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=l_X25"), FRM_DS_GetValue(objData, "QMX25_SafeHarborEligible")
+		Else
+			GUI_WebList_Select SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=l_X25"), FRM_DS_GetValue(objData, "QMX25_SafeHarborEligible")
+		End If
+	End If
+	
+	'Loan Program under ATR/QM Exemption Eligibility section
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LoanProgram")) Then
+		GUI_WebCheckbox_Set SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebCheckBox("html id:=__cid_CheckBox3_Ctrl"), "ON"
+		GUI_WebList_Select SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebList("html id:=DropdownBox4"), FRM_DS_GetValue(objData, "LoanProgram")
+	End If
+	
+	'Unit Count under ATR/QM Exemption Eligibility section QM.X108
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "QMX108")) Then
+		If GUI_Object_GetPropertyValue(objMain.WebCheckBox("html id:=__cid_CheckBox4_Ctrl"),"disabled") = 1 Then
+			GUI_WebCheckbox_Set objMain.WebCheckBox("html id:=__cid_CheckBox1_Ctrl"),"ON"
+			GUI_WebCheckbox_Set objMain.WebCheckBox("html id:=__cid_CheckBox4_Ctrl"),FRM_DS_GetValue(objData, "QMX108")
+		Else
+			GUI_WebCheckbox_Set objMain.WebCheckBox("html id:=__cid_CheckBox4_Ctrl"),FRM_DS_GetValue(objData, "QMX108")
+		End If
+	End If
+	
+	'Credit Type under ATR/QM Exemption Eligibility section QM.X110
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "QMX110")) Then
+		If GUI_Object_GetPropertyValue(objMain.WebCheckBox("html id:=__cid_CheckBox5_Ctrl"),"disabled") = 1 Then
+			GUI_WebCheckbox_Set objMain.WebCheckBox("html id:=__cid_CheckBox1_Ctrl"),"ON"
+			GUI_WebCheckbox_Set objMain.WebCheckBox("html id:=__cid_CheckBox5_Ctrl"),FRM_DS_GetValue(objData, "QMX110")
+		Else
+			GUI_WebCheckbox_Set objMain.WebCheckBox("html id:=__cid_CheckBox5_Ctrl"),FRM_DS_GetValue(objData, "QMX110")
+		End If
+	End If
+	Set objData = Nothing
+End Function 
+
+
+
+'This function is for Creating New Borrower
+'@code
+'    BIZ_ATRQMManagement_CreateBorrower(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ATRQMManagement_CreateBorrower(strRowID)
+
+    FRM_Logger_ReportInfoEvent "ATR/QM Management Create Borrower", "Set data using Row Id '"&strRowID&"' in the SetBorrowerInfo datasheet", null
+    
+	Dim objMain, objData, objManageBorrower
+	Set objMain				=	SwfWindow("swfname:=MainForm")
+	Set objData 			= 	FRM_DS_GetTestData("Forms_ATRQMManagement", "SetBorrowerInfo", strRowID)
+	Set objManageBorrower	=	objMain.SwfWindow("swfname:=SwapBorrowerPairForm")
+	
+	GUI_Object_WaitTillExistX objMain, 120	'@ Handling Sync Related Issues
+	GUI_SwfObject_Click objMain.SwfObject("swfname:=btnEditBorrowerPair")
+	
+	If GUI_Object_IsExistX (objManageBorrower, 120) Then
+		FRM_Logger_ReportPassEvent "Encompass Dialog", "Manage Borrowers Dialog box exists", Null
+		GUI_SwfObject_Click objManageBorrower.SwfObject("swfname:=btnAdd")
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FirstName")) Then	
+			GUI_SwfEdit_Set objManageBorrower.SwfEdit("swfname:=txtBorFirst"), Trim(FRM_DS_GetValue(objData, "FirstName"))
+			GUI_Object_ValidateText objManageBorrower.SwfEdit("swfname:=txtBorFirst"), Trim(FRM_DS_GetValue(objData, "FirstName")), "First Name Entered"
+		End If	
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LastName")) Then	
+			GUI_SwfEdit_Set objManageBorrower.SwfEdit("swfname:=txtBorLast"), Trim(FRM_DS_GetValue(objData, "LastName"))
+			GUI_Object_ValidateText objManageBorrower.SwfEdit("swfname:=txtBorLast"), Trim(FRM_DS_GetValue(objData, "LastName")), "Last Name Entered"
+		End If
+		strBorrowerInList	=	Trim(FRM_DS_GetValue(objData, "LastName"))&", "&Trim(FRM_DS_GetValue(objData, "FirstName"))
+		GUI_List_TextExists objManageBorrower.SwfObject("swfname:=gridViewPairs"), "Borrower", strBorrowerInList
+		GUI_SwfButton_Click objManageBorrower.SwfButton("swfname:=btnOK")
+		
+		strBorrowerName	=	Trim(FRM_DS_GetValue(objData, "FirstName"))&" "&Trim(FRM_DS_GetValue(objData, "LastName"))
+		BIZ_ATRQMManagement_CreateBorrower	=	strBorrowerName
+	Else
+		FRM_Logger_ReportFailEvent "Encompass Dialog", "Manage Borrowers Dialog box doesn't exists", Null
+	End If
+		
+	Set objMain				=	Nothing
+	Set objData 			= 	Nothing
+	Set objManageBorrower	=	Nothing
+	
+End Function
+
+
+
+'This function is used to Verify TotalSection32PointsAndFees in ATRQMManagement Qualification page 
+'@code
+'    Function BIZ_ATRQMManagement_Verify_TotalSection32PointsAndFees (strRowID)
+'@endcode
+'@Param strRowID  points row in excel 
+
+Function BIZ_ATRQMManagement_Verify_TotalSection32PointsAndFees (strRowID)
+
+    FRM_Logger_ReportInfoEvent "ATR/QM Management -Qualification ", "Verify Total Section32 Points And Fees ", Null
+    
+    Dim strSectionPoints,objData,strValue
+    Set objData = FRM_DS_GetTestData("Section32", "ARTQM_Eligible", strRowID) 
+    strValue 	= FRM_DS_GetValue(objData, "l_S32DISCX48")
+    
+    BIZ_Forms_Open "ATR/QM Management"
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControlForm"), "Qualification"
+	strSectionPoints=GUI_Object_GetPropertyValue( SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebEdit("html id:=l_S32DISCX48"), "value")
+	
+	If strValue="0" Then
+		FRM_VerifyEqual strSectionPoints, "", "Section32", "Section32 Points And Fees"
+	Else
+    	FRM_VerifyEqual FormatNumber(strValue,2), FormatNumber(strSectionPoints,2), "Section32", "Section32 Points And Fees"	
+	End If
+	
+	Set objData = Nothing 
+End Function
+
+
+
+'@}

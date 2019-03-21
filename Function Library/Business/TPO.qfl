@@ -1,0 +1,143 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_TPO WebCenter  Function
+'
+' List of functions here
+' @code
+'   Function BIZ_TPO_Login()
+'   Function BIZ_TPO_Verify_DocumentCreate strDocName
+'   Function BIZ_TPO_LogOut()
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'This function is used to Launch TPO WebCenter
+'@code
+'    Function TPO_Login(strRowID)
+'@endcode
+'@Param points Row In Excel
+Function BIZ_TPO_Login(strRowID)
+    
+    FRM_Logger_ReportInfoEvent "TPO Login", "TPO Login Started..", Null
+	Dim objData,objMainPage
+	UTIL_Win_CloseIE()
+	wait g_TinyWaitLarge  'Explicit Wait added Due Sync
+	Set objData       	= FRM_DS_GetTestData("Global_Data", "Website", strRowID)	
+	Set objMainPage		= Browser("name:=Ellie Mae.*").Page("title:=Ellie Mae.*")   
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"URL")) Then
+		GUI_Browser_OpenUrl FRM_DS_GetValue(objData,"URL")	  
+	End If
+	wait g_LongWaitSmall 'explicit wait added due to sync
+	GUI_Object_WaitTillExistX objMainPage.Link("text:=LOGIN"), 10
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"EmailAccount")) Then
+		GUI_WebEdit_Set objMainPage.WebEdit("name:=loginUserName"), FRM_DS_GetValue(objData,"EmailAccount")	  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"Password")) Then
+		GUI_WebEdit_Set objMainPage.WebEdit("Name:=loginPassword"), FRM_DS_GetValue(objData,"Password") 
+	End If
+	wait g_LongWaitSmall 'explicit wait added due to sync
+	GUI_Link_Click objMainPage.Link("text:=LOGIN")
+	GUI_Object_WaitTillExistX objMainPage.Link("text:=Welcome, Sample First.*","index:=0"),40
+	
+	Set objData       	= Nothing	
+	Set objMainPage		= Nothing  
+
+End Function
+
+
+
+'This function is used to LogOut TPO WebCenter
+'@code
+'    Function BIZ_TPO_LogOut()
+'@endcode
+Function BIZ_TPO_LogOut()
+    
+    FRM_Logger_ReportInfoEvent "TPO LogOut", "TPO LogOut", Null
+	Dim objMainPage
+	
+	Set objMainPage		= Browser("name:=Ellie Mae.*").Page("title:=Ellie Mae.*")   
+	wait g_LongWaitSmall 'explicit wait added due to sync
+	GUI_Link_Click objMainPage.Link("text:=Log Out")
+
+	Set objMainPage		= Nothing  
+
+End Function
+
+
+'This function is used to Verify Document in  TPO WebCenter
+'@code
+'    BIZ_TPO_Verify_DocumentCreate strDocName
+'@endcode
+'@Param strDocName Name of Document
+Function BIZ_TPO_Verify_DocumentCreate(strDocName)
+    
+    FRM_Logger_ReportInfoEvent "TPO WebCenter", "Verify Document Created in Emcompass Reflected in TPO Web Center",Null
+	Dim objMainPage,oDesc,objChild,boolValue
+	Set objMainPage		= Browser("name:=Ellie Mae.*").Page("title:=Ellie Mae.*")
+	wait g_LongWaitLarge 'explicit wait added due to sync
+	GUI_Link_Click objMainPage.Link("text:=Resources & Tools","index:=0")
+	wait g_TinyWaitMedium 'explicit wait added due to sync
+	GUI_Link_Click  objMainPage.Link("text:=Documents","index:=0")
+	wait g_TinyWaitMedium 'explicit wait added due to sync
+	
+	
+	Set oDesc = Description.Create
+	oDesc("micclass").value = "WebElement"
+	oDesc("class").value = "paddingBottom5"
+	Set objChild=Browser("name:=Ellie Mae.*").Page("title:=Ellie Mae.*").ChildObjects(oDesc) 
+	boolValue=False
+	For i = 0 to objChild.Count - 1
+	
+	  If InStr(1,objChild(i).GetROProperty("innertext"),strDocName,0)>0 Then
+		  boolValue=True
+		  Exit For  
+	  End If   
+	Next
+	FRM_VerifyTrue boolValue, "Verify Document in TPO",strDocName&" Document Available in TPO"
+    
+    Set objMainPage	=Nothing
+    Set oDesc		=Nothing
+End Function
+
+
+'This function is used to upload Loan file to TPO
+'@code
+'    BIZ_TPO_Upload_Document(strPath)
+'@endcode
+'@Param strPath Name of File Path
+
+Function BIZ_TPO_Upload_Document(strPath)
+
+	FRM_Logger_ReportInfoEvent "TPO WebCenter", "Upload Loan File to TPO WebCenter",Null
+	Dim objMainPage
+	Set objMainPage=Browser("name:=Ellie Mae.*").Page("title:=Ellie Mae.*")  
+	
+	wait g_LongWaitLarge+g_TinyWaitMedium 'explicit wait added due to sync
+	GUI_Link_Click objMainPage.Link("text:=New Loan")
+	wait g_LongWaitLarge 'explicit wait added due to sync
+	objMainPage.WebRadioGroup("index:=0").Select "LoanImportFile.aspx"
+	wait g_LongWaitLarge 'explicit wait added due to sync
+	GUI_Link_Click objMainPage.Link("text:=Next")
+	wait g_LongWaitLarge+g_LongWaitLarge 'explicit wait added due to sync
+GUI_Object_WaitTillExistX objMainPage.Link("text:=Import"), 180
+	objMainPage.WebFile("index:=0").Set strPath 
+	wait g_LongWaitLarge 'explicit wait added due to sync
+	GUI_Link_Click objMainPage.Link("text:=Import")
+	wait g_LongWaitLarge 'explicit wait added due to sync
+    
+    Set objMainPage=Nothing
+End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

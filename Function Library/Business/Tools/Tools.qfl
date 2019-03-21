@@ -1,0 +1,103 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Tools BIZ_Tools
+'
+' List of functions here
+'@code
+'	Function BIZ_Tools_ShowInOrder()
+'	Function BIZ_Tools_Open(strToolName)
+'	Function BIZ_Tools_Prequalification_SetCashFlow(strRowID)
+'   	Function BIZ_SecondaryMarket_ToolsNavigation(strToolsOpen)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to navigate Tools Section with the Form what we have selected
+'@code
+'   BIZ_SecondaryMarket_ToolsNavigation(strToolsOpen)
+'@endcode
+'@param strToolsOpen - Form name to select
+
+Function BIZ_SecondaryMarket_ToolsNavigation(strToolsOpen)
+	
+	FRM_Logger_ReportInfoEvent "Navigation to Tools","Start Navigation to Tools- "&strToolsOpen, Null
+	wait g_LongWaitMedium
+	wait g_LongWaitMedium
+	BIZ_Tools_ShowInOrder
+	BIZ_Tools_Open(strToolsOpen)
+
+End Function
+
+
+'This function is for select Tools tab and show in order
+'@code
+'    BIZ_Tools_ShowInOrder()
+'@endcode
+
+Function BIZ_Tools_ShowInOrder()
+	GUI_List_Select SwfWindow("swfname:=MainForm").SwfTab("swfname:=toolsFormsTabControl"), "Tools"
+	GUI_SwfCheckbox_Set SwfWindow("swfname:=MainForm").SwfCheckBox("swfname:=chkAlphaTools"), "ON"
+End Function
+
+
+
+'This function is for open a tool
+'@code
+'    BIZ_Tools_Open(strToolName)
+'@endcode
+'@param strToolName string Title of the Tool to open
+
+Function BIZ_Tools_Open(strToolName)
+
+    FRM_Logger_ReportInfoEvent "Open Tool", "Tool to open is  '"&strToolName&"'", null
+    
+    GUI_List_Select SwfWindow("swfname:=MainForm").SwfTab("swfname:=toolsFormsTabControl"), "Tools"
+	'If BIZ_Tools_GetToolTitle() <> strToolName Then
+	If SwfWindow("swfname:=MainForm").SwfList("swfname:=emToolMenuBox", "index:=0").Exist(20) Then
+		GUI_List_Select SwfWindow("swfname:=MainForm").SwfList("swfname:=emToolMenuBox"), strToolName
+	End If	
+    wait 2
+	
+End Function
+
+
+
+'This function is for set cash flow 
+'@code
+'    BIZ_Tools_Prequalification_SetCashFlow(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Tools_Prequalification_SetCashFlow(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Tools_Prequalification", "Set Cash flow using Row Id '"&strRowID&"' on Tools_Prequalification page", null
+    
+	Dim objSummaryPage, objIncomePage, objData
+    Set objSummaryPage 	= SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objIncomePage 	= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=QuickEntryPopupDialog").Page("index:=0") 
+    Set objData 		= FRM_DS_GetTestData("Tools_Prequalification", "CashFlow_TotalPrimExp", strRowID)
+    
+	BIZ_Tools_Open "Prequalification"
+	
+    GUI_Image_Click objSummaryPage.WebButton("name:=","html tag:=BUTTON","index:=21").Image("file name:=edit.png|edit-over.png")
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "GrossRentIncome")) Then
+        GUI_WebEdit_Set objIncomePage.WebEdit("html id:=l_1005"), FRM_DS_GetValue(objData, "GrossRentIncome")    'GrossRentIncome
+        GUI_Object_ValidateValue objIncomePage.WebEdit("html id:=l_1005"), FormatNumber(FRM_DS_GetValue(objData, "GrossRentIncome"), 2), "Gross Rent Entered"
+    End If  
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1_1487_OccupRate")) Then
+        GUI_WebEdit_Set objIncomePage.WebEdit("html id:=l_1487"), FRM_DS_GetValue(objData, "1_1487_OccupRate")     'occup. Rate
+        GUI_Object_ValidateValue objIncomePage.WebEdit("html id:=l_1487"), FormatNumber(FRM_DS_GetValue(objData, "1_1487_OccupRate"), 2), "Occup. Rate Entered"
+    End If
+        
+    Do Until (Not SwfWindow("swfname:=MainForm").SwfWindow("swfname:=QuickEntryPopupDialog").SwfButton("swfname:=btnClose", "index:=0").Exist(1))
+        GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=QuickEntryPopupDialog").SwfButton("swfname:=btnClose", "index:=0")
+    Loop    
+	
+    Set objSummaryPage 	= Nothing
+    Set objIncomePage 	= Nothing
+	Set objData 		= Nothing
+
+End Function
+
+'@}

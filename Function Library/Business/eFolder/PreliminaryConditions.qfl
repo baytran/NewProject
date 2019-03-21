@@ -1,0 +1,277 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_eFolder_PreliminaryConditions
+'List of functions:
+'@code
+'   Function BIZ_PreliminaryConditions_Fulfilled(strConditionName)
+'   Function BIZ_PreliminaryConditions_AddNewAutomatedCondition(strConditionName,strValue)
+'	Function BIZ_PreliminaryConditions_FulfilledByConditionDescription(strConditionDescription)
+'	Function BIZ_PreliminaryConditions_AddConditionsFromSet(strRowID)
+'	Function BIZ_PreliminaryConditions_SetAllConditionsStatus(strRowID)
+'	Function BIZ_PreliminaryConditions_VerifyAllConditionStatus(strStatus)
+'	Function BIZ_PreliminaryConditions_AddDUFindings()
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is to fulfill the Condition
+'@code
+'    BIZ_PreliminaryConditions_Fulfilled(strConditionName)
+'@endcode
+'@param strConditionName The Condition Name which will be fulfilled
+
+Function BIZ_PreliminaryConditions_Fulfilled(strConditionName)
+
+	FRM_Logger_ReportInfoEvent "eFoler -> Preliminary Condtions", "Fulfill the condition '"&strConditionName&"'", Null
+
+    Dim objConditionsList,objPreliminaryDetails,objScrollBar
+    Set objConditionsList = SwfWindow("swfname:=eFolderDialog").SwfObject("swfname:=gvConditions")
+    Set objScrollBar = SwfWindow("swfname:=eFolderDialog").SwfScrollBar("swfname:=vPanelScrollBar")
+    GUI_List_ClickRow objConditionsList,objScrollBar,"Name",strConditionName,True,True,False,"Double"
+
+    Set objPreliminaryDetails = SwfWindow("swfname:=PreliminaryDetailsDialog")
+    GUI_SwfCheckbox_Set objPreliminaryDetails.SwfCheckBox("swfname:=chkFulfilled"),"ON" 
+    GUI_SwfButton_Click objPreliminaryDetails.SwfButton("swfname:=btnClose") 
+    
+    Set objPreliminaryDetails = Nothing
+    Set objConditionsList     = Nothing
+    Set objScrollBar          = Nothing
+    
+End Function
+
+
+'This function is used to add new Automated Condition rule
+'@code
+'	Function BIZ_PreliminaryConditions_AddNewAutomatedCondition(strConditionName,strValue)
+'@endcode
+'@param strConditionName - Automated Condition name that needs to be added
+'@param strValue - Value that needs to be selected
+
+Function BIZ_PreliminaryConditions_AddNewAutomatedCondition(strConditionName,strValue)
+	
+	FRM_Logger_ReportInfoEvent "Add new Automated Condition", "Add new Automated Condition in Preliminay Condition: " & strConditionName, Null
+	
+	Dim objConditionsList,objPreliminaryDetails,objScrollBar, objImportAutomatedCondition
+    Set objConditionsList = SwfWindow("swfname:=eFolderDialog").SwfObject("swfname:=gvConditions")
+    Set objScrollBar = SwfWindow("swfname:=eFolderDialog").SwfScrollBar("swfname:=vPanelScrollBar")
+    Set objImportAutomatedCondition =  SwfWindow("swfname:=eFolderDialog").SwfWindow("swfname:=AddPreliminaryDialog").SwfWindow("swfname:=AutomatedConditionDialog")
+    Set objImportConditionsList = objImportAutomatedCondition.SwfObject("swfname:=gridViewRules")
+    
+    GUI_SwfObject_Click SwfWindow("swfname:=eFolderDialog").SwfButton("swfname:=btnNew")
+    GUI_SwfRadioButton_Click SwfWindow("swfname:=eFolderDialog").SwfWindow("swfname:=AddPreliminaryDialog").SwfRadioButton("swfname:=rdoRule")
+    GUI_SwfButton_Click SwfWindow("swfname:=eFolderDialog").SwfWindow("swfname:=AddPreliminaryDialog").SwfButton("swfname:=btnOK")
+    
+    intRowCount = objImportConditionsList.Object.Items.Count
+	For i = 0 To (intRowCount - 1)		
+		If objImportConditionsList.Object.Items.Item(i).Text = strConditionName Then
+		
+			If strValue = "ON" OR strValue = "1" OR strValue = "True"  Then
+			
+			   If Not objImportConditionsList.Object.Items.Item(i).Checked Then
+					  GUI_List_ClickRow objImportConditionsList,Null,0,strConditionName,True,False,True,"Single"
+			   End If
+			   
+			ElseIf strValue = "OFF" OR strValue = "0" OR strValue = "False" Then
+			
+				   If objImportConditionsList.Object.Items.Item(i).Checked Then
+					  GUI_List_ClickRow objImportConditionsList,Null,0,strConditionName,True,False,True,"Single"
+				   End If
+			End If
+			
+		End If
+	Next
+    
+    GUI_SwfButton_Click objImportAutomatedCondition.SwfButton("swfname:=btnOK")
+    
+    Set objConditionsList 			= Nothing
+    Set objScrollBar      			= Nothing
+    Set objImportAutomatedCondition =  Nothing
+    Set objImportConditionsList     = Nothing
+    
+End Function
+
+
+
+'This function is to fulfill the Condition
+'@code
+'    BIZ_PreliminaryConditions_FulfilledByConditionDescription(strConditionDescription)
+'@endcode
+'@param strConditionDescription The Condition Description which will be fulfilled
+
+Function BIZ_PreliminaryConditions_FulfilledByConditionDescription(strConditionDescription)
+
+	FRM_Logger_ReportInfoEvent "eFoler -> Preliminary Condtions", "Fulfill the condition '"&strConditionDescription&"'", Null
+
+    Dim objConditionsList,objPreliminaryDetails,objScrollBar
+	
+    Set objConditionsList = SwfWindow("swfname:=eFolderDialog").SwfObject("swfname:=gvConditions")
+    Set objScrollBar 	  = SwfWindow("swfname:=eFolderDialog").SwfScrollBar("swfname:=vPanelScrollBar")
+    GUI_List_ClickRow objConditionsList,objScrollBar,"Description",strConditionDescription,True,True,False,"Double"
+	Wait g_TinyWaitLarge
+
+    Set objPreliminaryDetails = SwfWindow("swfname:=PreliminaryDetailsDialog")
+    GUI_SwfCheckbox_Set objPreliminaryDetails.SwfCheckBox("swfname:=chkFulfilled"),"ON" 
+	Wait g_TinyWaitLarge
+	objPreliminaryDetails.Highlight
+    GUI_SwfButton_Click objPreliminaryDetails.SwfButton("swfname:=btnClose") 
+    
+    Set objPreliminaryDetails = Nothing
+    Set objConditionsList     = Nothing
+    Set objScrollBar          = Nothing
+    
+End Function
+
+
+
+'This function is used to Add Preliminary Conditons from Condition Set on eFolder->Preliminary Conditions tab
+'@code
+'    Function BIZ_PreliminaryConditions_AddConditionsFromSet(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_PreliminaryConditions_AddConditionsFromSet(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Add Preliminary Conditions From Conditons Set", "Add Preliminary Conditions From Conditons Set using using Row Id '"&strRowID&"' in the AddConditionsFromSet datasheet", Null
+    	
+	Dim objeFolder,objAddConditionWindow,objConditionSetsDialog,objData,arrStrConditionName,strConditionSet
+	
+	Set objeFolder			   = SwfWindow("swfname:=eFolderDialog")
+	Set objAddConditionWindow  = objeFolder.SwfWindow("swfname:=AddPreliminaryDialog")
+	Set objConditionSetsDialog = objAddConditionWindow.SwfWindow("swfname:=ConditionSetsDialog")
+	Set objScrollBar 		   =  objConditionSetsDialog.SwfScrollBar("swfname:=vPanelScrollBar")
+	Set objData 			   = FRM_DS_GetTestData("eFolder_Tab","AddConditionsFromSet",strRowID)
+	arrStrConditionName 	   = Split(FRM_DS_GetValue(objData,"ConditionsName"),";")
+	strConditionSet 		   = FRM_DS_GetValue(objData,"ConditionSet")
+	
+	GUI_SwfObject_Click objeFolder.SwfObject("swfname:=btnNew")
+	Wait g_TinyWaitSmall
+    GUI_SwfRadioButton_Click objAddConditionWindow.SwfRadioButton("swfname:=rdoSet")
+    GUI_SwfButton_Click objAddConditionWindow.SwfButton("swfname:=btnOK")
+	Wait g_TinyWaitSmall
+    
+    GUI_SwfComboBox_Select objConditionSetsDialog.SwfComboBox("swfname:=cboSet"),strConditionSet
+
+    For i = 0 To UBound(arrStrConditionName) Step 1
+    	GUI_List_ClickRow objConditionSetsDialog.SwfObject("swfname:=gvAvailable"),objScrollBar,"Name",arrStrConditionName(i),True,False,False,"Single"
+        GUI_SwfButton_Click objConditionSetsDialog.SwfButton("swfname:=btnAdd")
+        Wait g_TinyWaitSmall
+    Next
+    
+    GUI_SwfButton_Click objConditionSetsDialog.SwfButton("swfname:=btnOK")
+
+	Set objeFolder             = Nothing
+	Set objScrollBar           = Nothing
+	Set objData                = Nothing 
+	Set objAddConditionWindow  = Nothing
+	Set objConditionSetsDialog = Nothing
+	
+End Function
+
+
+
+'This function is used to set status for all Conditons on eFolder->Preliminary Conditions tab
+'@code
+'    Function BIZ_PreliminaryConditions_SetAllConditionsStatus(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_PreliminaryConditions_SetAllConditionsStatus(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Set Post-Closing Conditions Status", "Set Post-Closing Conditions Status on the eFolder->Post-Closing Conditions Tab using Row Id '"&strRowID&"' in the SetAllPostClosingConditionsStatus datasheet", Null
+    
+    Dim objConditionsList,objScrollBar,objData,arrStrStatus,objConditionDetails, strConditionName
+	
+	Set objConditionsList = SwfWindow("swfname:=eFolderDialog").SwfObject("swfname:=gvConditions")
+	Set objScrollBar	  = SwfWindow("swfname:=eFolderDialog").SwfScrollBar("swfname:=vPanelScrollBar")
+	Set objData 		  = FRM_DS_GetTestData("eFolder_Tab","SetPreliminaryConditionStatus",strRowID)
+	arrStrStatus		  = Split(FRM_DS_GetValue(objData,"Status"),";")
+	
+	For i = 0 To objConditionsList.Object.Items.Count - 1 
+		GUI_List_ClickOnCell  objConditionsList,objScrollBar,i,2,True,True,False,"Double"
+		Set objConditionDetails = SwfWindow("swfname:=PreliminaryDetailsDialog")
+		objConditionDetails.Maximize
+		strConditionName = objConditionDetails.WinEdit("nativeclass:=Edit").GetROProperty("text")
+		
+		For j = 0 To UBound(arrStrStatus)
+		    Select Case arrStrStatus(j)
+		    	   Case "Fullfilled"
+		    	        GUI_SwfCheckBox_Set objConditionDetails.SwfCheckBox("swfname:=chkFulfilled"),"ON"
+						 FRM_Logger_ReportInfoEvent "Set Post-Closing Conditions Status", strConditionName & " is fullfilled", Null
+		    End Select
+	    Next
+     
+        GUI_SwfButton_Click objConditionDetails.SwfButton("swfname:=btnClose")
+	Next
+	
+    Set objConditionDetails = Nothing 
+    Set objConditionsList   = Nothing
+    Set objScrollBar = Nothing
+    Set objData      = Nothing
+    
+End Function
+
+
+
+'This function is used to set status for all Conditons on eFolder->Preliminary Conditions tab
+'@code
+'    Function BIZ_PreliminaryConditions_VerifyAllConditionStatus(strStatus)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_PreliminaryConditions_VerifyAllConditionStatus(strStatus)
+
+	Dim blnConditionFullfilled, ConditionName
+	blnConditionFullfilled = True
+	
+	For RowNumber = 0 To RowCount -1  Step 1
+		strConditionName = GUI_List_GetCellData(SwfWindow("swfname:=eFolderDialog").SwfObject("swfname:=gvConditions"), RowNumber, 7)
+		
+		If (strConditionName <> strStatus) Then
+			blnConditionFullfilled = False
+		End If
+	Next
+
+	If (blnConditionFullfilled = True) Then 
+		FRM_Logger_ReportPassEvent "Check the " & strStatus & " condition for each Preliminary Condtion", "Preliminary Conditions are ", Null
+	Else
+		FRM_Logger_ReportPassEvent "Check the " &strStatus& " condition for each Preliminary Condtion", "Preliminary Conditions are not fulfilled", Null
+	End If
+	
+End Function
+
+
+'This function is used to add DU Findings 
+'@code
+'    Function BIZ_PreliminaryConditions_AddDUFindings()
+'@endcode
+Function BIZ_PreliminaryConditions_AddDUFindings()
+
+	Set objPreliminaryDialog = SwfWindow("swfname:=eFolderDialog").SwfWindow("swfname:=AddPreliminaryDialog")
+	Set objImportCondition   =  objPreliminaryDialog.SwfWindow("swfname:=ImportConditionsDialog")
+	Set objLVconditions      = objImportCondition.SwfListView("swfname:=lvConditions")
+	BIZ_Nav_eFoler_Open
+
+	'Add Preliminary Conditions in eFolder 
+	GUI_SwfTab_Click SwfWindow("swfname:=eFolderDialog").SwfTab("swfname:=tabMain"), "Preliminary Conditions"
+	GUI_SwfObject_Click SwfWindow("swfname:=eFolderDialog").SwfButton("swfname:=btnNew")
+	
+	If (GUI_Object_IsExistX(objPreliminaryDialog, 50))Then  
+		'Check radio option for "Add Conditions from DU findings
+		FRM_Logger_ReportPassEvent "Go to e-folder and click preliminary conditions.Click add", "Add condition pop up window should open", Null
+		Wait g_TinyWaitSmall 'wait for object to appear
+		GUI_SwfRadioButton_Click objPreliminaryDialog.SwfRadioButton("swfname:=rdoFannieMae")
+		GUI_SwfButton_Click objPreliminaryDialog.SwfButton("swfname:=btnOK")
+		GUI_List_Select objLVconditions,1
+		GUI_SwfButton_Click objImportCondition.SwfButton("swfname:=btnImport")
+	End If
+	FRM_Logger_ReportInfoEvent "Select add conditions from DU findings radio button and click 'Ok'", "Condition should be added", Null
+	'Close eFolder
+	BIZ_Nav_eFoler_Close
+	
+	Set objPreliminaryDialog = Nothing
+	Set objImportCondition   =  Nothing
+	Set objLVconditions      = Nothing
+End Function
+
+
+
+'@}	

@@ -1,0 +1,130 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_ClosingConditions BIZ_Forms_ClosingConditions
+'
+' List of functions here
+' @code
+'   Function BIZ_ClosingDisclosurePage3_SetClosingConditons(strRowID)
+'   Function BIZ_ClosingConditions_SetClosingConditionsData(strRowID)
+'   Function BIZ_ClosingConditions_AddClosingConditions(strRowID)
+
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is use to set test data for Closing Conditions.
+'@code
+'    BIZ_ClosingDisclosurePage3_SetClosingConditons(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ClosingDisclosurePage3_SetClosingConditons(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Set Closing Conditions", "Set data using Row Id '"&strRowID&"' in the Forms_ClosingDisclosurePage datasheet", null
+
+    Dim objClosingConditoins, objData
+    Set objClosingConditoins = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Forms_ClosingConditions", "SetClosingConditions", strRowID)
+    
+    If FRM_DS_TestDataColumnExists(objData, "L827_DrawCity") Then
+		GUI_WebEdit_Set objClosingConditoins.WebEdit("html id:=l_L827"), FRM_DS_GetValue(objData, "L827_DrawCity")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "L812_DrawState") Then
+		GUI_WebEdit_Set objClosingConditoins.WebEdit("html id:=l_L812"), FRM_DS_GetValue(objData, "L812_DrawState")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "1949_ClosingCountry") Then
+		GUI_WebEdit_Set objClosingConditoins.WebEdit("html id:=l_1949"), FRM_DS_GetValue(objData, "1949_ClosingCountry")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "1952_ClosingState") Then
+		GUI_WebEdit_Set objClosingConditoins.WebEdit("html id:=TextBox1"), FRM_DS_GetValue(objData, "1952_ClosingState")
+	End If
+    
+    Set objClosingConditoins = Nothing
+    Set objData = Nothing
+
+End Function
+
+
+
+'This function is use to set Closing Conditions data.
+'@code
+'    BIZ_ClosingConditions_SetClosingConditionsData(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ClosingConditions_SetClosingConditionsData(strRowID)
+FRM_Logger_ReportInfoEvent "Set Closing Conditions data", "Set data using Row Id '"&strRowID&"' in the SetClosingConditions datasheet", null
+
+    Dim objClosingConditions, objData
+    Set objClosingConditions = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Forms_ClosingConditions", "SetClosingConditions", strRowID)
+    
+    If FRM_DS_TestDataColumnExists(objData, "L827_DrawCity") Then
+		GUI_WebEdit_Set objClosingConditions.WebEdit("html id:=l_L827"), FRM_DS_GetValue(objData, "L827_DrawCity")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "L812_DrawState") Then
+		GUI_WebEdit_Set objClosingConditions.WebEdit("html id:=l_L812"), FRM_DS_GetValue(objData, "L812_DrawState")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "1949_ClosingCountry") Then
+		GUI_WebEdit_Set objClosingConditions.WebEdit("html id:=l_1949"), FRM_DS_GetValue(objData, "1949_ClosingCountry")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "1952_ClosingState") Then
+		GUI_WebEdit_Set objClosingConditions.WebEdit("html id:=TextBox1"), FRM_DS_GetValue(objData, "1952_ClosingState")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "1950_HoursDocumentsNeeded") Then
+		GUI_WebEdit_Set objClosingConditions.WebEdit("html id:=l_1950"), FRM_DS_GetValue(objData, "1950_HoursDocumentsNeeded")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "L493_TermitReportRequired") Then
+		GUI_WebList_Select objClosingConditions.WebList("html id:=DropdownBox1"), FRM_DS_GetValue(objData, "L493_TermitReportRequired")
+	End If
+	If FRM_DS_TestDataColumnExists(objData, "1952_ClosingInstructions") Then
+		GUI_WebEdit_Set objClosingConditions.WebEdit("html id:=MultilineTextBox1"), FRM_DS_GetValue(objData, "1952_ClosingInstructions")
+	End If
+    Set objClosingConditions = Nothing
+    Set objData = Nothing	
+    
+End Function
+
+
+
+'This function is use to add Closing Conditions.
+'@code
+'    BIZ_ClosingConditions_AddClosingConditions(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ClosingConditions_AddClosingConditions(strRowID)
+    FRM_Logger_ReportInfoEvent "Closing Conditions", "Add Closing Instructions/Conditions using Row Id '"&strRowID&"' in the AddClosingConditions datasheet", null
+    
+    Dim objConditionList, arrStrCondition,objData,objCCCopyDialog,objCCAddDialog,objScrollBar
+    Set objData = FRM_DS_GetTestData("Forms_ClosingConditions", "AddClosingConditions", strRowID)
+    arrStrCondition = Split(FRM_DS_GetValue(objData,"Conditions"), ";")
+    
+    GUI_WebButton_Click SwfWindow("swfname:=MainForm").Page("index:=0").WebButton("html id:=btnNew")
+    Set objCCCopyDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ClosingConditionCopyDialog")
+    GUI_SwfButton_Click objCCCopyDialog.SwfButton("swfname:=okBtn")
+    
+    Set objCCAddDialog = objCCCopyDialog.SwfWindow("swfname:=ClosingConditionAddDialog")
+    Set objConditionList = objCCAddDialog.SwfObject("swfname:=gvAvailable")
+    'Set objScrollBar = objCCAddDialog.SwfScrollBar("vPanelScrollBar")
+	
+	'Select required Cond. Set folder to add conditions
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"Cond. Set")) Then
+		GUI_SwfComboBox_Select objCCAddDialog.SwfComboBox("swfname:=cboSet"),FRM_DS_GetValue(objData,"Cond. Set")
+    End If
+	
+    For i = LBound(arrStrCondition) To UBound(arrStrCondition)
+        GUI_List_ClickRow objConditionList,Null,"Name",arrStrCondition(i),True,False,False,"Single"
+        GUI_SwfButton_Click objCCAddDialog.SwfButton("swfname:=btnAdd")
+    Next
+    GUI_SwfButton_Click objCCAddDialog.SwfButton("swfname:=btnOK")
+   
+    Set objConditionList = Nothing
+    Set objScrollBar = Nothing
+    Set objCCCopyDialog = Nothing
+    Set objCCAddDialog = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'@}

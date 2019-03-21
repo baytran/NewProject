@@ -1,0 +1,156 @@
+''''''''''''''''''''''''''''''''''''''''''
+'@defgroup GUI_Object_Debug GUI_Object
+'
+' List of functions here
+' @code
+'
+'	Function GUI_Object_DebugChildren_ByMicClass(objParent, strMicClass)
+'	Function GUI_Object_DebugChildren_ByMicClassIndex(objParent, strMicClass, intIndex)
+'	Function GUI_Object_DebugChildren(objParent, objPropMap)
+'	Function GUI_Object_DebugProperties(obj)
+'	Function GUI_Object_WriteToDebugFile(strText)
+'	Function GUI_Object_IdentificationProperties(strMicclass)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Debug object properties by MicClass
+'@code
+'   GUI_Object_DebugChildren_ByMicClass SwfWindow("swfname:=MainForm").Page("index:=0"), "WebEdit"
+'@endcode
+'@param objParent parent object
+'@param strMicClass micclass of the searched object
+
+Function GUI_Object_DebugChildren_ByMicClass(objParent, strMicClass)
+
+    GUI_Object_WriteToDebugFile "GetROProperty for Object micClass=" & strMicClass 
+    
+    Set objPropMap = CreateObject("scripting.dictionary")
+    objPropMap.add "micclass",strMicClass
+    GUI_Object_DebugChildren objParent, objPropMap
+    
+End Function
+
+
+
+'Debug object properties by MicClass and index
+'@code
+'   GUI_Object_DebugChildren_ByMicClassIndex SwfWindow("swfname:=MainForm").Page("index:=0"), "WebEdit", 4
+'@endcode
+'@param objParent parent object
+'@param strMicClass micclass of the searched object
+'@intIndex index of the searched object
+
+Function GUI_Object_DebugChildren_ByMicClassIndex(objParent, strMicClass, intIndex)
+
+    GUI_Object_WriteToDebugFile "GetROProperty for Object micClass=" & strMicClass & ", index=" & intIndex 
+    
+    Set objPropMap = CreateObject("scripting.dictionary")
+    objPropMap.add "micclass",strMicClass
+    
+    Set desc = Description.Create()
+    For each strKey in objPropMap
+        If objPropMap.exists(strKey) Then desc(strKey).value = objPropMap(strKey)
+    Next 
+    
+    Set cl = objParent.ChildObjects(desc)     
+    If Cint(intIndex) <= cl.count Then 
+        Set obj = cl(intIndex)    
+        GUI_Object_DebugProperties obj
+    End If
+    Set cl = Nothing
+    Set desc = Nothing    
+End Function
+
+
+
+'Debug object properties by provided properties
+'@code
+'   Set propMap = CreateObject("scripting.dictionary")
+'   propMap.add "text", "Close"
+'   propMap.add "micclass", "SwfButton"
+'
+'   GUI_Object_DebugChildren SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer"), propMap
+'@endcode
+'@param objParent parent object
+'@param objPropMap Dictionary object of properties
+
+Function GUI_Object_DebugChildren(objParent, objPropMap)
+
+    Set desc = Description.Create()
+    For each strKey in objPropMap
+        If objPropMap.exists(strKey) Then desc(strKey).value = objPropMap(strKey)
+    Next 
+    
+    Set cl = objParent.ChildObjects(desc)   
+    GUI_Object_WriteToDebugFile "Total number of children found - " & cl.count   
+    For intIdx = 0 to cl.count - 1
+        GUI_Object_WriteToDebugFile "!---- Object index " & intIdx & "----!"
+        GUI_Object_DebugProperties( cl(intIdx) )
+    Next 
+    Set cl = Nothing
+    Set desc = Nothing
+End Function
+
+
+
+'Debug runtime properties of an object
+'@param obj object to be debugged
+
+Function GUI_Object_DebugProperties(obj)
+
+    On Error Resume Next
+    'If GUI_Object_IsExist(obj) Then 
+        
+        arrNames = GUI_Object_IdentificationProperties(obj.GetROProperty("micclass"))
+        For i = 0 to UBound(arrNames)
+            'sNamesTO = sNamesTO & vbTab & arrNames(i) & ": " & obj.GetTOProperty(arrNames(i)) & ";" &vbTab
+            sNamesRO = sNamesRO & vbTab & arrNames(i) & ": " & obj.GetROProperty(arrNames(i)) & ";" &vbTab                       
+        Next
+        'sNamesTO = sNamesTO 
+        sNamesRO = sNamesRO 
+        'GUI_Object_WriteToDebugFile "Object Test properties - " & sNamesTO
+        GUI_Object_WriteToDebugFile "Object Runtime properties - " & sNamesRO 
+        GUI_Object_WriteToDebugFile "==========================================================================="
+    'End If
+    If Err.Number <> 0 Then
+        GUI_Object_WriteToDebugFile "Error trying to read object properties, Err.Number-" & Err.Number & ", Err.Description-" & Err.Description
+    End If 
+    On Error GoTo 0
+    
+End Function
+
+
+
+'Log a text line to the file
+'@param strText text to be written
+
+Function GUI_Object_WriteToDebugFile(strText)
+
+    strFileName = "GUObjectDebug-" & UTIL_Date_FormatDateByPattern(now, "mmddyyyy") & ".txt"
+    strFilePath = FRM_RT_ReportDirPath + strFileName    
+    UTIL_File_CreateTextFileIfNotExist strFilePath
+    
+    UTIL_File_AppendingText strFilePath, cstr(Time) & ": " & strText & vbNewLine
+        
+End Function 
+
+
+
+'Get all the identificatio properties of a micclass
+'@param strMicclass micclass
+
+Function GUI_Object_IdentificationProperties(strMicclass)
+    Const HKEY_LOCAL_MACHINE = &H80000002
+    Set oReg = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\default:StdRegProv")
+
+    sKeyPath = "SOFTWARE\Mercury Interactive\QuickTest Professional\MicTest\Test Objects\" & strMicclass & "\Properties"
+    oReg.EnumValues HKEY_LOCAL_MACHINE, sKeyPath, arrNames
+    
+    GUI_Object_IdentificationProperties = arrNames
+    
+End Function 
+
+
+'@}

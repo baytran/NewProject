@@ -1,0 +1,155 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_AffiliatedBusinessArrangements BIZ_Forms_AffiliatedBusinessArrangements
+'
+'List of functions here
+'@code
+'	Function BIZ_AffiliatedBusinessArrangements_AddNewAffiliate(strRowID)
+'   Function BIZ_Common_AffiliatedBusinessArrangements_AddNewAffiliate(objParentObject, strRowID)
+'	Function BIZ_Verify_AffiliatedBusinessArrangements_AffiliateDetail(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for Adding a new affiliate
+'@code
+'    BIZ_AffiliatedBusinessArrangements_AddNewAffiliate(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_AffiliatedBusinessArrangements_AddNewAffiliate(strRowID)
+	
+	FRM_Logger_ReportInfoEvent "Affiliated Business Arrangements", "Set Affiliated Business Arrangements data using Row Id '"&strRowID&"'", null
+    
+    GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnIconAdd")
+    Set objPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+	BIZ_Common_AffiliatedBusinessArrangements_AddNewAffiliate objPage, strRowID	 
+	
+	Set objPage = Nothing	
+      
+End Function	
+
+
+
+'This function is for set information on Affiliated Business Arrangements form
+'@code
+'    BIZ_Common_AffiliatedBusinessArrangements_AddNewAffiliate(objParentObject, strRowID)
+'@endcode
+'@param objParentObject the Parent Object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_AffiliatedBusinessArrangements_AddNewAffiliate(objParentObject, strRowID)
+    
+    Set objData = FRM_DS_GetTestData("Forms_AffiliatedBusinessArrangements", "AffiliatedBusinessArrangement", strRowID)
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LenderName")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox1","index:=0"), FRM_DS_GetValue(objData, "LenderName") 	'LenderName
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Address") ) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox4","index:=0"), FRM_DS_GetValue(objData, "Address") 	'Address
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Zip")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_ABX5","index:=0"), FRM_DS_GetValue(objData, "Zip") 	'Zip
+	End If   
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AffiliateName")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox2","index:=0"), FRM_DS_GetValue(objData, "AffiliateName") 	'AffiliateName
+	End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "NatureOfRelationship")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox3","index:=0"), FRM_DS_GetValue(objData, "NatureOfRelationship") 	'NatureOfRelationship
+	End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PercentageOfOwnershipInterest")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox7","index:=0"), FRM_DS_GetValue(objData, "PercentageOfOwnershipInterest") 	'PercentageOfOwnershipInterest
+	End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Settlement")) Then		
+		GUI_WebCheckBox_Set objParentObject.WebCheckBox("html id:=__cid_CheckBox2_Ctrl","index:=0"), Cint(FRM_DS_GetValue(objData, "Settlement")) 'Settlement
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PurchaseSaleRefinance")) Then		
+		GUI_WebCheckBox_Set objParentObject.WebCheckBox("html id:=__cid_CheckBox1_Ctrl","index:=0"), Cint(FRM_DS_GetValue(objData, "PurchaseSaleRefinance")) 'PurchaseSaleRefinance
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine1Desc")) then 
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_ABX10","index:=0"), FRM_DS_GetValue(objData, "ServiceLine1Desc")   'ServiceLine1Desc
+	End if	  
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine1Charge")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_AFFX8","index:=0"), FRM_DS_GetValue(objData, "ServiceLine1Charge")	'ServiceLine1Charge
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine1RequiredUse")) Then		
+		GUI_WebCheckBox_Set objParentObject.WebCheckBox("html id:=__cid_CheckBox3_Ctrl","index:=0"), Cint(FRM_DS_GetValue(objData, "ServiceLine1RequiredUse")) 'ServiceLine1RequiredUse
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine2Desc")) then 
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_ABX11","index:=0"), FRM_DS_GetValue(objData, "ServiceLine2Desc")  'ServiceLine2Desc
+	End if	  
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine2Charge")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_AFFX10","index:=0"), FRM_DS_GetValue(objData, "ServiceLine2Charge")	'ServiceLine2Charge
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine2RequiredUse")) Then		
+		GUI_WebCheckBox_Set objParentObject.WebCheckBox("html id:=__cid_CheckBox4_Ctrl","index:=0"), Cint(FRM_DS_GetValue(objData, "ServiceLine2RequiredUse")) 'ServiceLine2RequiredUse
+	End If
+
+	Set objData = Nothing		
+    
+End Function
+
+
+
+'This function is for verify information on Affiliated Business Arrangements form
+'@code
+'    BIZ_Verify_AffiliatedBusinessArrangements_AffiliateDetail(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Verify_AffiliatedBusinessArrangements_AffiliateDetail(strRowID)
+    
+    FRM_Logger_ReportInfoEvent "Affiliated Business Arrangements", "Verify Affiliated Business Arrangement data using Row Id '"&strRowID&"'", null
+    
+    Set objParentObject = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Forms_AffiliatedBusinessArrangements", "AffiliatedBusinessArrangement", strRowID)
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LenderName")) Then	
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=TextBox1","index:=0"), FRM_DS_GetValue(objData, "LenderName"), "LenderName"
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Address") ) Then	
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=TextBox4","index:=0"), FRM_DS_GetValue(objData, "Address"), "Address"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Zip")) Then	
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=l_ABX5","index:=0"), FRM_DS_GetValue(objData, "Zip"), "Zip"
+	End If   
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AffiliateName")) Then	
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=TextBox2","index:=0"), FRM_DS_GetValue(objData, "AffiliateName"), "AffiliateName"
+	End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "NatureOfRelationship")) Then	
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=TextBox3","index:=0"), FRM_DS_GetValue(objData, "NatureOfRelationship"), "NatureOfRelationship"
+	End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PercentageOfOwnershipInterest")) Then	
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=TextBox7","index:=0"), FRM_DS_GetValue(objData, "PercentageOfOwnershipInterest"), "PercentageOfOwnershipInterest"
+	End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Settlement")) Then		
+		GUI_Object_ValidateProperty objParentObject.WebCheckBox("html id:=__cid_CheckBox2_Ctrl","index:=0"), "checked", FRM_DS_GetValue(objData, "Settlement"), "Settlement"
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PurchaseSaleRefinance")) Then		
+		GUI_Object_ValidateProperty objParentObject.WebCheckBox("html id:=__cid_CheckBox1_Ctrl","index:=0"), "checked", FRM_DS_GetValue(objData, "PurchaseSaleRefinance"), "PurchaseSaleRefinance"
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine1Desc")) then 
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=l_ABX10","index:=0"), FRM_DS_GetValue(objData, "ServiceLine1Desc"), "ServiceLine1Desc"
+	End if	  
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine1Charge")) Then	
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=l_AFFX8","index:=0"), FRM_DS_GetValue(objData, "ServiceLine1Charge"), "ServiceLine1Charge"
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine1RequiredUse")) Then		
+		GUI_Object_ValidateProperty objParentObject.WebCheckBox("html id:=__cid_CheckBox3_Ctrl","index:=0"), "checked", FRM_DS_GetValue(objData, "ServiceLine1RequiredUse"), "ServiceLine1RequiredUse"
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine2Desc")) then 
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=l_ABX11","index:=0"), FRM_DS_GetValue(objData, "ServiceLine2Desc"), "ServiceLine2Desc"
+	End if	  
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine2Charge")) Then	
+		GUI_Object_ValidateValue objParentObject.WebEdit("html id:=l_AFFX10","index:=0"), FRM_DS_GetValue(objData, "ServiceLine2Charge"), "ServiceLine2Charge"
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceLine2RequiredUse")) Then		
+		GUI_Object_ValidateProperty objParentObject.WebCheckBox("html id:=__cid_CheckBox4_Ctrl","index:=0"), "checked", FRM_DS_GetValue(objData, "ServiceLine2RequiredUse"), "ServiceLine2RequiredUse"
+	End If
+    
+	Set objData = Nothing
+    Set objParentObject = Nothing
+
+End Function
+
+
+
+'@}

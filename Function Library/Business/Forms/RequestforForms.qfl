@@ -1,0 +1,42 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_RequestforCopyofTaxReturn BIZ_Forms_RequestforTranscriptofTax
+'
+' List of functions here
+'@code
+'   Function BIZ_RequestforCopyofTaxReturn_SetAllField(strFormName, strRowID)
+'   Function BIZ_Common_RequestforCopyofTaxReturn_SetAllField(objParentObject, strRowID)
+'   Function BIZ_RequestforTranscriptofTax_SetAllField(strFormName, strRowID)
+'   Function BIZ_Common_RequestforTranscriptofTax_SetAllField(objParentObject, strRowID)
+'   Function BIZ_Verify_RequestforCopyofTaxReturn_TaxDetail(strRowID)
+'   Function BIZ_Verify_RequestforTranscriptofTax_TaxDetail(strRowID)
+'   Function BIZ_RequestforTranscripOfTax_NewFormNUpdateNSaveDetails(strFormName)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+
+'This function is used to Copy the Borrower, Co-Borrower Details 
+'@code
+'    Function BIZ_RequestforTranscripOfTax_NewFormNUpdateNSaveDetails(strFormName)
+'@endcode
+'@param strFormName The name of the form
+
+Function BIZ_RequestforTranscripOfTax_NewFormNUpdateNSaveDetails(strFormName)
+	FRM_Logger_ReportInfoEvent "Request for Transcript of Tax "& strFormName, "Create a New Form And Update the Details for Form "&strFormName, null
+    	
+	BIZ_Forms_Open "Request for Transcript of Tax"
+
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnNew")
+
+	Set RequestForCopyOfTranscriptFrom = SwfWindow("swfname:=MainForm").Page("index:=0")
+	GUI_WebList_Select RequestForCopyOfTranscriptFrom.WebList("html id:=DropdownBox1"), "Borrower"
+	GUI_WebButton_Click RequestForCopyOfTranscriptFrom.WebButton("html id:=Button1")
+	GUI_WebList_Select RequestForCopyOfTranscriptFrom.WebList("html id:=DropdownBox1"), "Co-Borrower"
+	GUI_WebButton_Click RequestForCopyOfTranscriptFrom.WebButton("html id:=Button1")
+
+	GUI_WebList_Select RequestForCopyOfTranscriptFrom.WebList("html id:=DropdownBox1"), "Both"
+	GUI_WebButton_Click RequestForCopyOfTranscriptFrom.WebButton("html id:=Button1")
+End Function
+
+'@}

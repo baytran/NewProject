@@ -1,0 +1,127 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_ClosingVendorInformation BIZ_Forms_ClosingVendorInformation
+'
+' List of functions here
+' @code
+'   Function BIZ_ClosingVendorInformation_SetTitleInsuranceCompany(strRowID)
+'   Function BIZ_ClosingVendorInformation_SetEscrowCompany(strRowID)
+'   Function BIZ_ClosingVendorInformation_SetDocsPreparedBy(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is to Set Title Insurance Company data
+'@code
+'    BIZ_ClosingVendorInformation_SetTitleInsuranceCompany(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ClosingVendorInformation_SetTitleInsuranceCompany(strRowID)
+    FRM_Logger_ReportInfoEvent "Set Title Insurance Company data", "Set data using Row Id '"&strRowID&"' in the SetTitleInsuranceCompany datasheet", null
+
+    Dim objClosingVendorInfoPage, objData
+    Set objClosingVendorInfoPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Forms_ClosingVendorInformation", "SetTitleInsuranceCompany", strRowID)
+    
+    If FRM_DS_TestDataColumnExists(objData, "411_CompanyName") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_411"), FRM_DS_GetValue(objData, "411_CompanyName")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "412_Address") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_412"), FRM_DS_GetValue(objData, "412_Address")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "413_City") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_413"), FRM_DS_GetValue(objData, "413_City")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "1174_State") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_1174"), FRM_DS_GetValue(objData, "1174_State")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "414_Zip") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_414"), FRM_DS_GetValue(objData, "414_Zip")
+	End If
+	If FRM_DS_TestDataColumnExists(objData, "416_OfficerName") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_416"), FRM_DS_GetValue(objData, "416_OfficerName")
+	End If
+    
+	
+    Set objClosingVendorInfoPage = Nothing
+    Set objData = Nothing	
+End Function
+
+
+
+'This function is to set data for Escrow Company Section in Closing Vendor Information
+'@code
+'    BIZ_ClosingVendorInformation_SetEscrowCompany(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ClosingVendorInformation_SetEscrowCompany(strRowID)
+    FRM_Logger_ReportInfoEvent "Set Escrow Company data", "Set data using Row Id '"&strRowID&"' in the SetEscrowCompany datasheet", null
+
+    Dim objClosingVendorInfoPage, objData
+    Set objClosingVendorInfoPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Forms_ClosingVendorInformation", "SetEscrowCompany", strRowID)
+    
+    If FRM_DS_TestDataColumnExists(objData, "610_CompanyName") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_610"), FRM_DS_GetValue(objData, "610_CompanyName")
+	End If
+	If FRM_DS_TestDataColumnExists(objData, "611_OfficerName") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_611"), FRM_DS_GetValue(objData, "611_OfficerName")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "612_Address") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_612"), FRM_DS_GetValue(objData, "612_Address")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "613_City") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_613"), FRM_DS_GetValue(objData, "613_City")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "1175_State") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_1175"), FRM_DS_GetValue(objData, "1175_State")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "614_Zip") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_614"), FRM_DS_GetValue(objData, "614_Zip")
+	End If
+    
+	
+    Set objClosingVendorInfoPage = Nothing
+    Set objData = Nothing		
+End Function
+
+
+
+'This function is to set Date For Docs Prepared By Section in Closing Vendor Information
+'@code
+'    BIZ_ClosingVendorInformation_SetDocsPreparedBy(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ClosingVendorInformation_SetDocsPreparedBy(strRowID)
+    FRM_Logger_ReportInfoEvent "Set Docs Prepared By data", "Set data using Row Id '"&strRowID&"' in the SetDocsPreparedBy datasheet", null
+
+    Dim objClosingVendorInfoPage, objData
+    Set objClosingVendorInfoPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Forms_ClosingVendorInformation", "SetDocsPreparedBy", strRowID)
+    
+    If FRM_DS_TestDataColumnExists(objData, "VENDX310_CompanyName") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_VENDX310"), FRM_DS_GetValue(objData, "VENDX310_CompanyName")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "VENDX311_Address") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_VENDX311"), FRM_DS_GetValue(objData, "VENDX311_Address")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "VENDX312_City") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_VENDX312"), FRM_DS_GetValue(objData, "VENDX312_City")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "VENDX313_State") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_VENDX313"), FRM_DS_GetValue(objData, "VENDX313_State")
+	End If
+    If FRM_DS_TestDataColumnExists(objData, "VENDX314_Zip") Then
+		GUI_WebEdit_Set objClosingVendorInfoPage.WebEdit("html id:=l_VENDX314"), FRM_DS_GetValue(objData, "VENDX314_Zip")
+	End If
+    
+	
+    Set objClosingVendorInfoPage = Nothing
+    Set objData = Nothing	
+End Function
+
+
+
+'@}

@@ -1,0 +1,204 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: DatabaseUtil UTIL_DatabaseUtil
+' This is the function group for loading, reading and updating Xml.
+'
+' List of functions here
+' @code
+'   Function UTIL_DB_Select_Oracle(strHost,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+'   Function UTIL_DB_SelectSingle_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+'   Function UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, intNumRows)
+'   Function UTIL_DB_ExecuteQuery(strHost ,strPort,strSID,strUser,strPassword,strSQL)
+'	Function UTIL_Excel_ExecuteUpdateQuery(tstDataFile,strSQL)
+' @endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+
+'This function is to retrieve data from the Oracle Database.
+'@code
+'    UTIL_DB_Select_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+'@endcode
+'@param strHost the host URL
+'@param strPort the port number
+'@param strSID the SID 
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+'@param arrFieldsToRetrieve the array of fields to be retrieved. Can be array or NULL, if null, <br>
+'                           uses columns specified in the select query
+'@return an array of Dictionary objects, each Dictionary object's key is the column name, value is column value  
+'@see UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, intFirstNumRows)
+
+Function UTIL_DB_Select_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+    UTIL_DB_Select_Oracle = UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, -1)
+End Function
+
+
+
+'This function is to retrieve data from the Oracle Database.
+'@code
+'    UTIL_DB_SelectSingle_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+'@endcode
+'@param strHost the host URL
+'@param strPort the port number
+'@param strSID the SID 
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+'@param arrFieldsToRetrieve the array of fields to be retrieved. Can be array or NULL, if null, <br>
+'                           uses columns specified in the select query
+'@return a Dictionary objects, each Dictionary object's key is the column name, value is column value  
+'@see UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, intFirstNumRows)
+
+Function UTIL_DB_SelectSingle_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+    UTIL_DB_SelectSingle_Oracle = UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, 1)
+End Function
+
+
+
+'This function is to retrieve data from the Oracle Database.
+'@code
+'	strHost = "lbpsrt4172vm01.bto.ibm.com"
+'   strPort = "1521"
+'   strSID = "IMPACTCORE"
+'   strUser = "VPORTLD2"
+'   strPassword = "password"
+'   fld1 = "BIZ_Loan_NO"
+'   fld2 = "REGZ_APL_DT"
+'   fld3 = "RESPA_VER"
+'   strLoanNbr  ="990662593"  
+'   SQL Example #1 strSQL= "select " &  fld1 & "," & fld2 & "  from loans where BIZ_Loan_NO = " &  "'" & strLoanNbr & "'"
+'   SQL Example #2 strSQL= "select * from loans where BIZ_Loan_NO = " &  "'" & strLoanNbr & "'"
+'   SQL Example #3 strSQL= "select BIZ_Loan_NO,REGZ_APL_DT,RESPA_VER from loans where BIZ_Loan_NO = " &  "'" & strLoanNbr & "'"
+'   
+'   Call Example #1 OutTable = UTIL_DB_Select_Oracle(strHost,strPort,strSID,strUser,strPassword,strSQL,Array(fld1,fld2,fld3))
+'   Call Example #2 OutTable = UTIL_DB_Select_Oracle(strHost,strPort,strSID,strUser,strPassword,strSQL,NULL)
+'
+'   Display Example #1 msgbox OutTable(0).Item("BIZ_Loan_NO")
+'
+'   Display Example #2 for i = 0  to ubound(OutTable) - 1
+'                          msgbox  OutTable(i).Item("BIZ_Loan_NO") & "  "  & OutTable(i).Item("REGZ_APL_DT")
+'                      next
+'@endcode
+'@param strHost the host URL
+'@param strPort the port number
+'@param strSID the SID 
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+'@param arrFieldsToRetrieve the array of fields to be retrieved. Can be array or NULL, if null, <br>
+'                           uses columns specified in the select query
+'@param intNumRows number of rows to retrieve, if -1, all rows are returned
+'@return an array of Dictionary objects, each Dictionary object's key is the column name, value is column value  
+
+Function UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, intNumRows)
+      
+    strConnectionString ="Provider=OraOLEDB.Oracle; Data Source=" & _
+                      "(DESCRIPTION=(CID=GTU_APP)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="&strHost&")"  & _ 
+					  "(PORT="&strPort&")))(CONNECT_DATA=(SID="&strSID&")(SERVER=DEDICATED)));" & _
+                      "User Id="&strUser&";Password="&strPassword&";"
+
+    If  isArray(arrFieldsToRetrieve) Then
+        arrMyFields = arrFieldsToRetrieve
+    Else
+        strFieldsList = Trim(Replace(Replace(UTIL_String_FirstMatch (UCase(strSQL),"SELECT.*FROM"),"SELECT",""),"FROM",""))
+        arrMyFields = Split(strFieldsList,",")
+    End If
+
+	Set objConnection = CreateObject("ADODB.Connection")     
+	objConnection.Open strConnectionString 
+    Set objRows = objConnection.Execute(strSQL)	
+    
+    arrDictionRowTemp = Array(0)
+    intRow = 0    
+    Do While ( Not objRows.EOF And (intNumRows = -1 Or intRow<intNumRows) ) 
+
+		ReDim Preserve arrResultHolder(intRow)
+        Set arrDictionRowTemp(0) = CreateObject("Scripting.Dictionary")
+                
+	    For intLoop = 0 To Ubound(arrMyFields) 		
+            strKey = trim(arrMyFields(intLoop))
+            strValue = objRows.Fields(strKey).Value
+            arrDictionRowTemp(0).Add strKey, strValue
+        Next 
+		Set arrResultHolder(intRow) = arrDictionRowTemp(0)     
+        Set arrDictionRowTemp(0) = Nothing
+        
+        objRows.MoveNext 
+		intRow =  intRow + 1
+    Loop	
+
+    UTIL_DB_SelectRows_Oracle = arrResultHolder
+End Function
+
+
+
+'This function is to execute the qry that sent as a parameter string
+'@code
+'    UTIL_DB_ExecuteQuery(strHost ,strPort,strSID,strUser,strPassword,strSQL)
+'@endcode
+'@param strHost the host URL
+'@param strPort the port number
+'@param strSID the SID 
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+
+Function UTIL_DB_ExecuteQuery(strHost ,strPort,strSID,strUser,strPassword,strSQL)
+
+    strConnectionString ="Provider=OraOLEDB.Oracle; Data Source=" & _
+    "(DESCRIPTION=(CID=GTU_APP)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="&strHost&")"  & _ 
+    "(PORT="&strPort&")))(CONNECT_DATA=(SID="&strSID&")(SERVER=DEDICATED)));" & _
+    "User Id="&strUser&";Password="&strPassword&";"    
+    
+    Set objConnection = CreateObject("ADODB.Connection")     
+    objConnection.Open strConnectionString 
+    Set res = objConnection.Execute(strSQL)
+    
+    objConnection.close
+    Set objConnection=Nothing
+    
+    Set UTIL_DB_ExecuteQuery = res
+End Function 
+
+'This function is to execute the update qry that sent as a parameter string
+'@code
+'    UTIL_DB_ExecuteQuery(tstDataFile,strSQL)
+'@endcode
+'@param tstDataFile Test data File that should be considered as database
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+
+Function UTIL_Excel_ExecuteUpdateQuery(tstDataFile,strSQL)
+
+	strConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;" & "Data Source=" & tstDataFile & ";" & " Extended Properties=""Excel 12.0 xml;Persist Security Info=False;HDR=Yes"";"	
+    
+    Set objConnection = CreateObject("ADODB.Connection")       
+    objConnection.Open strConnectionString 
+    Set res = CreateObject("ADODB.Recordset")
+	 
+		
+	If (objConnection.State=1) Then
+		objConnection.BeginTrans
+		Set res = CreateObject("ADODB.Recordset")
+	
+		With res
+		'.StayInSync=False
+		.Open strSQL, objConnection, 0, 3
+		'.Save
+    	
+		End With
+	Else
+		FRM_Logger_ReportFailEvent "Excel Connection Settings", "Unable to connect to test data file: "& tstDataFile, null
+	End If
+    objConnection.CommitTrans
+    objConnection.close
+    Set objConnection=Nothing
+    Set res=Nothing
+
+End Function 
+
+
+'@}

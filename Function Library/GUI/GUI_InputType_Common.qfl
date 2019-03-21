@@ -1,0 +1,30 @@
+''''''''''''''''''''''''''''''''''''''''''
+'@defgroup GUI_InputType GUI_InputType
+'
+' List of functions here
+'
+' @code
+'
+'   Function GUI_InputType_Log(obj, value)   
+'
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'This function is for logging input type object 
+'@code
+'    GUI_InputType_Log(obj, value)
+'@endcode
+'@param obj The object path
+'@param value  The value to set
+
+Function GUI_InputType_Log(obj, value)
+	FRM_Logger_ReportDebugEvent "Set value", "value=" & value &", "& GUI_Object_Desc(obj), null
+End Function 
+
+
+
+
+
+'@} 

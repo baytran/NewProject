@@ -1,0 +1,56 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_USDAMangement BIZ_Forms_USDAMangement
+'
+' List of functions here
+' @code
+'   Function BIZ_USDAMangement_SelectInterestBasisDays(strRowID)
+'   Function BIZ_Common_USDAMangement_SelectInterestBasisDays(objParentObject, strRowID)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'@description This function is for select Interest Basis Days
+'@code
+'    BIZ_USDAMangement_SelectInterestBasisDays(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_USDAMangement_SelectInterestBasisDays(strRowID)
+
+    FRM_Logger_ReportInfoEvent "USDA Management", "Select Interest Basis Days using Row Id '"&strRowID&"' in the LoanClosingReport datasheet", null
+
+    GUI_List_Select SwfWindow("swfname:=MainForm").SwfList("swfname:=emFormMenuBox"), "USDA Management"
+    GUI_Object_WaitProperty SwfWindow("swfname:=MainForm").SwfLabel("swfname:=labelTitle"), "text", "USDA Management"
+    
+	Dim objLoanWindow, objUSDAManagement, objPageTab
+    Set objLoanWindow = SwfWindow("swfname:=MainForm")
+	Set objUSDAManagement = objLoanWindow.Page("index:=0")
+	Set objPageTab = objLoanWindow.SwfTab("swfname:=tabControlForm")
+    
+	GUI_SwfTab_Click objPageTab, "Loan Closing Report"
+	BIZ_Common_USDAMangement_SelectInterestBasisDays objUSDAManagement, strRowID
+	
+	Set objLoanWindow = Nothing
+    Set objUSDAManagement = Nothing
+    Set objPageTab = Nothing	
+	
+End Function
+
+
+
+'@This function is a common function for select Interest Basis Days in USDA Management for or in Data Templates
+'@code
+'    BIZ_Common_USDAMangement_SelectInterestBasisDays(objParentObject, strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_USDAMangement_SelectInterestBasisDays(objParentObject, strRowID)
+        
+    Set objData = FRM_DS_GetTestData("Forms_USDAManagement", "SelectInterestBasisDays", strRowID)
+	GUI_WebList_Select objParentObject.WebList("html id:=DropdownBox8"), Cstr(objData.Item("InterestBasisDays"))
+	
+	Set objData = Nothing	
+	
+End Function
+
+'@}

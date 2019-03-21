@@ -1,0 +1,1001 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Services
+'List of functions here
+'@code
+'   Function BIZ_Services_RequestUnderwriting()
+'   Function BIZ_Services_OrderCredit(providerName,accountName,password)
+'   Function BIZ_Services_EnableFraudForUser(strMERSOrgID,BSCCustomerNum,strUserID)
+'	Function BIZ_Services_OrderFraud()
+'   Function BIZ_Services_StartFloodForUser(strUserID)  
+'   Function BIZ_Services_ShowInOrder()
+'   Function BIZ_Services_Open(strServiceName)  
+'   Function BIZ_Services_GetDUResult(strResultName)
+'   Function BIZ_Services_RequestUnderwriting(strRowID)
+'   Function BIZ_Services_ProductAndPricing(strProvider,strUser,strPassword) 
+'	Function BIZ_Services_ProcessFloodOrderCoreLogic(strUser,strPassword,strProduct)
+'	Function BIZ_Services_ProcessFloodOrderCoreLogicFloodServices(strRowID)
+'	Function BIZ_Services_LoginAppraisalCenter (strRowID) 
+'	Function BIZ_Services_AppraisalCenterProcessAndSendDocument(strAppraisalAmt,strAppraisalFee,fileName)
+'	Function BIZ_Services_ImportAppraisalDocument()
+'	Function BIZ_Services_LoginTitleCenter (strRowID)
+'	Function BIZ_Services_TitleCenterProcessAndSendDocument(strOrigPrincipal,strCurrentPrincipal,strSetlFee,strClsFee,strOwnerTitleIns,strLenderTitleIns,strRecordingFee,fileName)
+'	Function BIZ_Services_SetOrderTitleAndClosing(strRowID)
+'	Function BIZ_Services_ProcessTitleCenterDetailsAndSendDocument(strRowID)
+'	Function BIZ_Services_ProcessAppraisalCenterAndSendDocument(strRowID)
+'	Function BIZ_Services_LoginProductAndPricing()
+'	Function BIZ_Service_ProcessFraudGraud(strRowID)
+' 	Function BIZ_Service_UnderwritingImportConditions(strRowID)
+'	Function BIZ_Services_DeleteTitleProvider(strProvider)
+'   Function BIZ_Services_OrderTitle(strCompanyName,strCompanyAddress,strCompanyCity,strCompanyState,strCompanyZip,strCompanyEmail,strCompanyPhone, userEmail,userPhone,strProductToSelect)
+'	Function BIZ_Services_ImportTitleDocument(strDocument)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to order credit report for the provider Equifax Mortgage Solutions
+'@code
+'    BIZ_Services_OrderCreditReport_EquifaxMortgageSolutions()
+'@endcode
+
+Function BIZ_Services_OrderCreditReport_EquifaxMortgageSolutions()
+	wait(3)
+	BIZ_Services_Open "Credit Report"
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog"), 60
+	Set objCreditOrderDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog")
+	GUI_SwfTab_Click objCreditOrderDialog.SwfTab("swfname:=orderTab"), "All Providers"
+	GUI_SwfList_Select objCreditOrderDialog.SwfList("swfname:=allLst", "index:=0"), "Equifax Mortgage Solutions"
+	Wait g_TinyWaitSmall
+	GUI_SwfButton_Click objCreditOrderDialog.SwfButton("swfname:=addBtn2")
+	wait(3)
+	Set objCreditReportDialog = SwfWindow("swfname:=MainForm").Dialog("text:=Credit Report Request") 
+	Wait g_LongWaitLarge + g_LongWaitLarge
+	GUI_Object_WaitTillExistX objCreditReportDialog, 120
+	GUI_WinButton_Click objCreditReportDialog.WinButton("text:=Finish")
+	'As the services are not getting loaded in the specified time, need to insert the wait time
+	Wait g_LongWaitLarge + g_LongWaitLarge
+	BIZ_Nav_WaitForTabControlX "Services View", 240
+	GUI_Object_ValidateExists SwfWindow("swfname:=MainForm").WinObject("text:=AVPageView"), 120, "Loading Credit Order Report"
+	'Go to Loan Page
+	BIZ_Nav_SelectLoanTab()
+	wait(3)
+	blnCreditOrderReceived = BIZ_AlertsAndLog_VerifyRecordExist("Log", "File Started", "Credit Report received") 
+	wait(3)
+	If(blnCreditOrderReceived = True) Then
+		FRM_Logger_ReportPassEvent "Click on loan tab and go to 'Services' tab and verify the presence of thumbnail icon for Credit Order Report", "'Order Credit Report' is available", null
+	Else
+		FRM_Logger_ReportFailEvent "Click on loan tab and go to 'Services' tab and verify the presence of thumbnail icon for Credit Order Report Icon", "'Order Credit Report' is not available", null
+	End If
+End Function
+
+
+
+'This function is used to order credit in the loan
+'@code
+'    BIZ_Services_OrderCredit(providerName,accountName,password)
+'@endcode
+'@param providerName - order credit provider name
+'@param accountName- provider account
+'@param password--provider password
+
+Function BIZ_Services_OrderCredit(providerName,accountName,password)
+	
+	FRM_Logger_ReportInfoEvent "Vendor Services", "Credit Report service. Provider name is '"&providerName&"'", null
+	
+	'==========go to the Credit Information Section on the Borrower Summary - Origination & click on the Order Credit button=========
+	GUI_WebButton_Click SwfWindow("swfname:=MainForm").Page("index:=0").WebButton("name:=Order Credit")
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog"), 60
+	
+	Set objCreditOrderDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog")
+	GUI_SwfList_Select objCreditOrderDialog.SwfList("swfname:=myLst", "index:=0"), providerName
+	GUI_SwfButton_Click objCreditOrderDialog.SwfButton("swfname:=submitBtn")
+	
+	
+	'=========enter the appropriate credentials & click the Finish button===============
+	If Dialog("text:=Credit Report Request","index:=0").Exist(15) Then
+	   Set objCreditReportDialog = Dialog("text:=Credit Report Request","index:=0") 
+	ElseIf  SwfWindow("swfname:=MainForm").Dialog("text:=Credit Report Request","index:=0") Then
+	   Set objCreditReportDialog = SwfWindow("swfname:=MainForm").Dialog("text:=Credit Report Request") 
+	End If   
+	
+	GUI_Object_WaitTillExistX objCreditReportDialog, 60
+	GUI_WinEdit_Set objCreditReportDialog.WinEdit("index:=0"), accountName
+	GUI_WinEdit_Set objCreditReportDialog.WinEdit("index:=1"), password
+	If objCreditReportDialog.WinComboBox("attached text:=Request Type.*","index:=0").GetROProperty("text")="New Request" Then
+		If objCreditReportDialog.WinCheckBox("text:=TransUnion").GetROProperty("checked")="OFF" Then
+			GUI_WinCheckbox_Click objCreditReportDialog.WinCheckBox("text:=TransUnion")
+		End If
+		If objCreditReportDialog.WinCheckBox("text:=Experian").GetROProperty("checked")="OFF" Then
+			GUI_WinCheckbox_Click objCreditReportDialog.WinCheckBox("text:=Experian")
+		End If
+		If objCreditReportDialog.WinCheckBox("text:=Equifax").GetROProperty("checked")="OFF" Then
+			GUI_WinCheckbox_Click objCreditReportDialog.WinCheckBox("text:=Equifax")
+		End If
+		GUI_WebButton_Click objCreditReportDialog.WinButton("text:=Finish")
+	Else
+		GUI_WinComboBox_Select objCreditReportDialog.WinComboBox("attached text:=Request Type.*","index:=0"), "New Request"
+	End If
+	Set objCreditReportDialog = Nothing
+	Set objCreditOrderDialog = Nothing
+	'wait for Services View tab to appear
+	BIZ_Nav_WaitForTabControlX "Services View", 240
+	
+End Function
+
+
+
+'This function is used to set Fraud Service for user
+'@code
+'    BIZ_Services_EnableFraudForUser(strMERSOrgID,BSCCustomerNum,strUserID)
+'@endcode
+'@param strMERSOrgID - Mers Organization ID
+'@param BSCCustomerNum - Customer Number
+'@param strUserID - string User Id
+
+Function BIZ_Services_EnableFraudForUser(strMERSOrgID,BSCCustomerNum,strUserID)
+
+    FRM_Logger_ReportInfoEvent "Vendor Services", "Fraud service. Organization Id is '"&strMERSOrgID&"'", null
+
+	BIZ_Nav_Settings_Open "Additional Services"
+	BIZ_Nav_HierarchyTree "Additional Services", "Fraud Service"
+	Set objSettingWin = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	GUI_SwfEdit_Set objSettingWin.SwfEdit("swfname:=MersOrganizationID"), strMERSOrgID
+	GUI_SwfEdit_Set objSettingWin.SwfEdit("swfname:=BscCustomerNumber"), BSCCustomerNum		
+	Dim objUser,vPanelScrollBar_Fraud,vPanelScrollBar_Flood
+	Set objUser = objSettingWin.SwfObject("swfname:=userGrd")
+	Set vPanelScrollBar_Fraud = objUser.SwfScrollBar("swfname:=vPanelScrollBar")
+	GUI_List_ClickCheckbox objUser, vPanelScrollBar_Fraud, strUserID, "1", True, False, "Single", True
+	
+    If GUI_Object_IsEnabled(objSettingWin.SwfObject("swfname:=saveBtn")) Then
+		GUI_SwfObject_Click objSettingWin.SwfObject("swfname:=saveBtn")
+'		If objSettingWin.Dialog("text:=Fraud Service").Exist(10) Then
+'			GUI_WinButton_Click objSettingWin.Dialog("text:=Fraud Service").WinButton("text:=OK")
+		End If
+If objSettingWin.Dialog("text:=Fraud Service","regexpwndtitle:=Fraud Service","is owned window:=True").Exist(10) Then
+   GUI_WinButton_Click objSettingWin.Dialog("text:=Fraud Service","regexpwndtitle:=Fraud Service","is owned window:=True").WinButton("text:=OK")
+   End If
+	
+   Set objSettingWin = Nothing
+End Function
+
+
+
+'This function is used to initiate Flood Service for user
+'@code
+'    BIZ_Services_StartFloodForUser(strUserID)
+'@endcode
+'@param strUserID - string User Id
+
+Function BIZ_Services_StartFloodForUser(strUserID)
+
+    FRM_Logger_ReportInfoEvent "Vendor Services", "Flood service for user '"&strUserID&"'", null
+
+	BIZ_Nav_Settings_Open "Additional Services"
+	BIZ_Nav_HierarchyTree "Additional Services", "Flood Service"
+	
+	Set objSettingWin = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objUser = objSettingWin.SwfObject("swfname:=userGrd")
+	Set vPanelScrollBar_Flood = objSettingWin.SwfScrollBar("swfname:=vPanelScrollBar")		
+	GUI_List_ClickCheckbox objUser, vPanelScrollBar_Flood, strUserID, "1", True, False, "Single", True
+	
+	'@TODO -- Waiting for manual QA's confirmation on the steps	
+	GUI_SwfComboBox_Select objSettingWin.SwfComboBox("swfname:=cboLicense"), "ServiceLink"
+	wait 10
+	Set objOrgGrid = SwfWindow("swfname:=SetUpContainer").SwfObject("swfname:=organizationsGrd")
+	intX = objOrgGrid.Object.GetSubItemBounds(0,6).X
+	intY = objOrgGrid.Object.GetSubItemBounds(0,6).Y
+	GUI_SwfObject_ClickXY objOrgGrid, intX,intY
+'	GUI_SwfEdit_Set SwfWindow("EncompassMenu").SwfWindow("Encompass  Settings").SwfEdit("SwfEdit"), "1000072245"
+	UTIL_Win_SendKey "1000072245{ENTER}"
+
+'	GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfEdit("micclass:=SwfEdit"), "1000072245"
+	'@TODO - how to replace OR with DP
+	'GUI_SwfEdit_Set objSettingWin.SwfEdit("index:=0"), "1000072245"
+	If objSettingWin.SwfButton("swfname:=startStopServiceBtn").GetROProperty("text")="Start Service" Then
+		GUI_SwfButton_Click objSettingWin.SwfButton("swfname:=startStopServiceBtn")
+	End If
+	
+	If GUI_Object_IsEnabled(objSettingWin.SwfObject("swfname:=saveBtn")) Then
+	   GUI_SwfObject_Click objSettingWin.SwfObject("swfname:=saveBtn")
+	   
+	   If objSettingWin.Dialog("text:=Encompass Flood Service").Exist(10) Then
+	   	  GUI_WinButton_Click objSettingWin.Dialog("text:=Encompass Flood Service").WinButton("text:=OK")
+	   End If
+	End If
+	Set objSettingWin = Nothing
+	
+End Function
+
+
+
+'This function is used to submit Fraud Service request
+'@code
+'    BIZ_Services_OrderFraud()
+'@endcode
+
+Function BIZ_Services_OrderFraud()	
+
+	'====go to the Borrower Information Section on the Borrower Summary - Processing form & click on the Order Fraud button====
+	BIZ_Forms_Open "Borrower Summary - Processing"
+	GUI_WebButton_Click SwfWindow("swfname:=MainForm").Page("index:=0").WebButton("html id:=ButtonOrderFraud")	
+	wait 2
+	If SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog").SwfComboBox("swfname:=cboProductType").GetROProperty("text") = "Select Report" Then
+		SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog").SwfComboBox("swfname:=cboProductType").Select 1
+	End If
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog").SwfButton("swfname:=orderBtn")
+	wait 5
+	'Wait till Progress Dialog disappears
+	Do 
+		wait 1
+    Loop While (SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ProgressDialog").Exist(1))
+	If  SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ResubmitOrder").Exist Then
+		SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ResubmitOrder").SwfButton("swfname:=btnContinue").Click
+		wait 10
+	End If		
+	'========Make sure the user should be able to order Fraud successfully without any errors.=========
+	If  SwfWindow("swfname:=MainForm").SwfWindow("swfname:=PreviewHtmlDocument").Exist Then
+		FRM_Logger_ReportInfoEvent "Order Fraud", "The user can order Fraud successfully without any errors", null
+		Reporter.ReportEvent micPass,"The user can order Fraud successfully without any errors","Check user can order Fraud successfully Passed"
+	Else
+		FRM_Logger_ReportFailEvent "Order Fraud", "Fraud order failed", null
+		Reporter.ReportEvent micFail,"The user can order Fraud successfully without any errors","Check user can order Fraud successfully Failed"
+	End If
+	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=PreviewHtmlDocument").Close
+	
+End Function	
+
+
+'This function is for select Services tab and show in order
+'@code
+'    BIZ_Services_ShowInOrder()
+'@endcode
+
+Function BIZ_Services_ShowInOrder()
+	If(GUI_Object_IsExistX(SwfWindow("swfname:=MainForm").SwfTab("swfname:=toolsFormsTabControl"), 30)) Then 
+		GUI_List_Select SwfWindow("swfname:=MainForm").SwfTab("swfname:=toolsFormsTabControl"), "Services"
+		GUI_SwfCheckbox_Set SwfWindow("swfname:=MainForm").SwfCheckBox("swfname:=chkAlpha","index:=0"), "ON"
+	End If
+End Function
+
+
+
+'This function is to select service by its name
+'@code
+'    BIZ_Services_Open(strServiceName)
+'@endcode
+'@param - service name
+
+Function BIZ_Services_Open(strServiceName)
+
+    BIZ_Services_ShowInOrder
+    FRM_Logger_ReportInfoEvent "Open Service", "Service to open is  '"&strServiceName&"'", null
+    Set objServices = SwfWindow("swfname:=MainForm").SwfObject("swfname:=pnlCategories")
+	SwfWindow("swfname:=MainForm").Restore()
+	SwfWindow("swfname:=MainForm").Maximize()
+	objServices.VScroll  micScrollStart
+	Do
+		Set oDesc = Description.Create()
+		oDesc("swfname").value = "lblTitle"
+		Set oChild = objServices.ChildObjects(oDesc)
+		For Label = oChild.Count- 1 to 0 Step -1 
+			If(oChild(Label).GetROProperty("text") = strServiceName) Then 
+				IsFound = True
+				Exit Do
+			Else
+				objServices.VScroll  micLineNext, 4.5
+			End if
+		Next
+	Loop
+	objServices.SwfLabel("swfname:=lblTitle", "text:="&strServiceName, "index:=0").click	
+End Function
+
+
+
+'This function is for processing DU request
+'@code
+'    BIZ_Services_RequestUnderwriting(strRowID)
+'@endcode
+'@param strRowID - Row Id
+
+Function BIZ_Services_RequestUnderwriting(strRowID)
+
+     Set objData = FRM_DS_GetTestData("Services", "Underwriting", strRowID)
+     strUserID = FRM_DS_GetValue(objData, "UserID")
+     strPassword = FRM_DS_GetValue(objData, "Password")
+     strInstitution = FRM_DS_GetValue(objData, "Institution")    
+     strAccount = FRM_DS_GetValue(objData, "AccountNumber")
+     strACPassword = FRM_DS_GetValue(objData, "AccountPassword")
+     strCrOption = FRM_DS_GetValue(objData, "CreditOption") 
+     strServiceType = FRM_DS_GetValue(objData, "ServiceType")
+     strServiceProvider = FRM_DS_GetValue(objData, "ServiceProvider") 
+     
+     'Start Request DU
+	 BIZ_Services_Open strServiceType '"Underwriting"
+
+	 Wait g_TinyWaitLarge
+    'Select Provider
+     BIZ_Services_SelecDUProvider strServiceProvider '"Fannie Mae DU on ePASS"
+
+     'Update DU Setting
+     BIZ_Services_UpdateDUSetting strUserID,strPassword,strInstitution   '"c00r9env","d804@xwp","210043"
+
+	 Wait g_TinyWaitMedium
+
+      'Submit to DU
+     BIZ_Services_SubmitToDU strInstitution &" | ", strAccount, strACPassword, strCrOption    ' "210043 | ","999EL31714","00vGdxXrjdFfg","Equifax Mortgage Solutions (4)"
+End Function
+
+
+'This function is to retrieve data from the DU results page 
+'@code
+'    BIZ_Services_GetDUResult(strResultName)
+'@endcode
+'@param strResultName -  of which result value you want to get
+
+Function BIZ_Services_GetDUResult(strResultName)
+   BIZ_Services_GetDUResult = ""
+   'Set objResultPage = SwfWindow("swfname:=MainForm").ActiveX("acx_name:=GNetMX Control","index:=0").Page("title:=Ellie Mae.*")
+   Set objResultPage = SwfWindow("swfname:=MainForm").Page("title:=Ellie Mae.*")
+   If objResultPage.WebElement("innertext:=DU Underwriting Findings","index:=0").Exist(200) then
+      'Set objTableResult = SwfWindow("swfname:=MainForm").ActiveX("acx_name:=GNetMX Control","index:=0").Page("title:=Ellie Mae.*").WebTable("column names:=Recommendation.*","index:=0")
+      Set objTableResult = SwfWindow("swfname:=MainForm").Page("title:=Ellie Mae.*").WebTable("column names:=Recommendation.*","index:=0")
+      intRowCount = objTableResult.RowCount
+      For n = 1 To intRowCount
+      	  If objTableResult.GetCellData(n,1) = strResultName Then
+      	  	 BIZ_Services_GetDUResult = objTableResult.GetCellData(n,2)
+      	  	 Exit For
+      	  End If
+      Next  
+   End If 
+End Function
+
+
+
+'This function is get to Product and Pricing site
+'@code
+'    BIZ_Services_ProductAndPricing(strProvider,strUser,strPassword)
+'@endcode
+'@param strProvider -  provider for service
+'@param strUser - user Id to enter site
+'@param strPassword - pasword to enter site
+
+Function BIZ_Services_ProductAndPricing(strProvider,strUser,strPassword)
+    FRM_Logger_ReportInfoEvent "Product & Pricing service request", "Order Service using Provider: " &strProvider, null
+	BIZ_Services_Open "Product and Pricing"
+	'Select provider in Order Dialog
+	BIZ_Services_LoginProductAndPricing()	
+	'===========Enter username, password, & request type in Request Dialog==============
+	Set objRequest = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=RequestDialog","index:=0")
+	If objRequest.Exist(60) Then
+        objRequest.SwfEdit("swfname:=tbLoginName","index:=0").Set strUser
+		objRequest.SwfEdit("swfname:=tbPassword","index:=0").Set strPassword
+		objRequest.SwfButton("swfname:=btnContinue","index:=0").Click
+    Else
+		FRM_Logger_ReportFailEvent "Product & Pricing Request Dialog", "Product & Pricing Request Dialog did not appear.", null  		
+    End If
+    
+    If SwfWindow("swfname:=MainForm").Dialog("index:=0").Exist(2) Then
+ 		SwfWindow("swfname:=MainForm").Dialog("index:=0").WinButton("text:=.*Yes").Click
+ 	End If
+	
+End Function
+
+
+'This function is to order flood certificate and process order fom end to end for CoreLogic Flood Service
+'@code
+'    BIZ_Services_ProcessFloodOrderCoreLogic(strUser,strPassword,strProduct)
+'@endcode
+'@param strUser - user Id to enter site
+'@param strPassword - pasword to enter site
+'@param strProduct - product to request
+
+Function BIZ_Services_ProcessFloodOrderCoreLogic(strUser,strPassword,strProduct)
+    BIZ_Nav_SelectLoanTab()
+	BIZ_Services_ShowInOrder
+	BIZ_Services_Open "Flood Certification"
+	strDestFolder = Util_File_FindMostRecentSubFolder(UTIL_File_FindTempFolder() & "\EncompassSC\")
+	'UTIL_File_Copy FRM_RT_DataDirPath() & "FAIFLOODURL.INI", strDestFolder & "\FAIFLOODURL.INI", true
+    wait 1
+	BIZ_Services_SelectFloodService "CoreLogic Flood Services"
+	BIZ_Services_OrderFloodCertificate "CoreLogic Flood Services",strUser,strPassword,strProduct	
+End Function
+
+
+
+'This function is to order flood certificate and process order fom end to end using external Data Table as user/psw changes sometime
+'@code
+'    BIZ_Services_ProcessFloodOrderCoreLogicFloodServices(strRowID)
+'@endcode
+'@param strUser - user Id to enter site
+
+Function BIZ_Services_ProcessFloodOrderCoreLogicFloodServices(strRowID)
+   	Set objData = FRM_DS_GetTestData("Services", "FloodService", strRowID)
+	strUser = FRM_DS_GetValue(objData, "User")
+	strPassword = FRM_DS_GetValue(objData, "Password")
+	strProduct = FRM_DS_GetValue(objData, "ProductType") 
+
+    BIZ_Services_ProcessFloodOrderCoreLogic strUser,strPassword,strProduct
+	Set objData = Nothing
+End Function
+
+
+
+'This function is to LogIn to Appraisal Center
+'@code
+'	BIZ_Services_LoginAppraisalCenter (strRowID) 
+'@endcode
+'@param strRowID - ID for login data 
+
+Function BIZ_Services_LoginAppraisalCenter (strRowID)    
+    Set objData = FRM_DS_GetTestData("Global_Data", "Website", strRowID)
+    strURL = FRM_DS_GetValue(objData, "URL")
+    strUser = FRM_DS_GetValue(objData, "EmailAccount")
+    strPassword = FRM_DS_GetValue(objData, "Password")
+    Set objApprPage = Browser("name:=.*Appraisal Center.*").Page("title:=.*Appraisal Center.*")
+    FRM_Logger_ReportInfoEvent "Open Appraisal Center Site", "Opening site:" & strURL, null 
+    GUI_Browser_OpenUrl strURL
+    
+	If objApprPage.WebEdit("html id:=.*UserName.*","index:=0").Exist(120) Then
+	    objApprPage.WebEdit("html id:=.*UserName.*","index:=0").Set strUser
+        objApprPage.WebEdit("html id:=.*Password.*","index:=0").Set strPassword
+        objApprPage.Link("text:=Log In").Click
+        FRM_Logger_ReportPassEvent "Open Appraisal Center Site and Log in", "Appraisal Center site is opened and Logged In", null  
+    Else
+        FRM_Logger_ReportFailEvent "Open Appraisal Center Site", "Appraisal Center site is NOT opened. Welcome page is NOT displayed.", null  
+    End If  
+    
+    Set objApprPage = Nothing
+    Set objData = Nothing
+End Function
+
+    
+
+'This function is to process appraisal document and send it
+'@code
+'	BIZ_Services_AppraisalCenterProcessAndSendDocument(strAppraisalAmt,strAppraisalFee,fileName)
+'@endcode
+'@param strAppraisalAmt - appraisal value to enter to the edit field 
+'@param strAppraisalFee - fee for appraisal 
+'@param companyPhone - file name for pdf document
+
+Function BIZ_Services_AppraisalCenterProcessAndSendDocument(strAppraisalAmt,strAppraisalFee,fileName)
+	FRM_Logger_ReportInfoEvent "Process and Send Appraisal Documnet", "Processing in Appraisal Center", Null
+	Set objMyOrdersPage = Browser("name:=.*My Orders.*").Page("title:=.*My Orders.*")
+	Set objOrderRequestPage = Browser("name:=.*Order Request.*").Page("title:=.*Order Request.*")
+	Set objOrderDetail = Browser("name:=.*Order Detail.*").Page("title:=.*Order Detail.*")
+	Set objDeliverOrderPage = Browser("name:=.*Deliver Order.*").Page("title:=.*Deliver Order.*")
+	Set objDeliverOrderDialog = Browser("name:=.*Deliver Order.*").Dialog("index:=0")
+	
+	If objMyOrdersPage.Link("text:=Review Request","index:=0").Exist(50) Then
+		objMyOrdersPage.Link("text:=Review Request","index:=0").Click
+	End If
+	If objOrderRequestPage.Link("text:=.*Accept.*","index:=0").Exist(30) Then
+		objOrderRequestPage.Link("text:=.*Accept.*","index:=0").Click
+	End If
+	If objOrderDetail.WebEdit("html id:=.*AppraisalSheduled.*","index:=0").Exist(20) Then
+		objOrderDetail.WebEdit("html id:=.*AppraisalSheduled.*","index:=0").Set UTIL_Date_FormatDateByPattern(now, "mm/dd/yyyy")
+	    objOrderDetail.WebEdit("html id:=.*AppointmentCompleted.*","index:=0").Set UTIL_Date_FormatDateByPattern(now, "mm/dd/yyyy")
+	    objOrderDetail.WebEdit("html id:=.*OrderCompleteDate.*","index:=0").Set UTIL_Date_FormatDateByPattern(now, "mm/dd/yyyy")
+	    objOrderDetail.WebEdit("html id:=.*appraisedValue.*","index:=0").Set strAppraisalAmt
+	    objOrderDetail.WebEdit("html id:=.*appraisalFee.*","index:=0").Set strAppraisalFee
+	    objOrderDetail.Link("text:=.*Send Messages or Documents.*","index:=0").Click
+	End If
+	If objDeliverOrderPage.Frame("name:=iQuickCheck").WebFile("html id:=.*1_UploadImage.*","index:=0").Exist(20) Then
+		objDeliverOrderPage.Frame("name:=iQuickCheck").WebFile("html id:=.*1_UploadImage.*","index:=0").Click	
+	End If
+	If objDeliverOrderDialog.WinEdit("regexpwndclass:=Edit","index:=0").Exist(20) Then
+	    objDeliverOrderDialog.WinEdit("regexpwndclass:=Edit","index:=0").Set FRM_RT_DataDirPath()
+	    wait g_TinyWaitMedium
+		objDeliverOrderDialog.WinObject("text:=&Open","index:=0").Click
+		wait g_TinyWaitMedium
+		objDeliverOrderDialog.WinObject("nativeclass:=window","index:=1").WinList("acc_name:=Items View","index:=0").Activate fileName
+	End If
+	If objDeliverOrderPage.Link("html id:=.*DoSend_link.*","index:=0").Exist(10) Then
+	    objDeliverOrderPage.WebEdit("html id:=.*AppraisedValue.*","index:=0").Set strAppraisalAmt
+	    objDeliverOrderPage.WebEdit("html id:=.*AppraisalFee.*","index:=0").Set strAppraisalFee
+        objDeliverOrderPage.WebEdit("html id:=.*AppraiserName.*","index:=0").Set "Appraiser Auto"
+		objDeliverOrderPage.WebEdit("html id:=.*LicenseNumber.*","index:=0").Set "92345678"
+		'objDeliverOrderPage.WebCheckBox("html id:=.*chkCertification.*","index:=0").Set "ON"
+		objDeliverOrderPage.Link("html id:=.*DoSend_link.*","index:=0").Click
+	End If
+	If objOrderDetail.WebElement("innertext:=.*Your documents have been delivered.*","index:=0").Exist(20) Then
+		FRM_Logger_ReportPassEvent "Appraisal Documnet sent by appraiser", "Received message - 'Your documents have been delivered.'", Null	
+	Else
+    	FRM_Logger_ReportFailEvent "Appraisal Documnet Failed to send by appraiser", "Appraisal document was NOT sent", Null
+	End If
+	If objOrderDetail.Link("text:=.*Done.*","index:=0").Exist(10) Then
+		objOrderDetail.Link("Text:=.*Done.*","index:=0").Click
+	End If
+	if(Browser("index:=0").Exist(5)) then 
+		Browser("index:=0").Close
+	End if
+	
+	
+	Set objMyOrdersPage = Nothing
+	Set objOrderRequestPage = Nothing
+	Set objOrderDetail = Nothing
+	Set objDeliverOrderPage = Nothing
+	Set objDeliverOrderDialog = Nothing
+End Function
+
+
+ 
+ 
+'This function is to LogIn to Title Center
+'@code
+'	BIZ_Services_LoginTitleCenter (strRowID) 
+'	BIZ_Services_LoginAppraisalCenter "TITLE_TA-4682"
+'@endcode
+'@param strRowID - ID for login data 
+
+Function BIZ_Services_LoginTitleCenter (strRowID)    
+    Set objData = FRM_DS_GetTestData("Global_Data", "Website", strRowID)
+    strURL = FRM_DS_GetValue(objData, "URL")
+    strUser = FRM_DS_GetValue(objData, "EmailAccount")
+    strPassword = FRM_DS_GetValue(objData, "Password")
+    Set objTitlePage = Browser("name:=.*Title Center.*").Page("title:=.*Title Center.*")
+    FRM_Logger_ReportInfoEvent "Open Title Center Site", "Opening site:" & strURL, null 
+    GUI_Browser_OpenUrl strURL
+    
+	If objTitlePage.WebEdit("html id:=.*UserName.*","index:=0").Exist(120) Then
+	    objTitlePage.WebEdit("html id:=.*UserName.*","index:=0").Set strUser
+        objTitlePage.WebEdit("html id:=.*Password.*","index:=0").Set strPassword
+        objTitlePage.Link("text:=Log In").Click
+        FRM_Logger_ReportPassEvent "Open Title Center Site and Log in", "Title Center site is opened and Logged In", null  
+    Else
+        FRM_Logger_ReportFailEvent "Open Title Center Site", "Title Center site is NOT opened. Welcome page is NOT displayed.", null  
+    End If  
+    
+    Set objTitlePage = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is to process Title document and send it
+'@code
+'	BIZ_Services_TitleCenterProcessAndSendDocument(strOrigPrincipal,strCurrentPrincipal,strSetlFee,strClsFee,strOwnerTitleIns,strLenderTitleIns,strRecordingFee,fileName)
+'   BIZ_Services_TitleCenterProcessAndSendDocument "400000","300000","400","200","400","300","75","Title Document.pdf"
+'@endcode
+'@param strOrigPrincipal - Original principal amount
+'@param strCurrentPrincipal Cyrrent principal amount
+'@param strSetlFee - Setlement fee
+'@param strClsFee - Closing fee
+'@param strOwnerTitleIns - Owner's Title Insurance Fee
+'@param strLenderTitleIns - Lender's Title Insurance fee
+'@param strRecordingFee - Recording fee
+'@param fileName - .pdf file name to send
+
+Function BIZ_Services_TitleCenterProcessAndSendDocument(strOrigPrincipal,strCurrentPrincipal,strSetlFee,strClsFee,strOwnerTitleIns,strLenderTitleIns,strRecordingFee,fileName)
+	FRM_Logger_ReportInfoEvent "Process and Send Title Documnet", "Processing in Title Center", Null
+	Set objMyOrdersPage = Browser("name:=.*My Orders.*").Page("title:=.*My Orders.*")
+	Set objOrderRequestPage = Browser("name:=.*Order Request.*").Page("title:=.*Order Request.*")
+	Set objOrderDetail = Browser("name:=.*Order Detail.*").Page("title:=.*Order Detail.*")
+	Set objPrelim = Browser("name:=.*Prelim Information.*").Page("title:=.*Prelim Information.*")
+	Set objRecording = Browser("name:=.*Title/Recording Fees.*").Page("title:=.*Title/Recording Fees.*")
+	Set objDeliverOrderPage = Browser("name:=.*Deliver Order.*").Page("title:=.*Deliver Order.*")
+	Set objDeliverOrderDialog = Browser("name:=.*Deliver Order.*").Dialog("index:=0")
+	
+	If objMyOrdersPage.Link("text:=Review Request","index:=0").Exist(20) Then
+		objMyOrdersPage.Link("text:=Review Request","index:=0").Click
+	Else
+       	FRM_Logger_ReportFailEvent "Title Center Site", "Title Center site did not get any request to process.", null
+	End If
+	If objOrderRequestPage.Link("text:=.*Accept.*","index:=0").Exist(20) Then
+		objOrderRequestPage.Link("text:=.*Accept.*","index:=0").Click
+	End If
+	If objOrderDetail.Link("text:=.*Prelim Information.*","index:=0").Exist(20) Then
+	    objOrderDetail.Link("text:=.*Prelim Information.*","index:=0").Click
+	End If
+	If objPrelim.WebEdit("html id:=.*txtBook.*","index:=0").Exist(15) Then
+		objPrelim.WebEdit("html id:=.*txtBook.*","index:=0").Set "3298"
+       	objPrelim.WebEdit("html id:=.*txtPage.*","index:=0").Set "42"
+		objPrelim.WebEdit("html id:=.*txtParcelNumber.*","index:=0").Set "342"   
+        objPrelim.WebEdit("html id:=.*txtLot.*","index:=0").Set "277"
+        objPrelim.WebEdit("html id:=.*txtBlock.*","index:=0").Set "11"
+        objPrelim.WebEdit("html id:=.*txtSection.*","index:=0").Set "1678"  
+        objPrelim.WebEdit("html id:=.*txtOriginalPrincipal.*","index:=0").Set strOrigPrincipal
+        objPrelim.WebEdit("html id:=.*txtCurrentPrincipal.*","index:=0").Set strCurrentPrincipal
+        objPrelim.WebEdit("html id:=.*txtReportDate.*","index:=0").Set UTIL_Date_FormatDateByPattern(now, "mm/dd/yyyy")
+        objPrelim.WebEdit("html id:=.*txtLegalDescription.*","index:=0").Set "Legal Description"
+        objPrelim.Link("text:=Send").Click        
+	End If
+	If objOrderDetail.Link("text:=.*Title / Recording Fees.*","index:=0").Exist(20) Then
+	    objOrderDetail.Link("text:=.*Title / Recording Fees.*","index:=0").Click
+	End If
+	If objRecording.WebEdit("html id:=.*1102.ctl01.txt1102BorrowerAmount.*").Exist(15) Then
+		objRecording.WebEdit("html id:=.*1102.ctl01.txt1102BorrowerAmount.*").Set strSetlFee
+		objRecording.WebEdit("html id:=.*1102.ctl02.txt1102BorrowerAmount.*").Set strClsFee
+		objRecording.WebEdit("html id:=.*1103.ctl01.txt1103BorrowerAmount.*").Set strOwnerTitleIns
+		objRecording.WebEdit("html id:=.*1103.ctl02.txt1103BorrowerAmount.*").Set strLenderTitleIns
+		objRecording.WebEdit("html id:=.*ctl00.*txt1202BorrowerAmount.*").Set strRecordingFee
+		objRecording.Link("text:=Send Fees").Click 
+	End If
+	If objOrderDetail.Link("text:=.*Send Messages or Documents.*","index:=0").Exist(20) Then
+	    objOrderDetail.Link("text:=.*Send Messages or Documents.*","index:=0").Click
+	End If	
+	If objDeliverOrderPage.WebList("html id:=.*DocumentType1.*","index:=0").Exist(20) Then
+		objDeliverOrderPage.WebList("html id:=.*DocumentType1.*","index:=0").Select 1	
+	End If
+	If objDeliverOrderPage.WebFile("html id:=.*1_UploadImage.*","index:=0").Exist(20) Then
+		objDeliverOrderPage.WebFile("html id:=.*1_UploadImage.*","index:=0").Click	
+	End If
+	
+	If objDeliverOrderDialog.WinEdit("regexpwndclass:=Edit","index:=0").Exist(20) Then
+	    objDeliverOrderDialog.WinEdit("regexpwndclass:=Edit","index:=0").Set FRM_RT_DataDirPath()
+	    wait g_TinyWaitMedium
+		objDeliverOrderDialog.WinObject("text:=&Open","index:=0").Click
+		wait g_TinyWaitMedium
+		objDeliverOrderDialog.WinObject("nativeclass:=window","index:=1").WinList("acc_name:=Items View","index:=0").Activate fileName
+		wait g_ShortWaitMedium
+	End If
+	If objDeliverOrderPage.Link("html id:=.*DoSend_link.*","index:=0").Exist(10) Then
+		objDeliverOrderPage.Link("html id:=.*DoSend_link.*","index:=0").Click
+	End If
+	If objOrderDetail.WebElement("innertext:=.*Your documents have been delivered.*","index:=0").Exist(20) or objOrderDetail.WebElement("innertext:=Your title and recording fees have been sent.","index:=0").Exist(20) Then
+		FRM_Logger_ReportPassEvent "Title Document sent by agent", "Received message - 'Your documents have been delivered.'", Null	
+	Else
+    	FRM_Logger_ReportFailEvent "Title Document Failed to send by title center", "Title document was NOT sent", Null
+	End If
+	If objOrderDetail.Link("text:=.*Done.*","index:=0").Exist(10) Then
+		objOrderDetail.Link("Text:=.*Done.*","index:=0").Click
+	End If
+	If(Browser("index:=0").Exist(30)) then
+		Browser("index:=0").Close
+	end If
+	
+	Set objMyOrdersPage = Nothing
+	Set objOrderRequestPage = Nothing
+	Set objOrderDetail = Nothing
+	Set objDeliverOrderPage = Nothing
+	Set objDeliverOrderDialog = Nothing
+	Set objPrelim = Nothing
+	Set objRecording = Nothing
+End Function
+
+
+
+'This function is set values to "Order Title and closing form 
+'@code
+'    BIZ_Services_SetOrderTitleAndClosing(strRowID)
+'@endcode
+'@param strRowID- id form data in external datatable
+
+Function BIZ_Services_SetOrderTitleAndClosing(strRowID)
+
+	'Open Title and Closing Screen under Services
+	BIZ_Services_Open "Title & Closing"
+
+	Set objData = FRM_DS_GetTestData("Services", "TitleNClosing", strRowID)
+	Set objMainView = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog")
+	objMainView.SwfTab("swfname:=providersTab").Select "My Title Companies"
+	isSelected = GUI_List_SelectItem(objMainView.SwfObject("swfname:=myLst"),FRM_DS_GetValue(objData, "CompanyName"),0)
+	If(isSelected = true) Then
+		GUI_SwfButton_Click objMainView.SwfButton("swfname:=orderBtn")
+	Else
+		objMainView.SwfTab("swfname:=providersTab").Select "All Title Companies"
+		GUI_SwfButton_Click objMainView.SwfButton("swfname:=allBtn")
+		Wait g_TinyWaitSmall
+		GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfComboBox("swfname:=stateCbo"), "Any State"
+		GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfComboBox("swfname:=countyCbo"), "Any County"
+		GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfEdit("swfname:=companyTxt"), FRM_DS_GetValue(objData, "CompanyName")
+		GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfButton("swfname:=searchBtn")
+		Wait g_TinyWaitSmall
+		isSelected = GUI_List_SelectItem(objMainView.SwfObject("swfname:=providersLst"),FRM_DS_GetValue(objData, "CompanyName"),0)
+		GUI_SwfButton_Click objMainView.SwfButton("swfname:=orderAllBtn")
+	End if
+	Wait g_TinyWaitSmall
+	If(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderBranchDialog").Exist(5)) Then 
+		Set OrderBranchDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderBranchDialog")
+	End If
+	If(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfWindow("swfname:=OrderBranchDialog").Exist(5)) Then 
+		Set OrderBranchDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfWindow("swfname:=OrderBranchDialog")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Phone")) Then 
+		GUI_SwfEdit_Set OrderBranchDialog.SwfEdit("swfname:=fromPhoneTxt"), FRM_DS_GetValue(objData, "Phone")
+	End if
+	OrderBranchDialog.SwfTab("swfname:=orderInfoTab").Select "Request a Fee Quote"
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Phone")) Then 
+		GUI_SwfCheckbox_Set OrderBranchDialog.SwfCheckBox("swfname:=feeQuoteChk"),FRM_DS_GetValue(objData, "feeQuoteCheck")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FeeQuoteComments")) Then 
+		GUI_SwfEditor_Type OrderBranchDialog.SwfEditor("swfname:=feeQuoteCommentsTxt"), FRM_DS_GetValue(objData, "FeeQuoteComments")
+	End if
+	
+	GUI_SwfTab_Click OrderBranchDialog.SwfTab("swfname:=orderInfoTab"), "Order Title && Closing  "
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "TitleCheck")) Then  
+		GUI_SwfCheckbox_Set OrderBranchDialog.SwfCheckBox("swfname:=titleChk"), FRM_DS_GetValue(objData, "TitleCheck")	
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "TitleComments")) Then 
+		GUI_SwfEditor_Type OrderBranchDialog.SwfEditor("swfname:=titleCommentTxt"), FRM_DS_GetValue(objData, "TitleComments")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "TitleProductList")) Then 
+		If(InStr(FRM_DS_GetValue(objData, "TitleProductList"), "with") > 0) Then
+			If(OrderBranchDialog.SwfList("swfname:=titleProductLst").GetItemProperty(0, "checked") = false) Then 
+				OrderBranchDialog.SwfList("swfname:=titleProductLst").Select 0
+			End If
+		End If
+	End if
+	'GUI_SwfTab_Click OrderBranchDialog.SwfTab("swfname:=orderInfoTab"), "Closing / Escrow"
+	'If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ClosingCheck")) Then 
+	'	GUI_SwfCheckbox_Set OrderBranchDialog.SwfCheckBox("swfname:=closingChk"), FRM_DS_GetValue(objData, "ClosingCheck")
+	'End if
+	'If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ClosingProductList")) Then 
+	'	GUI_SwfList_Select OrderBranchDialog.SwfList("swfname:=closingProductLst"), FRM_DS_GetValue(objData, "ClosingProductList")
+	'End if
+
+	
+	If(GUI_Object_IsExist(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderBranchDialog").SwfButton("swfname:=sendBtn"))) Then
+		GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderBranchDialog").SwfButton("swfname:=sendBtn")
+	ElseIf(GUI_Object_IsExist(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfWindow("swfname:=OrderBranchDialog").SwfButton("swfname:=sendBtn"))) Then
+		GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfWindow("swfname:=OrderBranchDialog").SwfButton("swfname:=sendBtn")
+	End If
+
+	GUI_Dialog_Encompass_OK("")
+
+	If(GUI_Object_IsExist(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog")))Then
+		SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").Close()
+	End If
+	Set objData = Nothing
+	Set objMainView = Nothing
+
+End Function
+
+
+
+'As we can't split the existing function, need to write a new function for the same 
+'This function is Process Title Center Details and Send Document Details
+'@code
+'    BIZ_Services_ProcessTitleCenterDetailsAndSendDocument(strRowID)
+'@endcode
+'@param strRowID- id form data in external datatable
+
+Function BIZ_Services_ProcessTitleCenterDetailsAndSendDocument(strRowID)
+	Set objData = FRM_DS_GetTestData("Services", "TitleService", strRowID)
+	strOriginalPrincipal = FRM_DS_GetValue(objData, "OriginalPrincipal")
+	strCurrentPrincipal = FRM_DS_GetValue(objData, "CurrentPrincipal")
+	strSettlementFee = FRM_DS_GetValue(objData, "SettlementFee")
+	strClosingFee = FRM_DS_GetValue(objData, "ClosingFee")
+	strOwnerInsurance = FRM_DS_GetValue(objData, "OwnerInsurance")
+	strLenderInsurance = FRM_DS_GetValue(objData, "LenderInsurance")
+	strRecordingFee = FRM_DS_GetValue(objData, "RecordingFee")
+	strDocumentName = FRM_DS_GetValue(objData, "DocumentName")
+
+	BIZ_Services_TitleCenterProcessAndSendDocument strOriginalPrincipal,strCurrentPrincipal,strSettlementFee,strClosingFee,strOwnerInsurance,strLenderInsurance,strRecordingFee,strDocumentName
+End Function 
+
+
+
+'As we can't split the existing function, need to write a new function for the same 
+'This function is Process Title Center Details and Send Document Details
+'@code
+'    BIZ_Services_ProcessAppraisalCenterAndSendDocument(strRowID)
+'@endcode
+'@param strRowID- id form data in external datatable
+
+Function BIZ_Services_ProcessAppraisalCenterAndSendDocument(strRowID)
+	Dim strAppraisalAmt, strAppraisalFee, strAppraisalDocument
+	Set objData = FRM_DS_GetTestData("Services", "AppraisalService", strRowID)
+	strAppraisalAmt = FRM_DS_GetValue(objData, "AppraisalAmt")
+	strAppraisalFee = FRM_DS_GetValue(objData, "AppraisalFee")
+	strAppraisalDocument = FRM_DS_GetValue(objData, "AppraisalDocument")
+	BIZ_Services_AppraisalCenterProcessAndSendDocument strAppraisalAmt, strAppraisalFee,strAppraisalDocument
+End Function
+
+
+
+
+'This function is used to login to Product and Pricng
+'@code
+'	BIZ_Services_LoginProductAndPricing()
+'@endcode
+
+Function BIZ_Services_LoginProductAndPricing()
+	Dim objOrderDialog
+	If(GUI_Object_IsExistX(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog"), 60))Then
+		Set objOrderDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog")
+	ElseIf(GUI_Object_IsExistX(SwfWindow("swfname:=OrderDialog"), 60))Then
+		Set objOrderDialog = SwfWindow("swfname:=OrderDialog")
+	Else
+		FRM_Logger_ReportFailEvent "Product & Pricing Order Dialog", "Product & Pricing Order Dialog did not appear.", null     
+	End If
+	GUI_SwfList_Select objOrderDialog.SwfList("swfname:=myLst"), "Encompass Product and Pricing Service"
+	wait(3)
+	GUI_Object_WaitTillExistX objOrderDialog.SwfButton("swfname:=submitBtn"), 240
+	GUI_SwfButton_Click objOrderDialog.SwfButton("swfname:=submitBtn")
+	wait(3)
+	Set objOrderDialog = Nothing
+End Function
+
+
+
+'This function is used to Process Fraud Guard Details
+'@code
+'	 BIZ_Service_ProcessFraudGraud(strRowID)
+'@endcode
+'@param strRowID- id form data in external datatable
+
+Function BIZ_Service_ProcessFraudGraud(strRowID)
+	BIZ_Nav_SelectLoanTab()
+	BIZ_Services_ShowInOrder
+	BIZ_Services_Open "Fraud/Audit Services"
+	BIZ_Services_SelectFraudService "FraudGUARD"
+	BIZ_Services_SubmitFraudGuardDetails(strRowID)
+End Function
+
+
+
+'This function is used to Import conditions in Underwriting
+'@code
+'	 BIZ_Service_UnderwritingImportConditions(strRowID)
+'@endcode
+'@param strRowID- id form data in external datatable
+
+Function BIZ_Service_UnderwritingImportConditions(strRowID)
+	'Select Show in Alpha order
+	BIZ_Services_ShowInOrder
+
+	'Order Request Underwriting service with required test data
+	BIZ_Services_RequestUnderwriting strRowID
+
+	Dim objConditionDialog, strDuRecommendation, objWshShell, objImportCondition, objLVconditions, objImportButtons
+
+	strDuRecommendation      = "Approve/Eligible"
+	Set objConditionDialog   = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ImportConditionsDialog")
+	Set objWshShell          = CreateObject("WScript.Shell")
+
+	'Verify is DU Result is returned as Approve/Eligible
+	FRM_VerifyEqual BIZ_Services_GetDUResult("Recommendation"),strDuRecommendation , "DU Recommendation Status", "Recommendation should be Approve/Eligible"
+	Wait g_TinyWaitMedium
+
+	Set objImportButtons = SwfWindow("swfname:=MainForm").Page("title:=Ellie Mae - DO Direct").Frame("name:=FanImport").WebButton("name:=Import Conditions")
+	GUI_Object_WaitTillExistX objImportButtons, 240
+	'Import conditions from DU after the DU result 
+	GUI_WebButton_Click objImportButtons
+	If(GUI_Object_IsExistX(objConditionDialog, 90)) Then 
+		FRM_Logger_ReportInfoEvent "Click 'import conditions' button in the DU underwriting page.", "A list of conditions will be shown", null
+		GUI_List_Select objConditionDialog.SwfListView("swfname:=lvConditions"), "Misc"
+		objWshShell.SendKeys "+{DOWN}"
+		GUI_SwfButton_Click objConditionDialog.SwfButton("swfname:=btnImport")
+	End If
+	Set objConditionDialog   = Nothing
+	Set objWshShell          = Nothing
+End Function
+
+
+
+'@} 
+
+'This function is to delete Title provider
+'@code
+'	BIZ_Services_DeleteTitleProvider(strProvider)'@endcode
+'@param strProvider - title Company name 
+ 
+Function BIZ_Services_DeleteTitleProvider(strProvider)
+	Set objMainView = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog")
+	' Select My Title Companies tab
+	GUI_SwfTab_Click objMainView.SwfTab("swfname:=providersTab"),"My Title Companies"
+	
+	If objMainView.Exist(5) Then
+		isSelected = GUI_List_SelectItem(objMainView.SwfObject("swfname:=myLst"),strProvider,0)
+		If isSelected Then
+			objMainView.SwfObject("swfname:=removeBtn").Click
+			GUI_Dialog_Encompass_Yes "Are you sure you want to remove the selected provider?"	
+		End If			
+	End If
+    Set objMainView = Nothing
+End Function
+
+
+'This function is to submit request for Title order
+'@code
+'	BIZ_Services_OrderTitle(strCompanyName,strCompanyAddress,strCompanyCity,strCompanyState,strCompanyZip,strCompanyEmail,strCompanyPhone, userEmail,userPhone,strProductToSelect)
+'   BIZ_Services_OrderTitle "Title & Closing Service Test Account Auto","123 Main street","Anaheim","CA","92802","elliemaetitleauto1@gmail.com","8888888888", "valeriy.portugal@elliemae.com","9999999999","Commitment/Prelim w/ Full Closing"
+'@endcode
+'@param strCompanyName - title Company name
+'@param strCompanyAddress,strCompanyCity,strCompanyState,strCompanyZip - address
+'@param strCompanyEmail - Company Email
+'@param strCompanyPhone - Company Phone
+'@param userEmail - user Email
+'@param userPhone  -user Phone
+'param strProductToSelect -  Product To Select
+'@ Bay Tran: updated the function to reflect the new UI changed.
+
+Function BIZ_Services_OrderTitle(strCompanyName,strCompanyAddress,strCompanyCity,strCompanyState,strCompanyZip,strCompanyEmail,strCompanyPhone, userEmail,userPhone)
+	FRM_Logger_ReportInfoEvent "Order Title", "Company name: " & strCompanyName & "; Company E-Mail = " & strCompanyEmail & "; User E-Mail = " & userEmail, null
+	Set objWelcomeDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=WelcomeDialog")
+	Set objTitleDialog = SwfWindow("swfname:=TitleProviderDialog")
+	Set objAddTitleComp = SwfWindow("swfname:=TitleProviderDialog").SwfWindow("swfname:=CustomProviderDialog")
+	Set objOrderDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderBranchDialog")
+	Set objOrderDialogConfirmation = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderBranchDialog").SwfWindow("swfname:=OrderConfirmationDialog")
+	'Welcome dialog could appear. Set it do not show again and click Continue
+	If objWelcomeDialog.SwfCheckBox("swfname:=dontShowChk").Exist(5) Then
+    	objWelcomeDialog.SwfCheckBox("swfname:=dontShowChk").Set "ON"
+    	objWelcomeDialog.SwfButton("swfname:=okBtn","text:=&Continue").Click  			
+    End If
+	If objTitleDialog.Exist(15) Then
+	    BIZ_Services_DeleteTitleProvider strCompanyName 
+		objTitleDialog.SwfObject("swfname:=addProviderBtn").Click
+	End If
+    'Add Title Company
+	If objAddTitleComp.Exist(15) Then
+		objAddTitleComp.SwfEdit("swfname:=companyTxt").Set strCompanyName
+		objAddTitleComp.SwfEdit("swfname:=streetTxt").Set strCompanyAddress
+		objAddTitleComp.SwfEdit("swfname:=cityTxt").Set strCompanyCity
+		objAddTitleComp.SwfEdit("swfname:=stateTxt").Set strCompanyState
+		objAddTitleComp.SwfEdit("swfname:=zipCodeTxt").Set strCompanyZip
+		objAddTitleComp.SwfEdit("swfname:=firstNameTxt").Set "Title"
+		objAddTitleComp.SwfEdit("swfname:=lastNameTxt").Set "Auto"
+		objAddTitleComp.SwfEdit("swfname:=emailTxt").Set strCompanyEmail
+		objAddTitleComp.SwfEdit("swfname:=phoneTxt").Set strCompanyPhone
+		objAddTitleComp.SwfButton("swfname:=saveContBtn").Click
+	End If
+	
+	'=== Submit Order ==
+	If objOrderDialog.Exist(10) Then
+		GUI_SwfButton_Click objOrderDialog.Swfbutton("swfname:=sendBtn")
+	End If
+	
+	If objOrderDialogConfirmation.Exist(5) Then
+		GUI_SwfButton_Click objOrderDialogConfirmation.Swfbutton("swfname:=btnOK")
+	End If
+	
+	If objOrderDialog.Dialog("index:=0").Static("text:=.*Your order has been sent.*").Exist(120) Then	
+		FRM_Logger_ReportPassEvent "Order Title", "Title order has been sent to Title Agency", null
+	Else 
+	    FRM_Logger_ReportFailEvent "Order Title", "Title order FAILED to send", null
+	End if 
+	
+	GUI_Dialog_Encompass_OK ".*Your order has been sent."
+	
+	Set objWelcomeDialog = Nothing
+	Set objTitleDialog = Nothing
+	Set objAddTitleComp = Nothing
+	Set objOrderDialog = Nothing
+End Function
+ 
+
+'This function is to import Title document in Encompass
+'@code
+'	BIZ_Service_ImportTitleDocument "Title Document.pdf"
+'@endcode
+'@param strDocument- document to import - strDocument parameter is no longer needed
+
+Function BIZ_Services_ImportTitleDocument()
+    FRM_Logger_ReportInfoEvent "Inmport Title Document", "Import Title document into Encompass", Null
+	BIZ_Services_ClickRetrieveBtn "Title & Closing" 
+	
+	If SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfLabel("text:=Import","index:=0").Exist(30) Then
+		SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfLabel("text:=Import","index:=0").Click
+	End If
+	
+	Set objMainView = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").SwfWindow("swfname:=ImportDlgRespa2015")
+	
+	
+    If objMainView.SwfButton("swfname:=importBtn").Exist(40) Then
+        If objMainView.SwfListView("swfname:=docGrid").Exist(5) Then
+        	'objMainView.SwfListView("swfname:=docGrid").Activate strDocument '- commented because it is defaulted to be selected
+        	wait 5
+        End If
+    	objMainView.SwfButton("swfname:=importBtn").Click
+    End If
+	
+	Set objDialog = objMainView.Dialog("text:=Import Title Data","index:=0")
+	If objDialog.WinButton("text:=OK").Exist(30) Then
+	    strStaticText = objDialog.Static("index:=1").GetROProperty("text")
+		If Instr(strStaticText,"Import has finished") > 0 Then
+			FRM_Logger_ReportPassEvent "Inmport Title Document", strStaticText, Null	
+		else
+            FRM_Logger_ReportFailEvent "Inmport Title Document", "Import Title document into Encompass has NOT finished", Null		
+		End If	
+		objDialog.WinButton("text:=OK").Click
+	End If
+	wait 5
+'	If SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderStatusDialog").SwfButton("swfname:=btnCancel","text:=.*Close.*").Exist(15) Then
+'		SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderStatusDialog").SwfButton("swfname:=btnCancel","text:=.*Close.*").Click
+'	End If
+	
+	If SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").Exist(5) Then
+		SwfWindow("swfname:=MainForm").SwfWindow("swfname:=TitleProviderDialog").Close
+	End If
+	Set objDialog = Nothing
+End Function

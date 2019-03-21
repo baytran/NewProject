@@ -1,0 +1,282 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_InputFormBuilder BIZ_InputFormBuilder
+'List of functions here 
+'@code
+'   Function BIZ_InputFormBuilder_Launch()
+'	Function BIZ_InputFormBuilder_Login(strRowID)
+'   Function BIZ_InputFormBuilder_UserLogin(strUserName, strUserPwd, strURL)
+'	Function BIZ_InputFormBuilder_Close()
+'   Function BIZ_InputFormBuilder_CreateCustomForm()
+'   Function BIZ_InputFormBuilder_SaveCustomForm(strFormName)
+'   Function BIZ_InputFormBuilder_AddObject(strObject,intNoOfObjects,strProperty,value,strTab,strFieldID)
+'   Function BIZ_InputFormBuilder_DeleteForm(strFormName)
+'	Function BIZ_InputFormBuilder_CloseCustomForm(boolSave)
+'	Function BIZ_InputFormBuilder_DeleteFormFields(strFormName)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to Launch InputFormBuilder
+'@code
+'    Function BIZ_InputFormBuilder_Launch()
+'@endcode
+'@param 
+
+Function BIZ_InputFormBuilder_Launch()
+
+	FRM_Logger_ReportInfoEvent "Launch InputFormBuilder", "Launch InputFormBuilder", Null
+	UTIL_Win_CloseProcesses "FormBuilder.exe"
+    UTIL_Win_MinimizeAll()
+	SystemUtil.Run "C:\SmartClientCache\Apps\Ellie Mae\Encompass\FormBuilder.exe"
+
+End Function
+
+
+
+'This function is used to Login system using Row Id
+'@code
+'    BIZ_InputFormBuilder_Login(strRowID)
+'@endcode
+'@param strRowID - row id for data
+
+Function BIZ_InputFormBuilder_Login(strRowID)
+
+	Set objData = FRM_DS_GetGlobalTestData("Login", strRowID)
+	strUserName = objData.Item("UserName")
+	strUserPwd = objData.Item("UserPassword")
+	strURL = objData.Item("URL")
+	BIZ_InputFormBuilder_UserLogin strUserName, strUserPwd, strURL
+
+End Function
+
+
+
+'This function is used to Login in Admin Tools
+'@code
+'    Function BIZ_InputFormBuilder_UserLogin(strUserName, strUserPwd, strURL)
+'@endcode
+'@param strUserName - The user id
+'@param strUserPwd - The password
+'@param strURL - server to connect
+
+Function BIZ_InputFormBuilder_UserLogin(strUserName, strUserPwd, strURL)
+
+	FRM_Logger_ReportInfoEvent "Login in InputFormBuilder", strURL & ", " & strUserName & ", " & strUserPwd, Null
+	GUI_SwfEdit_Set SwfWindow("swfname:=LoginScreen").SwfEdit("swfname:=loginNameBox"), strUserName
+	GUI_SwfEdit_Set SwfWindow("swfname:=LoginScreen").SwfEdit("swfname:=passwordBox"), strUserPwd
+    
+    If NOT strURL = "" Then
+	       GUI_SwfEdit_Set SwfWindow("swfname:=LoginScreen").WinEdit("window id:=1001"), strURL
+    End If
+    
+	GUI_SwfButton_Click SwfWindow("swfname:=LoginScreen").SwfButton("swfname:=okBtn")
+    GUI_Object_WaitTillVisibleX SwfWindow("swfname:=HostWin"),120
+       
+End Function
+
+
+
+'This function is used to Close InputFormBuilder
+'@code
+'    Function BIZ_InputFormBuilder_Close()
+'@endcode
+'@param 
+
+Function BIZ_InputFormBuilder_Close()
+	
+	FRM_Logger_ReportInfoEvent "Close Input Form Builder", "Close Input Form Builder", Null
+	SwfWindow("swfname:=HostWin").Activate
+	SwfWindow("swfname:=HostWin").Close
+	
+End Function
+
+
+
+'This function is used to Create custom form
+'@code
+'    Function BIZ_InputFormBuilder_CreateCustomForm()
+'@endcode
+
+Function BIZ_InputFormBuilder_CreateCustomForm()
+	
+	FRM_Logger_ReportInfoEvent "InputFormBuilder CreateCustomForm", "Create custom form using InputFormBuilder", Null
+	GUI_SwfButton_Click SwfWindow("swfname:=HostWin").SwfButton("swfname:=btnNew")
+	
+End Function
+
+
+
+'This function is used to save custom form
+'@code
+'    Function BIZ_InputFormBuilder_SaveCustomForm(strFormName)
+'@endcode
+'@param strFormName - Name of form to create newly
+
+Function BIZ_InputFormBuilder_SaveCustomForm(strFormName)
+
+    FRM_Logger_ReportInfoEvent "InputFormBuilder Save Custom Form", "Save Custom Form '" & strFormName & "'", Null
+    
+	Set objMainMenu = SwfWindow("swfname:=HostWin").SwfToolbar("swfname:=mainMenu")
+	Set objSaveWindow = SwfWindow("swfname:=HostWin").SwfWindow("swfname:=FormSaveAsDialog")
+	
+	GUI_SwfToolbar_ShowDropdown objMainMenu,"File"		
+    GUI_SwfToolbar_Select objMainMenu, "File;Save Form"
+    
+    If GUI_Object_IsExistX(objSaveWindow, 5) Then
+	   GUI_SwfEdit_Set objSaveWindow.SwfEdit("swfname:=txtName"),strFormName
+       GUI_SwfButton_Click objSaveWindow.SwfButton("swfname:=btnSave")
+    End If
+    
+    Set objMainMenu = Nothing
+    Set objSaveWindow = Nothing
+        
+End Function
+
+
+
+'This function is used to add objects to custom form
+'@code
+'    Function BIZ_InputFormBuilder_AddObject(strObject)
+'@endcode
+'@param strObject - Name of object to add to custom form(e.g strObject - Label,TextBox)
+
+Function BIZ_InputFormBuilder_AddObject(strObject)
+
+    FRM_Logger_ReportInfoEvent "InputFormBuilder AddObject", "Add object '" & strObject & "'", Null
+    
+    Set objMainMenu = SwfWindow("swfname:=HostWin").SwfToolbar("swfname:=mainMenu")
+
+    GUI_SwfToolbar_ShowDropdown objMainMenu,"Edit"		
+    GUI_SwfToolbar_Select objMainMenu, "Edit;Insert;"&strObject&""
+    
+    Set objMainMenu = Nothing  
+    
+End Function
+
+
+
+ 
+   
+
+'This function is used to delete custom form
+'@code
+'    Function BIZ_InputFormBuilder_DeleteForm(strFormName)
+'@endcode
+'@param strFormName - Name of form to delete from Input Builder
+
+    
+Function BIZ_InputFormBuilder_DeleteForm(strFormName)
+
+    FRM_Logger_ReportInfoEvent "InputFormBuilder DeleteForm", "Delete Form '" & strFormName & "'", Null
+    
+    Set objMainMenu = SwfWindow("swfname:=HostWin").SwfToolbar("swfname:=mainMenu")
+    Set objManageCustomization = SwfWindow("swfname:=HostWin").SwfWindow("swfname:=FormsManagementDialog")
+    
+    GUI_SwfToolbar_ShowDropdown objMainMenu,"Tools"		
+    GUI_SwfToolbar_Select objMainMenu, "Tools;Manage Customizations..."
+    GUI_SwfTab_Click objManageCustomization.SwfTab("swfname:=tabsPackageItemType"),"Custom Input Forms"
+    GUI_SwfList_Select objManageCustomization.SwfListView("swfname:=lvwForms"),strFormName
+    GUI_SwfButton_Click objManageCustomization.Swfbutton("swfname:=btnDelete")
+    GUI_WinButton_Click objManageCustomization.Dialog("text:=Encompass").Winbutton("text:=OK")
+    GUI_SwfButton_Click objManageCustomization.Swfbutton("swfname:=btnClose")
+    
+    Set objMainMenu = Nothing
+    Set objManageCustomization = Nothing
+        
+End Function
+
+
+
+'This function is used to Close custom form
+'@code
+'    Function BIZ_InputFormBuilder_CloseCustomForm(strFormName, boolSave)
+'@endcode
+'@param boolSave - Whether to save the form or not
+
+Function BIZ_InputFormBuilder_CloseCustomForm(boolSave)
+
+    FRM_Logger_ReportInfoEvent "InputFormBuilder Close Custom Form", "Close Custom Form", Null
+    
+	Set objMainMenu = SwfWindow("swfname:=HostWin").SwfToolbar("swfname:=mainMenu")
+	Set objSaveWindow = SwfWindow("swfname:=HostWin").SwfWindow("swfname:=FormSaveAsDialog")
+	
+	GUI_SwfToolbar_ShowDropdown objMainMenu,"File"		
+    GUI_SwfToolbar_Select objMainMenu, "File;Close Form"
+    
+    If GUI_Object_IsExistX(SwfWindow("swfname:=HostWin").Dialog("text:=Form Editor"), 5) Then
+	   If boolSave Then
+       	  GUI_WinButton_Click SwfWindow("swfname:=HostWin").Dialog("text:=Form Editor").WinButton("text:=&Yes")
+	   Else
+       	  GUI_WinButton_Click SwfWindow("swfname:=HostWin").Dialog("text:=Form Editor").WinButton("text:=&No")
+	   End If
+    End If
+    
+    Set objMainMenu = Nothing
+    Set objSaveWindow = Nothing
+        
+End Function
+
+
+
+' This function is for delete form fields 
+'@code
+'   BIZ_DeleteFormFields(strFormName)
+'@endcode
+'@Param strFormName is to used delete fields
+
+Function BIZ_InputFormBuilder_DeleteFormFields(strFormName)
+
+	FRM_Logger_ReportInfoEvent "DeleteFormFields","DeleteFormFields", Null
+	
+	Dim objOpenDialog,objMainMenu
+		
+	Set objOpenDialog   = SwfWindow("swfname:=HostWin").SwfWindow("swfname:=FormOpenDialog")
+	Set objMainMenu = SwfWindow("swfname:=HostWin").SwfToolbar("swfname:=mainMenu")
+		
+	GUI_SwfButton_Click SwfWindow("swfname:=HostWin").SwfButton("swfname:=btnOpen")
+	GUI_SwfTab_Click objOpenDialog.SwfTab("swfname:=tabsOpen"), "Custom Input Forms"
+			
+	intRowid= GUI_List_GetRowIndex(objOpenDialog.SWfListView("swfname:=lvwCustom"), 0, strFormName)
+	If intRowid>=0 Then
+		If UTIL_String_IsNotEmpty(strFormName) Then
+			GUI_List_Select  objOpenDialog.SWfListView("swfname:=lvwCustom"), strFormName
+			GUI_SwfButton_Click objOpenDialog.SwfButton("swfname:=btnOpen")
+		End If
+		
+		GUI_SwfToolbar_ShowDropdown objMainMenu,"Edit"
+		GUI_SwfToolbar_Select objMainMenu, "Edit;Select All"
+    	GUI_SwfToolbar_Select objMainMenu, "Edit;Delete"
+    
+    BIZ_InputFormBuilder_SaveCustomForm strFormName	
+	BIZ_InputFormBuilder_CloseCustomForm False	
+	
+	End If	
+	If GUI_Object_IsExist(objOpenDialog.SwfButton("swfname:=btnCancel")) Then
+		GUI_SwfButton_Click objOpenDialog.SwfButton("swfname:=btnCancel")
+	End If
+	
+	Set objOpenDialog   = Nothing
+	Set objMainMenu  	= Nothing
+End Function
+
+
+'This function is used to add objects to custom form
+'@code
+'    Function BIZ_InputFormBuilder_DeleteObject(strObjectName)
+'@endcode
+'@param strObjectName - Name of object to delete from custom form
+
+Function BIZ_InputFormBuilder_DeleteObject(strObjectName)
+
+  FRM_Logger_ReportInfoEvent "InputFormBuilder DeleteObject", "Delete object '" & strObjectName & "'", Null
+  
+  Set objMainMenu = SwfWindow("swfname:=HostWin").SwfToolbar("swfname:=mainMenu")
+    
+  GUI_SwfComboBox_Select SwfWindow("swfname:=HostWin").SwfComboBox("swfname:=cboControls"),strObjectName   
+  GUI_SwfToolbar_ShowDropdown objMainMenu,"Edit"		
+  GUI_SwfToolbar_Select objMainMenu, "Edit;Delete"
+  
+  Set objMainMenu = Nothing
+  
+ End Function
+'@}

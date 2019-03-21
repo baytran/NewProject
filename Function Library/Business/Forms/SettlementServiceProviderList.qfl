@@ -1,0 +1,135 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_SettlementServiceProviderList BIZ_Forms_SettlementServiceProviderList
+'
+' List of functions here
+'@code
+'	Function BIZ_SettlementServiceProviderList_AddNewProvider(strRowID)
+'   Function BIZ_Common_SettlementServiceProviderList_AddNewProvider(objParentObject, strRowID)
+'	Function BIZ_Verify_SettlementServiceProviderList_ProviderDetail(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for Adding a new provider
+'@code
+'    BIZ_SettlementServiceProviderList_AddNewProvider(strRowID)
+'@endcode
+
+Function BIZ_SettlementServiceProviderList_AddNewProvider(strRowID)
+	
+	FRM_Logger_ReportInfoEvent "Settlement Service Provider List", "Set Settlement Service Provider data using Row Id '"&strRowID&"'", null
+    
+    GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnIconAdd")
+    Set objPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+	BIZ_Common_SettlementServiceProviderList_AddNewProvider objPage, strRowID	 
+	
+	Set objPage = Nothing	
+      
+End Function	
+
+
+'This function is for set information on Settlement Service Provider List form
+'@code
+'    BIZ_Common_SettlementServiceProviderList_AddNewProvider(objParentObject, strRowID)
+'@endcode
+'@param objParentObject the Parent Object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_SettlementServiceProviderList_AddNewProvider(objParentObject, strRowID)
+    
+    Set objData = FRM_DS_GetTestData("Forms_SettlementServiceProviderList", "SettlementServiceProvider", strRowID)
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceCategory")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_SP0001","index:=0"), FRM_DS_GetValue(objData, "ServiceCategory") 	'ServiceCategory
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CompanyName")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox2","index:=0"), FRM_DS_GetValue(objData, "CompanyName") 	'CompanyName
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Address") ) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox3","index:=0"), FRM_DS_GetValue(objData, "Address") 	'Address
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Zip")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_SP0006","index:=0"), FRM_DS_GetValue(objData, "Zip") 	'Zip
+	End If   
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CannotShopFor")) Then		
+		GUI_WebCheckBox_Set objParentObject.WebCheckBox("html id:=__cid_CheckBox1_Ctrl","index:=0"), Cint(FRM_DS_GetValue(objData, "CannotShopFor"))
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ContactName")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox6","index:=0"), FRM_DS_GetValue(objData, "ContactName") 	'ContactName
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FeeLine1Description")) then 
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox10","index:=0"), trim(FRM_DS_GetValue(objData, "FeeLine1Description"))   'FeeLine1Description
+	End if	  
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FeeLine1Amount")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox20","index:=0"), FRM_DS_GetValue(objData, "FeeLine1Amount")	'FeeLine1Amount
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FeeLine2Description")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox11","index:=0"), FRM_DS_GetValue(objData, "FeeLine2Description") 	'FeeLine2Description
+	End If	  
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FeeLine2Amount")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox21","index:=0"), FRM_DS_GetValue(objData, "FeeLine2Amount") 	'FeeLine2Amount
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Phone")) Then	
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox7","index:=0"), FRM_DS_GetValue(objData, "Phone") 	'Phone
+	End If	
+	
+	Set objData = Nothing		
+    
+End Function
+
+
+
+'This function is for verify information on Settlement Service Provider List form
+'@code
+'    BIZ_Verify_SettlementServiceProviderList_ProviderDetail(strRowID)
+'@endcode
+'@param objParentObject the Parent Object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Verify_SettlementServiceProviderList_ProviderDetail(strRowID)
+    
+    FRM_Logger_ReportInfoEvent "Settlement Service Provider List", "Verify Settlement Service Provider data using Row Id '"&strRowID&"'", null
+    
+    Set objPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Forms_SettlementServiceProviderList", "SettlementServiceProvider", strRowID)
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ServiceCategory")) Then	
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=l_SP0001","index:=0"), FRM_DS_GetValue(objData, "ServiceCategory"), "ServiceCategory"
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CompanyName")) Then	
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=TextBox2","index:=0"), FRM_DS_GetValue(objData, "CompanyName"), "CompanyName"
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Address") ) Then	
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=TextBox3","index:=0"), FRM_DS_GetValue(objData, "Address"), "Address"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Zip")) Then	
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=l_SP0006","index:=0"), FRM_DS_GetValue(objData, "Zip"), "Zip"
+	End If   
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CannotShopFor")) Then		
+		GUI_Object_ValidateProperty objPage.WebCheckBox("html id:=__cid_CheckBox1_Ctrl","index:=0"), "checked", FRM_DS_GetValue(objData, "CannotShopFor"), "Cannot Shop for"
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ContactName")) Then	
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=TextBox6","index:=0"), FRM_DS_GetValue(objData, "ContactName"), "ContactName"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FeeLine1Description")) then 
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=TextBox10","index:=0"), FRM_DS_GetValue(objData, "FeeLine1Description"), "FeeLine1Description"
+	End if	  
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FeeLine1Amount")) Then	
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=TextBox20","index:=0"), FormatNumber(FRM_DS_GetValue(objData, "FeeLine1Amount")), "FeeLine1Amount"
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FeeLine2Description")) Then	
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=TextBox11","index:=0"), FRM_DS_GetValue(objData, "FeeLine2Description"), "FeeLine2Description"
+	End If	  
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FeeLine2Amount")) Then	
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=TextBox21","index:=0"), FRM_DS_GetValue(objData, "FeeLine2Amount"), "FeeLine2Amount"
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Phone")) Then	
+		GUI_Object_ValidateValue objPage.WebEdit("html id:=TextBox7","index:=0"), FRM_DS_GetValue(objData, "Phone"), "Phone"
+	End If
+	
+	Set objData = Nothing
+    Set objPage = Nothing
+
+End Function
+
+
+'@}

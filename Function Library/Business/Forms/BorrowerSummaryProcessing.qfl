@@ -1,0 +1,99 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_BorrowerSummaryProcessing BIZ_Forms_BorrowerSummaryProcessing
+'List of functions here
+'@code
+'	Function BIZ_BorrowerSummaryProcessing_SetCreditInformation(strRowID)
+'	Function BIZ_BorrowerSummaryProcessing_VerifyCreditInformation(strRowID)
+'	Function BIZ_Common_BorrowerSummaryProcessing_SetCreditInformation(objParentObject, strRowID)
+'
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for set Credit Information 
+'@code
+'    BIZ_BorrowerSummaryProcessing_SetCreditInformation(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_BorrowerSummaryProcessing_SetCreditInformation(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Borrower Summary - Processing", "Set Credit Information using Row Id '"&strRowID&"' in the Borrower datasheet", null
+
+	Set objSummaryPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    
+	BIZ_Forms_Open "Borrower Summary - Processing"
+	BIZ_Common_BorrowerSummaryProcessing_SetCreditInformation objSummaryPage, strRowID
+	
+	Set objSummaryPage = Nothing
+End Function
+
+
+
+'This function is for verification of Credit Information 
+'@code
+'    BIZ_BorrowerSummaryProcessing_VerifyCreditInformation(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_BorrowerSummaryProcessing_VerifyCreditInformation(strRowID)
+
+    	FRM_Logger_ReportInfoEvent "Borrower Summary - Processing", "Validate Credit Information using Row Id '"&strRowID&"' in the Borrower datasheet", null
+	
+	BIZ_Forms_Open "Borrower Summary - Processing"
+	
+	Set objData = FRM_DS_GetTestData("Forms_BorrowerSummaryProcessing", "SetCreditInformation", strRowID)	
+
+	GUI_Object_ValidateProperty SwfWindow("swfname:=MainForm").Page("index:=0").WebCheckBox("html id:=__cid_CheckBox48_Ctrl"), "checked", FRM_DS_GetValue(objData, "4073_AuthorizedCreditReport"), "Authorized Credit Report"
+	GUI_Object_ValidateValueAsDate SwfWindow("swfname:=MainForm").Page("index:=0").WebEdit("html id:=TextBox31"), FRM_DS_GetValue(objData, "4074_DateAuthorized"), "Date Authorized"
+	GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("index:=0").WebList("html id:=DropdownBox8"), FRM_DS_GetValue(objData, "4075_AuthorizationMethod"), "Authorization Method"
+	GUI_Object_ValidateProperty SwfWindow("swfname:=MainForm").Page("index:=0").WebCheckBox("html id:=__cid_CheckBox49_Ctrl"), "checked", FRM_DS_GetValue(objData, "4076_AuthorizedCreditReport"), "Authorized Credit Report"
+	GUI_Object_ValidateValueAsDate SwfWindow("swfname:=MainForm").Page("index:=0").WebEdit("html id:=TextBox32"), FRM_DS_GetValue(objData, "4077_DateAuthorized"), "Date Authorized"
+	GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("index:=0").WebList("html id:=DropdownBox9"), FRM_DS_GetValue(objData, "4078_AuthorizationMethod"), "Authorization Method"
+	GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("index:=0").WebEdit("html id:=MultilineTextBox1"), FRM_DS_GetValue(objData, "4079_Comments"), "Comments"
+	
+	Set objData = Nothing	
+	
+End Function	
+
+
+
+'This function is for set Credit Information 
+'@code
+'    BIZ_Common_BorrowerSummaryProcessing_SetCreditInformation(objParentObject, strRowID)
+'@endcode
+'@param objParentObject parent object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_BorrowerSummaryProcessing_SetCreditInformation(objParentObject, strRowID)
+
+	Set objData = FRM_DS_GetTestData("Forms_BorrowerSummaryProcessing", "SetCreditInformation", strRowID)
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4073_AuthorizedCreditReport")) Then
+		GUI_WebCheckBox_Set objParentObject.WebCheckBox("html id:=__cid_CheckBox48_Ctrl"), FRM_DS_GetValue(objData, "4073_AuthorizedCreditReport")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4074_DateAuthorized")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox31"), FRM_DS_GetValue(objData, "4074_DateAuthorized")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4075_AuthorizationMethod")) Then
+		GUI_WebList_Select objParentObject.WebList("html id:=DropdownBox8"), FRM_DS_GetValue(objData, "4075_AuthorizationMethod")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4076_AuthorizedCreditReport")) Then
+		GUI_WebCheckBox_Set objParentObject.WebCheckBox("html id:=__cid_CheckBox49_Ctrl"), FRM_DS_GetValue(objData, "4076_AuthorizedCreditReport")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4077_DateAuthorized")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox32"), FRM_DS_GetValue(objData, "4077_DateAuthorized")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4078_AuthorizationMethod")) Then
+		GUI_WebList_Select objParentObject.WebList("html id:=DropdownBox9"), FRM_DS_GetValue(objData, "4078_AuthorizationMethod")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4079_Comments")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=MultilineTextBox1"), FRM_DS_GetValue(objData, "4079_Comments")
+	End If
+
+	Set objData = Nothing		
+End Function
+
+
+
+'@}

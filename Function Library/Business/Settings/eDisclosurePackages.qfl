@@ -1,0 +1,13 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Settings_eDisclosurePackages BIZ_Settings_eDisclosurePackages
+'
+' List of functions here
+' @code
+'	Function BIZ_eDisclosurePackages_SettingConsents(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+
+'@}

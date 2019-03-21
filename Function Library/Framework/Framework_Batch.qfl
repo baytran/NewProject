@@ -1,0 +1,719 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: Framework_Batch Framework_Batch
+' This is the function group for Batch 
+' 
+' List of functions here
+' @code
+'
+'	Function FRM_Batch_GetCurrentPath()
+'	Function FRM_Batch_ProjectBase()
+'	Function FRM_Batch_ReportDirPath
+'	Function FRM_Batch_ObjectRepositoryDirPath
+'	Function FRM_Batch_FunctionLibraryDirPath
+'	Function FRM_Batch_RecoveryScenarioDirPath
+'	Function FRM_Batch_TestCaseDirPath
+'	Function FRM_Batch_TestScriptDirPath
+'	Function FRM_Batch_TestConfigurationDirPath
+'	Function FRM_Batch_RecoveryLogFile
+'	Function FRM_Batch_ExecuteGlobal(strFileName)
+'	Function FRM_Batch_SetupTest(arrArgs)
+'	Function FRM_Batch_TeardownTest(arrArgs)
+'   Function FRM_Batch_ArrayOfTestCasesToRun(strTestCaseFileName)
+'	Function FRM_Batch_GenerateLoadAndRunScript()
+'	Function FRM_Batch_WriteDetailReport(strSummaryFilePath, strResultXML)
+'	Function FRM_Batch_InitialExcelReport(strReportSummaryPath)
+'   Function FRM_Batch_TestSummaryReport_MergeLatestReport(strMergedReportFilePath, strTestSuiteName)
+'   Function FRM_Batch_TestSummaryReport_Merge(strMergedReportFilePath, strTestSuiteName, strTestSuiteReportFile)
+'   Function FRM_Batch_TestSummaryReport_ReadDetails(strFilePath, strTestSuiteName)
+'   Function FRM_Batch_CreateBatchTestCaseFiles()
+'   Function FRM_Batch_ArrayOfTestCasesToReRun(strMergedReportName)
+'   Function FRM_Batch_CreateReRunBatchTestCaseFiles(strTestCaseFileName,strMergedReportFileToRead)
+'   Function FRM_Batch_CreateBatchFilesFromArray(arrTestCases2Dimension, strDestinationSubDir)
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+g_FRM_Prop_MergedBatchSummaryFile = "MergedBatchSummaryFile"
+g_FRM_Prop_BatchSummaryFile = "BatchSummaryFile"
+
+
+
+'Return the current script path
+'@return the current script path
+
+Function FRM_Batch_GetCurrentPath()
+	On Error Resume Next
+	FRM_Batch_GetCurrentPath = Left(WScript.scriptfullname, InstrRev(WScript.scriptfullname, "\") - 1)
+	If Err.Number <> 0 Then
+		strTest = Environment.Value("TestDir")
+		FRM_Batch_GetCurrentPath = Left(strTest, InStrRev(strTest, "Test Script\"))
+	End If
+	Err.Clear
+	On Error GoTo 0
+	
+End Function
+
+
+'Return the current project base path
+'@return the current project base path
+
+Function FRM_Batch_ProjectBase()
+
+	strCurrentPath = FRM_Batch_GetCurrentPath
+	FRM_Batch_ProjectBase = Left(strCurrentPath, InStrRev(strCurrentPath, "\")-1)
+	
+End Function
+
+
+'This function returns the directory path to the RuntimeProp File
+'@code
+'    FRM_Batch_RuntimePropFilePath()
+'@endcode
+
+Function FRM_Batch_RuntimePropFilePath()
+	FRM_Batch_RuntimePropFilePath = FRM_Batch_ProjectBase() + "\Test Configuration\" + g_FRM_RuntimePropFile
+End Function
+
+
+
+'Return the path to "Test Report" folder
+'@return the path to "Test Report" folder
+
+Function FRM_Batch_ReportDirPath
+
+	FRM_Batch_ReportDirPath = FRM_Batch_ProjectBase() + "\Test Report\"
+	
+End Function
+
+
+
+'Return the path to "Object Repository" folder
+'@return the path to "Object Repository" folder
+	
+Function FRM_Batch_ObjectRepositoryDirPath
+
+	FRM_Batch_ObjectRepositoryDirPath = FRM_Batch_ProjectBase() + "\Object Repository\"
+	
+End Function
+
+
+
+'Return the path to "Function Library" folder
+'@return the path to "Function Library" folder
+
+Function FRM_Batch_FunctionLibraryDirPath
+
+	FRM_Batch_FunctionLibraryDirPath = FRM_Batch_ProjectBase() + "\Function Library\"
+	
+End Function
+
+
+
+'Return the path to "Recovery Scenario" folder
+'@return the path to "Recovery Scenario" folder
+
+Function FRM_Batch_RecoveryScenarioDirPath
+
+	FRM_Batch_RecoveryScenarioDirPath = FRM_Batch_ProjectBase() + "\Recovery Scenario\"
+	
+End Function
+	
+	
+'Return the path to "Test Case" folder
+'@return the path to "Test Case" folder
+
+Function FRM_Batch_TestCaseDirPath
+
+	FRM_Batch_TestCaseDirPath = FRM_Batch_ProjectBase() + "\Test Case\"
+	
+End Function
+	
+
+'Return the path to "Test Script" folder
+'@return the path to "Test Script" folder
+
+Function FRM_Batch_TestScriptDirPath
+
+	FRM_Batch_TestScriptDirPath = FRM_Batch_ProjectBase() + "\Test Script\"
+	
+End Function
+	
+
+'Return the path to "Test Configuration" folder
+'@return the path to "Test Configuration" folder
+
+Function FRM_Batch_TestConfigurationDirPath
+
+	FRM_Batch_TestConfigurationDirPath = FRM_Batch_ProjectBase() + "\Test Configuration\"
+	
+End Function
+
+	
+'Return the path to "Recovery Scenario" log file
+'@return the path to "Recovery Scenario" log file
+	
+Function FRM_Batch_RecoveryLogFile
+
+	FRM_Batch_RecoveryLogFile = FRM_Batch_RecoveryScenarioDirPath() + "log.txt"
+	
+End Function
+
+	
+	
+'Include a library file
+'@param strFileName path to file to be included
+	
+Function FRM_Batch_ExecuteGlobal(strFileName)
+	
+	Set objFileContent = CreateObject("Scripting.FileSystemObject").OpenTextFile(strFileName,1,False) 
+	ExecuteGlobal objFileContent.ReadAll
+	Set objFileContent = Nothing
+	
+End Function	
+
+
+
+'This function is for Initialize test
+'@code
+'    FRM_Batch_SetupTest(arrArgs)
+'@endcode
+'@param an array of arguments
+
+Function FRM_Batch_SetupTest(arrArgs)
+
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_Batch_TestCaseDirPath()
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_Batch_RecoveryScenarioDirPath()
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_Batch_TestConfigurationDirPath()
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_Batch_ReportDirPath()
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_Batch_FunctionLibraryDirPath()
+    UTIL_Prop_ResetAll(FRM_RT_RuntimePropFilePath())
+    strReportFilePath = FRM_Batch_ReportDirPath() & "Batch_" & UTIL_Date_Now_mmddyyyy_HHnnss()
+    strHTMLReportFile = strReportFilePath & ".html"
+    strWordDocFile = strReportFilePath & ".doc"
+    FRM_RT_SetPropValue g_FRM_Prop_ReportFile, strHTMLReportFile
+    FRM_RT_SetPropValue g_FRM_Prop_ScreenshotFile, strWordDocFile
+    UTIL_Report_Initialize strHTMLReportFile	
+   'FRM_Logger_ReportInfoEvent "Report File", strHTMLReportFile, null
+   'FRM_Logger_ReportInfoEvent "Start To Run Batch Test", "Test Start Time: " & Now, Null
+	strLogFilePath = FRM_Batch_RecoveryScenarioDirPath + "log.txt"
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	Set objTextFile = objFSO.CreateTextFile(strLogFilePath, true) 
+	objFSO.GetFile(strLogFilePath).Attributes = 0
+	Set objTextFile = Nothing 
+	Set objFSO = Nothing
+	''FRM_Logger_ReportInfoEvent  "Create a Txt file to log Recovery Scenario information.", strLogFilePath, Null
+End Function 
+
+
+'This function is for Tear Down test
+'@code
+'    FRM_Batch_TeardownTest(arrArgs)
+'@endcode
+'@param an array of arguments
+
+Function FRM_Batch_TeardownTest(arrArgs)
+    UTIL_Report_Terminate()
+	UTIL_Prop_ResetAll(FRM_Batch_RuntimePropFilePath())
+	
+End Function
+
+
+'Read the TestCase spreadsheet and returns an array of test cases to be executed
+'@param strTestCaseFileName - The test case file name.  If empty string provide, default "TestCase.xlsx" is used
+'@return an array of test cases to be executed
+
+Function FRM_Batch_ArrayOfTestCasesToRun(strTestCaseFileName)
+
+	arrTestCases = Array()
+	
+	' Create Excel Object
+	Set objExcelApp = CreateObject("Excel.Application")
+    If UTIL_String_IsEmpty(strTestCaseFileName) Then    
+        strTestCaseFileName = "TestCase.xlsx"
+    End If
+	Set objWorkbook = objExcelApp.Workbooks.Open(FRM_Batch_TestCaseDirPath + strTestCaseFileName)
+	'Locate <Suite & Action> sheet and its total count
+	boolTestSuite = UTIL_Excel_SheetExistsInWorkbook(objWorkbook, "TestSuite")
+
+	Set objSuiteList = CreateObject("System.Collections.ArrayList")
+	If boolTestSuite Then	
+		Set objTestSuiteSheet = objExcelApp.Sheets.Item("TestSuite")
+		intTestSuiteRowCount = objTestSuiteSheet.UsedRange.Rows.Count
+		'Loop for the <Test Suite>
+		For i = 1 to intTestSuiteRowCount + 1
+			'judge whether the Module run or not
+			If objTestSuiteSheet.Cells(i, 2) = "Y" Then 
+				objSuiteList.Add CStr(objTestSuiteSheet.Cells(i, 1).Value)
+			End If	
+		Next	
+		Set objTestSuiteSheet = Nothing
+	End If
+	
+	Set objTestCaseSheet = objExcelApp.Sheets.Item("TestCase")
+	intTestCaseRowCount = objTestCaseSheet.UsedRange.Rows.Count
+
+	' Loop for <Test Name>
+	For j = 2 to intTestCaseRowCount
+	    'If test suite name matches and execution marked "Y" or if test suite doesn't exist and test case is marked as "Y"
+		If (boolTestSuite AND objSuiteList.Contains(CStr(objTestCaseSheet.Cells(j, 1))) And objTestCaseSheet.Cells(j, 3) = "Y") OR _
+			(Not boolTestSuite AND objTestCaseSheet.Cells(j, 3) = "Y") Then
+			'set runtimes testname so that data file can be found
+			strTestCase = objTestCaseSheet.Cells(j, 2)
+			arrTestCases = UTIL_Array_InsertAtEnd(arrTestCases, strTestCase)
+		End If
+	Next
+
+	objExcelApp.Quit	 
+	Set objTestSuiteSheet = Nothing
+	Set objExcelApp = Nothing
+
+	FRM_Batch_ArrayOfTestCasesToRun = arrTestCases
+	
+End Function 
+
+
+
+'Generate LoanAndRun scripts
+'@param arrTestCases - array of test cases
+
+Function FRM_Batch_GenerateLoadAndRunScript(arrTestCases)
+
+	For i = 0 to UBound(arrTestCases)
+		strTestCasePath = FRM_Batch_TestScriptDirPath + arrTestCases(i)  
+		'temp=""
+		'strScript = strScript + "Environment.value("+UTIL_String_DblQuote("BatchTestCasePath")+") = "+UTIL_String_DblQuote(temp)+vblf
+		''strScript = strScript + "Environment("+UTIL_String_DblQuote("BatchTestCasePath")+") = "+UTIL_String_DblQuote(strTestCasePath)+vblf	                      
+		strScript = strScript + "Environment.value("+UTIL_String_DblQuote("BatchTestCasePath")+") = "+UTIL_String_DblQuote(strTestCasePath)+vblf	 
+		strScript = strScript + "LoadAndRunAction " + UTIL_String_DblQuote(strTestCasePath) + "," +_
+		UTIL_String_DblQuote("MainAction") + "," + "oneiteration" + vbCrLf
+	Next
+	FRM_Batch_GenerateLoadAndRunScript = strScript	  
+	
+End Function
+
+
+	
+'Write detail report in excel format
+'@param strSummaryFilePath path of the report excel file to be generated 
+'@param strResultXML path of QTP Results.xml 
+
+Function FRM_Batch_WriteDetailReport(strSummaryFilePath, strResultXML)
+
+	' Create Excel Object
+	Set objExcelApplication = CreateObject("Excel.Application")
+	objExcelApplication.DisplayAlerts = False
+
+'	objExcelApp.Visible = true
+	Set objHtmlFile = objExcelApplication.Workbooks.Open(strSummaryFilePath)
+	Set objTestSummarySheet = objExcelApplication.Sheets.Item("Report")
+	
+	Dim objXML, objRoot, arrActionNodes, objActionNode, arrErrors
+	If UTIL_File_FileExists(strResultXML) Then
+	
+		On Error Resume Next
+		Set objXML = UTIL_Xml_LoadFromFile(strResultXML)
+		If Err.Number = 0 Then
+		''FRM_Logger_ReportInfoEvent "Load XML result file successfully.", strResultXML, null
+			Set objRoot = objXML.documentElement
+					
+			' For total run time
+			Dim startTime, endTime
+			startTime = objRoot.SelectSingleNode("//Doc").SelectSingleNode("Summary").getAttribute("sTime")
+			endTime = objRoot.SelectSingleNode("//Doc").SelectSingleNode("Summary").getAttribute("eTime")
+			'objTestSummarySheet.Cells(4, 2) = Split(startTime, "-")(0) & Split(startTime, "-")(1)
+			'objTestSummarySheet.Cells(5, 2) = Split(endTime, "-")(0) & Split(endTime, "-")(1)
+            objTestSummarySheet.Cells(4, 2) = Replace(startTime, "- ", "")
+            objTestSummarySheet.Cells(5, 2) = Replace(endTime, "- ", "")
+					
+			' For detail action
+			Dim objIter
+			Set objIter = objRoot.SelectSingleNode("//Doc/DIter/Action")
+			If objIter Is Nothing Then
+			   Set objIter = objRoot.SelectSingleNode("//Doc/Action")
+			End If
+			
+			Set arrActionNodes = objIter.SelectNodes("Action")
+			Dim j : j = 12
+			For Each objActionNode In arrActionNodes
+				
+				FRM_Batch_ParseActionNodeInResultsXML objTestSummarySheet, j, objActionNode
+				' If trigger RS, write detail info to report
+				arrErrors = UTIL_File_ReadContentIntoArray(ProjectPath + "\Recovery Scenario\log.txt")
+				Dim i
+				If UBound(arrErrors) <> 0 Then
+					For i=1 to UBound(arrErrors)
+						If Split(arrErrors(i), "|") (0) = objActionNode.SelectSingleNode("AName").text Then 
+							objTestSummarySheet.Cells(j, 6) =  Replace(Split(arrErrors(i), "|") (1), ",", Chr(10))
+						End If 
+					Next 	
+				End If 					
+				j = j + 1
+				
+				Set arrActionSubNodes = objActionNode.SelectNodes("Action")
+				For Each objActionSubNode In arrActionSubNodes
+					FRM_Batch_ParseActionNodeInResultsXML objTestSummarySheet, j, objActionSubNode
+					j = j + 1
+				Next
+				
+			Next				
+			Set arrActionNodes = Nothing
+			Set objRoot = Nothing
+			Set objXML = Nothing
+		Else
+			' If Error, Inserts detail
+			objTestSummarySheet.Cells(12, 1) = "All"
+			objTestSummarySheet.Cells(12, 2) = "Error"
+			objTestSummarySheet.Cells(12, 3) = 0
+			objTestSummarySheet.Cells(12, 4) = 0
+			objTestSummarySheet.Cells(12, 5) = 0
+			objTestSummarySheet.Cells(12, 9) = ""
+			objTestSummarySheet.Cells(12, 10) = ""
+		''FRM_Logger_ReportFailEvent "Cannot load XML result file: " & strResultXML & ".", "Error number=" & Err.Number & ", Error description=" & Err.Description, null
+		End If
+		Err.Clear
+		On Error Goto 0
+	Else 
+		''FRM_Logger_ReportFailEvent "Cannot find XML result file", strResultXML, null
+	End If
+
+	'Set format for detail report
+	objTestSummarySheet.Range("A12:K" & j - 1).Borders.LineStyle = True
+	objTestSummarySheet.Range("A12:K" & j - 1).VerticalAlignment = 2
+	objTestSummarySheet.Range("A12:K" & j - 1).EntireColumn.Autofit()
+	objTestSummarySheet.Range("A12:K" & j - 1).EntireRow.Autofit()
+	objTestSummarySheet.Range("B12:E" & j - 1).HorizontalAlignment = 3
+	objTestSummarySheet.Range("G12:K" & j - 1).HorizontalAlignment = 3
+
+	'Transform Excel to HTML report
+	'objExcelApplication.Save
+	'Save Excel workbook.
+	strHTMLFilePath = replace(strSummaryFilePath, ".xlsx", ".mht")
+    objHtmlFile.Save
+	objHtmlFile.PublishObjects(1).FileName = strHTMLFilePath
+	objHtmlFile.PublishObjects(1).Publish
+	objExcelApplication.Quit
+	
+    FRM_RT_SetPropValue g_FRM_Prop_BatchSummaryFile, strSummaryFilePath
+''FRM_Logger_ReportInfoEvent  "End of creating detail Excel & HTML report", strSummaryFilePath, null
+	
+	Set objXML = Nothing
+	Set objHtmlFile = Nothing
+	Set objExcelApplication = Nothing
+
+End Function 	
+
+
+Function FRM_Batch_ParseActionNodeInResultsXML(ByRef objTestSummarySheet, j, objActionNode)
+				' Inserts detail
+				objTestSummarySheet.Cells(j, 1) = Trim(objActionNode.SelectSingleNode("AName").text)
+				objTestSummarySheet.Cells(j, 2) = objActionNode.SelectSingleNode("NodeArgs").getAttribute("status")
+				Select Case objActionNode.SelectSingleNode("NodeArgs").getAttribute("status")
+					Case "Passed"
+						 objTestSummarySheet.Cells(j, 2).Font.ColorIndex = 50
+					Case "Failed"
+						 objTestSummarySheet.Cells(j, 2).Font.ColorIndex = 3
+					Case "Warning"
+						 objTestSummarySheet.Cells(j, 2).Font.ColorIndex = 45
+				End Select
+				objTestSummarySheet.Cells(j, 3) = objActionNode.SelectSingleNode("Summary").getAttribute("passed")
+				objTestSummarySheet.Cells(j, 4) = objActionNode.SelectSingleNode("Summary").getAttribute("failed")
+				objTestSummarySheet.Cells(j, 5) = objActionNode.SelectSingleNode("Summary").getAttribute("warnings")				
+                objTestSummarySheet.Cells(j, 7) = Replace(objActionNode.SelectSingleNode("Summary").getAttribute("sTime"), "- ", "")
+                objTestSummarySheet.Cells(j, 9) = Replace(objActionNode.SelectSingleNode("Summary").getAttribute("eTime"), "- ", "")
+End Function 
+
+
+
+'Initial report in excel format
+'@param strTemplateFolder template file to be used
+'@param strReportSummaryPath excel summary report file copied from the template
+
+Function FRM_Batch_InitialExcelReport(strTemplateFolder, strReportSummaryPath)
+
+  ''FRM_Logger_ReportInfoEvent  "Initial test summary report",  "Template folder="&strTemplateFolder&", Report Summary File="&strReportSummaryPath, Null
+    
+	Dim objFSO	
+	'Copy the report template
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	objFSO.CopyFile strTemplateFolder & "TestReportTemplate.xlsx", strReportSummaryPath
+	objFSO.GetFile(strReportSummaryPath).Attributes = 0
+	Set objFSO = Nothing
+	
+End Function 
+
+
+
+'Merge the latest Test_Summary_Report.*.xlsx file into merged report. 
+'It looks for the last modified Test_Summary_Report.*.xlsx under Test Report folder and merges its data into the merged report
+'@param strMergedReportFilePath - path of the merged test summary report
+'@param strTestSuiteName - Test Suite name of the latest modified report
+
+Function FRM_Batch_TestSummaryReport_MergeLatestReport(strMergedReportFilePath, strTestSuiteName)
+
+	strLatestTestSuiteReportFile = UTIL_File_GetLatestModified( FRM_Batch_ReportDirPath, "^Test_Summary_Report_.*\.xlsx")
+    If UTIL_String_IsNotEmpty(strLatestTestSuiteReportFile) Then
+        'FRM_Batch_TestSummaryReport_MergeLatestReport strMergedReportFilePath, strTestSuiteName, strLatestTestSuiteReportFile
+		FRM_Batch_TestSummaryReport_Merge strMergedReportFilePath, strTestSuiteName, strLatestTestSuiteReportFile
+    End If
+End Function
+
+
+'Merge data in the provided test report file into merged report. 
+'@param strMergedReportFilePath - path of the merged test summary report
+'@param strTestSuiteName - Test Suite name of the latest modified report
+'@param strTestSuiteReportFile - the test report file to be merged
+
+Function FRM_Batch_TestSummaryReport_Merge(strMergedReportFilePath, strTestSuiteName, strTestSuiteReportFile)
+	
+	Set objExcel = CreateObject("Excel.Application")
+	objExcel.DisplayAlerts = False	
+	Set objWorkbook = objExcel.Workbooks.Open(strMergedReportFilePath)	
+	'Set Summary information
+	Set objWorksheet = objWorkbook.Worksheets("ReportDetail")
+	intRow = 1  
+	Do Until objWorksheet.Cells(intRow,1).Value = "Test Suite"
+		intRow = intRow + 1
+	Loop
+	intHeaderRow = intRow
+	Do While objWorksheet.Cells(intRow,1).Value <> ""
+		intRow = intRow + 1
+	Loop
+	intLastRow = intRow - 1	
+
+	'Get the details 
+	Set objReportDetails = FRM_Batch_TestSummaryReport_ReadDetails(strTestSuiteReportFile, strTestSuiteName)
+	arrRows = objReportDetails("Details")
+    intPassed = 0
+    intFailed = 0
+    intWarnings = 0	
+	For intCount = 0 To UBound(arrRows)
+		For intColumn = 1 To 11 Step 1	
+			strKey = objWorksheet.Cells(intHeaderRow, intColumn).Value		
+			strValue = arrRows(intCount)(strKey)
+		    objWorksheet.Cells(intLastRow+1+intCount, intColumn).Value = strValue
+		    
+		    If strKey = "Status" Then
+		    	If strValue = "Passed" Then		    				    	
+			    	intPassed = intPassed + 1
+			    ElseIf strValue = "Failed" Then
+			    	intFailed = intFailed + 1
+			    ElseIf strValue = "Warnings" Then	
+			    	intWarnings = intWarnings + 1
+			    End If
+		    End If
+		Next	
+	Next
+	Set objWorksheet = Nothing
+	
+	'Set Summary information
+	Set objWorksheet2 = objWorkbook.Worksheets("ReportSummary")
+	'Get Last Row
+	intRow2 = 1  
+	Do While objWorksheet2.Cells(intRow2,1).Value <> "Test Suite"
+		intRow2 = intRow2 + 1
+	Loop
+	Do While objWorksheet2.Cells(intRow2,1).Value <> ""
+		intRow2 = intRow2 + 1
+	Loop	
+	objWorksheet2.Cells(intRow2, 1).Value = strTestSuiteName
+	objWorksheet2.Cells(intRow2, 2).Value = strTestSuiteReportFile
+	objWorksheet2.Cells(intRow2, 3).Value = UBound(arrRows)+1
+	objWorksheet2.Cells(intRow2, 4).Value = intPassed
+	objWorksheet2.Cells(intRow2, 5).Value = intFailed
+	objWorksheet2.Cells(intRow2, 6).Value = intWarnings
+	objWorksheet2.Cells(intRow2, 7).Value = objReportDetails("Start Time")
+	objWorksheet2.Cells(intRow2, 8).Value = objReportDetails("End Time")
+	Set objWorksheet2 = Nothing
+	
+	objWorkbook.Save
+	objWorkbook.Close
+	objExcel.Quit
+	Set objDict = Nothing
+	Set objReportDetails = Nothing
+	Set objWorkbook = Nothing
+	Set objExcel = Nothing
+	
+End Function
+
+
+
+'Read details of a test summary report 
+'@param strFilePath - path of test summary report
+'@param strTestSuiteName - Test Suite name of the latest modified report
+'@return a dictionary object that holds the details
+
+Function FRM_Batch_TestSummaryReport_ReadDetails(strFilePath, strTestSuiteName)	
+	
+	Set objExcel = CreateObject("Excel.Application")
+	objExcel.DisplayAlerts = False	
+	Set objWorkbook = objExcel.Workbooks.Open(strFilePath)
+	Set objWorksheet = objWorkbook.Worksheets(1)
+	intRow = 1  
+	Do Until objWorksheet.Cells(intRow,1).Value = "Test Name"
+		intRow = intRow + 1
+	Loop
+	intHeaderRow = intRow
+	Do While objWorksheet.Cells(intRow,1).Value <> ""
+		intRow = intRow + 1
+	Loop
+	intLastRow = intRow - 1
+	'intDataRowCount = intLastRow - intHeaderRow
+	arrRows = Array()
+	'Loop until test name column is empty
+	For intCurrRow = intHeaderRow+1 To intLastRow Step 1
+		Set objDict = CreateObject("Scripting.Dictionary")
+		For intColumn = 1 To 11 Step 1			
+		    strKey = objWorksheet.Cells(intHeaderRow, intColumn)
+		    strValue = objWorksheet.Cells(intCurrRow, intColumn)
+		    If UTIL_String_IsNotEmpty(strKey) Then
+		    	objDict.Add strKey, strValue 
+		    End If			
+		Next
+		objDict.Add "Test Suite", strTestSuiteName
+		arrRows = UTIL_Array_InsertAtEnd(arrRows, objDict)
+	Next	
+	
+	Set objDetails = CreateObject("Scripting.Dictionary")
+	'Start Time
+	objDetails.Add "Start Time", objWorksheet.Cells(4, 2).Value
+	'End Time
+	objDetails.Add "End Time", objWorksheet.Cells(5, 2).Value
+	'Details
+	objDetails.Add "Details", arrRows
+	
+	objWorkbook.Close
+	objExcel.Quit
+	Set objDict = Nothing
+	Set objWorksheet = Nothing
+	Set objWorkbook = Nothing
+	Set objExcel = Nothing
+	
+	Set FRM_Batch_TestSummaryReport_ReadDetails = objDetails 
+	Set objDetails = Nothing
+End Function
+
+
+'Read array of test cases to run and creates files in nneded directory
+'@param arrTestCases2Dimension - array with list of test cases to run 
+'@param strDestinationSubDir - dir where to create test case file
+
+Function FRM_Batch_CreateBatchFilesFromArray(arrTestCases2Dimension, strDestinationSubDir)
+    strSrcFileName = FRM_Batch_TestCaseDirPath & "BatchTestCaseTemplate.xlsx" 
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False    
+    For i = 0 To UBound(arrTestCases2Dimension,1)        'Ubound of first dimension   
+        intRow = 2 
+		intRowID = 1
+        strDestFileName = FRM_Batch_TestCaseDirPath & strDestinationSubDir & UTIL_Date_Now_mmddyyyy_HHnnss() & ".xlsx"    
+        UTIL_File_Copy strSrcFileName, strDestFileName, True
+        WScript.Sleep 2000
+        Set objWorkbook = objExcel.Workbooks.Open(strDestFileName)
+        Set objWorksheet = objWorkbook.Worksheets("TestCase")
+    
+        For j = 0 To UBound(arrTestCases2Dimension,2)    'Ubound of Second dimension
+		    If NOT UTIL_String_IsEmpty(arrTestCases2Dimension(i,j)) Then
+				objWorksheet.Cells(intRow, 1) = intRowID 
+				objWorksheet.Cells(intRow, 2) = arrTestCases2Dimension(i,j)
+				objWorksheet.Cells(intRow, 3) = "Y"
+				intRowID  = intRowID + 1
+			End If	
+            intRow = intRow + 1
+        Next
+        
+        objExcel.ActiveWorkbook.Save	
+        objExcel.ActiveWorkbook.Close        
+    Next       
+
+    objExcel.Application.Quit 
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+
+End Function
+
+
+'Creates TestCase files for the first round/run in Suite dir
+
+Function FRM_Batch_CreateBatchTestCaseFiles(strTestCaseFileName)
+
+    'arrTestCases1Dimension = FRM_Batch_ArrayOfTestCasesToRun("TestCase.xlsx")
+	arrTestCases1Dimension = FRM_Batch_ArrayOfTestCasesToRun(strTestCaseFileName)
+    arrTestCases2Dimension = UTIL_Array_ConvertToTwoDimension(arrTestCases1Dimension, FRM_RT_GetPropValue("BatchFileSize", True))
+          
+    FRM_Batch_CreateBatchFilesFromArray arrTestCases2Dimension, "Suite\BatchTestCase_" 
+
+End Function
+
+
+'Creates TestCase files for re-run in Suite\ReRunSuite
+'@param strMergedReportFileToRead - path to report  for results data after first run 
+'@param strTestCaseFileName - Test data file name 
+
+
+Function FRM_Batch_CreateReRunBatchTestCaseFiles(strTestCaseFileName,strMergedReportFileToRead)
+    arrTestCases1DimensionOrig = FRM_Batch_ArrayOfTestCasesToRun(strTestCaseFileName)
+    arrTestCases1DimensionReRun = FRM_Batch_ArrayOfTestCasesToReRun(strMergedReportFileToRead)
+
+    z = 0
+    For each tstScriptRerun in arrTestCases1DimensionReRun        
+        For each tstScriptOrig in  arrTestCases1DimensionOrig
+            If Ubound(split(tstScriptOrig,"\")) > 0 then
+			   strTCaseOrig = split(tstScriptOrig,"\")(1)
+			Else
+ 			   strTCaseOrig = split(tstScriptOrig,"\")(0)
+			End If
+            If tstScriptRerun = strTCaseOrig then
+               arrTestCases1DimensionReRun(z)  =  tstScriptOrig  
+            End If
+        Next 
+        z = z + 1
+    next
+    arrTestCases2Dimension = UTIL_Array_ConvertToTwoDimension(arrTestCases1DimensionReRun, FRM_RT_GetPropValue("BatchFileSize", True))
+	
+    FRM_Batch_CreateBatchFilesFromArray arrTestCases2Dimension, "Suite\ReRunSuite\FailedTestCases_ToRun_"
+End Function
+
+
+
+'Read the Merged Summary Report spreadsheet and returns an array of failed tests cases to be re-executed
+'@param strMergedReportName - The merged report file name 
+'@return an array of test cases to be executed
+
+Function FRM_Batch_ArrayOfTestCasesToReRun(strMergedReportName)
+
+	arrTestCases = Array()
+	
+	' Create Excel Object
+	Set objExcelApp = CreateObject("Excel.Application")
+	Set objWorkbook = objExcelApp.Workbooks.Open(strMergedReportName)
+   
+	'Locate <ReportDetail> sheet 
+	boolReportDetail = UTIL_Excel_SheetExistsInWorkbook(objWorkbook, "ReportDetail")
+
+	If boolReportDetail Then		
+		Set objTestCaseSheet = objExcelApp.Sheets.Item("ReportDetail")
+		intTestCaseRowCount = objTestCaseSheet.UsedRange.Rows.Count
+
+		' Loop for <ReportDetail>
+		For j = 12 to intTestCaseRowCount
+	    		'If test text matches "MainAction" and marked "Failed" then get to array
+			If Left(objTestCaseSheet.Cells(j, 2),10) = "MainAction" AND _
+			   objTestCaseSheet.Cells(j, 3) = "Failed" Then
+			  'set runtimes testname so that data file can be found
+			   strTestCase = replace(split(objTestCaseSheet.Cells(j, 2),"[")(1),"]","")
+			   arrTestCases = UTIL_Array_InsertAtEnd(arrTestCases, strTestCase)
+			End If
+		Next
+        End If
+	objExcelApp.Quit	 
+	Set objTestSuiteSheet = Nothing
+	Set objExcelApp = Nothing
+
+	FRM_Batch_ArrayOfTestCasesToReRun = arrTestCases
+	
+End Function 
+
+
+
+'@}

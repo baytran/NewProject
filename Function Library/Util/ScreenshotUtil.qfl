@@ -1,0 +1,171 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: ScreenshotUtil UTIL_ScreenshotUtil
+' Util group for screenshots
+' Function list
+'@code
+'
+'   Function UTIL_Screen_CaptureScreenshot(strFolder, strScreenName)
+'   Function UTIL_Screen_AddScreenshotToWord(strWordFilePath, strScreenName, ByVal strComments)
+'   Private Function UTIL_Screen_GetWordAppObject(strWordDocPath) 
+'
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'To take screenshot and save image file to a folder
+'@code
+'   UTIL_Screen_CaptureScreenshot "C:\Temp", "Login"
+'@endcode
+'@param strFolder folder to save the screenshot image file to 
+'@param strScreenName description of the screen, can be null
+'@return the path of the generated screenshot file
+
+Function UTIL_Screen_CaptureScreenshot(strFolder, strScreenName)
+    If Browser("name:=.*").Exist(0) Then
+        Set objBrowser = Browser("micClass:=Browser","CreationTime:=1")		
+    Else
+        Set objBrowser = Browser("micClass:=Browser","CreationTime:=0")
+        If objBrowser.Exist(1) Then
+        	lng_Hwnd = objBrowser.object.HWND
+        	Reporter.Filter =3
+        	If Not (objBrowser.DialogExists) Then
+            		Window("hwnd:=" & lng_Hwnd).Restore
+            		Window("hwnd:=" & lng_Hwnd).Maximize
+        	End if
+	End If
+    End if
+    
+    sTimeStamp = DotnetFactory.CreateInstance("System.DateTime").Now.ToString("MMddyyHHmmss")    
+    If UTIL_String_IsEmpty(strScreenName) Then
+        strScreenshotFile = strFolder & "\screenshot_" & sTimeStamp & ".png"
+    Else
+        strScreenName = replace(Trim(strScreenName)," ","_")
+        strScreenshotFile = strFolder & "\" & strScreenName & "_" & sTimeStamp & ".png"
+    End If
+
+    if not objBrowser.Exist(2) then
+       Desktop.CaptureBitmap strScreenshotFile,True
+    Else
+       objBrowser.CaptureBitmap strScreenshotFile, True
+    End If 
+
+    Set objBrowser = Nothing
+    UTIL_Screen_CaptureScreenshot = strScreenshotFile
+    
+End Function
+
+
+
+'To take screenshot and add append them to word file
+'@code
+'   UTIL_Screen_AddScreenshotToWord "C:\Temp\test.doc", "Login", "Login screen"
+'@endcode
+'@param strWordFilePath path of the word document to save the screenshot to
+'@param strScreenName description of the screen, can be null
+'@param strComments to Pass commnets before each screen shots
+
+Function UTIL_Screen_AddScreenshotToWord(strWordFilePath, strScreenName, ByVal strComments)
+   	  
+    On Error Resume Next  
+    strFolder = UTIL_File_GetParentFolderPath(strWordFilePath)
+    UTIL_File_CreateFolderIfNotExist(strFolder)
+    
+    Set objWord = UTIL_Screen_GetWordAppObject(strWordFilePath)
+    Set objDoc = objWord.ActiveDocument
+    
+    Const END_OF_STORY = 6	   
+    'Add Comments before Screenshot
+    objWord.Selection.EndKey END_OF_STORY
+    'objWord.Selection.Style = "Heading 1"
+    objWord.Selection.TypeParagraph()
+    objWord.Selection.TypeText strComments 
+
+    Set objRange = objDoc.content
+    objRange.ParagraphFormat.Alignment = 0
+    objRange.insertafter vbcrlf 
+    objRange.collapse(0)
+    strScreenshotFilePath = UTIL_Screen_CaptureScreenshot(strFolder, strScreenName)
+    objRange.InlineShapes.AddPicture strScreenshotFilePath, False, True
+    
+    objWord.ActiveDocument.Saveas(strWordFilePath)
+    objWord.ActiveDocument.Close	
+''	objWord.Application.Quit True 
+    objWord.Quit
+    
+    Set objRange = Nothing 
+    Set objDoc = Nothing 
+    Set objWord = Nothing
+			
+	'' Delete the image file, after its captured into the doc file. - 
+	UTIL_File_Delete strScreenshotFilePath, True
+		
+    UTIL_Windows_CloseProcesses "WINWORD.exe"
+    
+	If  Err.Number <> 0 Then
+		UTIL_Windows_CloseProcesses "WINWORD.exe"
+	End If
+    On Error Goto 0	    
+			
+End Function
+
+
+
+'Returns a Document object that represents the active document
+'@code
+'   UTIL_Screen_GetWordAppObject "C:\Temp\test.doc"
+'@endcode
+'@param strWordDocPath file path to a word document
+'@return a Document object that represents the active document
+
+Private Function UTIL_Screen_GetWordAppObject(strWordDocPath)
+
+    boolFileExist = UTIL_File_FileExists(strWordDocPath)
+    
+    Set objWord = CreateObject("Word.Application")
+    objWord.DisplayAlerts = False
+    objWord.Visible = False 
+            
+	Const intWdHeaderFooterPrimary=1
+	Const intWdSeekMainDocument = 0
+	Const intWdSeekCurrentPageHeader = 9
+	Const intWdSeekCurrentPageFooter = 10
+	Const intWdPrintView = 3
+    
+    If Not boolFileExist Then
+        objWord.Documents.Add                       
+        Set objDoc = objWord.ActiveDocument
+
+        'Move the page to print view as headers and footers can only be added in print view
+        objDoc.ActiveWindow.ActivePane.View.Type = intWdPrintView
+        
+        'Select the header view and add the header
+        objDoc.ActiveWindow.ActivePane.View.SeekView = intWdSeekCurrentPageHeader
+        objDoc.Sections(1).Headers(intWdHeaderFooterPrimary).Range.Select 
+        objWord.Selection.TypeText "Created at: " &  UTIL_Date_FormatDateByPattern(now, "mm/dd/yyyy HH:nn:ss")
+        
+        'Select the footer view and add the footer
+        objDoc.ActiveWindow.ActivePane.View.SeekView = intWdSeekCurrentPageFooter
+        objDoc.Sections(1).Footers(intWdHeaderFooterPrimary).Range.Select 
+        'objWord.Selection.TypeText "This is a test footer"
+        objWord.Selection.Fields.Add objDoc.Sections(1).Footers(intWdHeaderFooterPrimary).Range,-1,"PAGE \* Arabic"
+        objWord.Selection.Fields.Update
+        
+        'Swicth back to the main document
+        objDoc.ActiveWindow.ActivePane.View.SeekView = intWdSeekMainDocument            
+    Else
+        objWord.Documents.Open strWordDocPath
+    End If
+    
+    objWord.Selection.ParagraphFormat.Alignment = 1
+    objWord.Selection.Font.Size=20
+    objWord.Selection.Font.Bold=True
+    Reporter.Filter =3    
+    
+    Set UTIL_Screen_GetWordAppObject = objWord
+    
+End Function
+
+
+
+' @}

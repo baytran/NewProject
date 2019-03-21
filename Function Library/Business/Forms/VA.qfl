@@ -1,0 +1,347 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_VA BIZ_Forms_VA
+'
+' List of functions here
+'@code
+'   Function BIZ_VALoanSummary_SetVA26_0286(strRowID)
+'	Function BIZ_VAReasonableValue_SetVA26_1805(strRowID)
+'	Function BIZ_VALoanDisbursement_SetVA26_1820(strRowID)
+'	Function BIZ_VALoanAnalysis_SetVA26_6393(strRowID)
+'	Function BIZ_VAVeteranStatus_SetVA26_8261A(strRowID)
+'	Function BIZ_VAManagement_BasicInfo(strRowID)
+'	Function BIZ_VAManagement_Qualification(strRowID)
+'	Function BIZ_VAManagement_Tracking(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is to set VA 26-0286 Loan Summary Details
+'@code
+'    BIZ_VALoanSummary_SetVA26_0286(strRowID)
+'@endcode
+'@param strRowID
+Function BIZ_VALoanSummary_SetVA26_0286(strRowID)
+
+	FRM_Logger_ReportInfoEvent "VALoanSummary", "Set VALoanSummary using Row Id '"&strRowID&"' in the VA LoanSummary Details datasheet", null
+
+	BIZ_Forms_Open "VA 26-0286 Loan Summary"
+	Wait g_ShortWaitMedium
+
+	Dim objVAPage, objData
+    
+	Set objData = FRM_DS_GetTestData("Forms_VA", "VA_26-0286", strRowID)
+	Set objVAPage = SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0")
+	
+	'VA Case No
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VACaseNo")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_1040"),FRM_DS_GetValue(objData, "VACaseNo") 
+	End If
+	
+	'Veteran Information
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VeteranInformation")) Then
+		GUI_WebList_Select  objVAPage.WebList("html id:=DropdownBox1"), FRM_DS_GetValue(objData, "VeteranInformation")
+	End If
+
+	'Entitlement Code from VA Cent of Eligibility
+    	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "EntitlementCodeVACentofEligibility")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_VASUMMX2"),FRM_DS_GetValue(objData, "EntitlementCodeVACentofEligibility") 
+	End If
+
+	'Entitlement Amount
+    	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "EntitlementAmount")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_VASUMMX3"),FRM_DS_GetValue(objData, "EntitlementAmount") 
+	End If
+
+	'Branch of Service
+    	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "BranchofService")) Then
+		GUI_WebList_Select  objVAPage.WebList("html id:=DropdownBox2"), FRM_DS_GetValue(objData, "BranchofService")
+	End If
+
+    'Status
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Status")) Then
+		GUI_WebList_Select  objVAPage.WebList("html id:=DropdownBox3"), FRM_DS_GetValue(objData, "Status")
+	End If
+
+	'Number of UNits
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "NumberofUnits")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_16"),FRM_DS_GetValue(objData, "NumberofUnits") 
+	End If
+
+	'Property Address
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PropertyAddress")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_11"),FRM_DS_GetValue(objData, "PropertyAddress") 
+	End If
+	
+	'City
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "City")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_12"),FRM_DS_GetValue(objData, "City") 
+	End If
+	
+	'State
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "State")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_14"),FRM_DS_GetValue(objData, "State") 
+	End If
+	
+	'Zip
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ZIP")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_15"),FRM_DS_GetValue(objData, "ZIP") 
+	End If
+
+	'County
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "County")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_13"),FRM_DS_GetValue(objData, "County") 
+	End If
+	
+End Function
+
+
+
+'This function is to set VA 26-1805 Reasonable Value details
+'@code
+'    BIZ_VAReasonableValue_SetVA26_1805(strRowID)
+'@endcode
+'@param strRowID
+
+Function BIZ_VAReasonableValue_SetVA26_1805(strRowID)
+
+	FRM_Logger_ReportInfoEvent "VAReasonableValue", "Set VAReasonableValue using Row Id '"&strRowID&"' in the VA Reasonable Value Details datasheet", null
+
+	BIZ_Forms_Open "VA 26-1805 Reasonable Value"
+	Wait g_ShortWaitMedium
+
+	Dim objVAPage, objData
+    
+	Set objData = FRM_DS_GetTestData("Forms_VA", "VA_26-1805", strRowID)
+	Set objVAPage = SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0")
+	
+	'Name of Appraiser
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "NameofAppraiser")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_618"),FRM_DS_GetValue(objData, "NameofAppraiser") 
+	End If
+	
+End Function
+	
+ 
+
+'This function is to set VA 26-1820 Loan Disbursement Value details
+'@code
+'    BIZ_VALoanDisbursement_SetVA26_1820(strRowID)
+'@endcode
+'@param strRowID
+
+Function BIZ_VALoanDisbursement_SetVA26_1820(strRowID)
+
+	FRM_Logger_ReportInfoEvent "VALoanDisbursement", "Set VALoanDisbursement using Row Id '"&strRowID&"' in the VA Loan Disbursement Value Details datasheet", null
+	
+	BIZ_Forms_Open "VA 26-1820 Loan Disbursement"
+	Wait g_ShortWaitMedium
+
+	Dim objVAPage, objData
+    
+	Set objData = FRM_DS_GetTestData("Forms_VA", "VA_26-1820", strRowID)
+	Set objVAPage = SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0")
+	
+	'Title of property vested in Veteran and spouse
+ 	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "TitleofPropertyVestedIn")) Then
+		GUI_WebCheckbox_Set objVAPage.WebCheckBox("html id:=__cid_CheckBox7_Ctrl"), FRM_DS_GetValue(objData, "TitleofPropertyVestedIn") 
+	End If	
+	
+	'Name of authorized agent
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "322_Name")) Then
+		GUI_WebEdit_Set objVAPage.WebEdit("html id:=TextBox53"),FRM_DS_GetValue(objData, "322_Name")
+	End If
+End Function
+	
+
+
+'This function is to set VA 26-6393 Loan Analysis  Disbursement Value details
+'@code
+'    BIZ_VALoanAnalysis_SetVA26_6393(strRowID)
+'@endcode
+
+Function BIZ_VALoanAnalysis_SetVA26_6393(strRowID)
+
+FRM_Logger_ReportInfoEvent "VALoanAnalysis", "Set VALoanAnalysis using Row Id '"&strRowID&"' in the VA Loan Analysis Disbursement Value Details datasheet", null
+
+BIZ_Forms_Open "VA 26-6393 Loan Analysis"
+Wait g_ShortWaitMedium
+
+Dim objVAPage, objData
+    
+	Set objData = FRM_DS_GetTestData("Forms_VA", "VA_26-6393", strRowID)
+	Set objVAPage = SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0")
+	
+ 	'Utility Included 
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "UtilityIncluded")) Then
+		GUI_WebList_Select  objVAPage.WebList("html id:=DropdownBox1"), FRM_DS_GetValue(objData, "UtilityIncluded")
+	End If
+	
+	'Federal Inc Tax
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FederalIncTax")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_1306"),FRM_DS_GetValue(objData, "FederalIncTax") 
+	End If
+	
+	'Co-Borrower
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "co-borrower")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=l_1156"),FRM_DS_GetValue(objData, "co-borrower") 
+	End If
+	
+	'Past Credit Report
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PastCreditReport")) Then
+		GUI_WebList_Select  objVAPage.WebList("html id:=DropdownBox2"), FRM_DS_GetValue(objData, "PastCreditReport")
+	End If
+	
+	'VA Credit Standards
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VACreditStandards")) Then
+		GUI_WebList_Select  objVAPage.WebList("html id:=DropdownBox3"), FRM_DS_GetValue(objData, "VACreditStandards")
+	End If
+	
+End Function
+	
+
+
+'This function is to set VA 26-8261A Veteran Status screen details
+'@code
+'    BIZ_VAVeteranStatus_SetVA26_8261A(strRowID)
+'@endcode
+
+Function BIZ_VAVeteranStatus_SetVA26_8261A(strRowID)
+
+	FRM_Logger_ReportInfoEvent "VAVeteranStatus", "Set VAVeteranStatus using Row Id '"&strRowID&"' in the VA Veteran Status Details datasheet", null
+
+	BIZ_Forms_Open "VA 26-8261A Veteran Status"
+	Wait g_ShortWaitMedium
+
+	Dim objVAPage, objData
+    
+	Set objData = FRM_DS_GetTestData("Forms_VA", "VA_26-8261A", strRowID)
+	Set objVAPage = SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0")
+	
+	'Certification
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Certification")) Then
+		GUI_WebList_Select  objVAPage.WebList("html id:=DropdownBox2"), FRM_DS_GetValue(objData, "Certification")
+	End If
+	
+End Function
+	
+	
+	
+'This function is to set the data VA Management screen in Basic info tab
+'@code
+'    BIZ_VAManagement_BasicInfo(strRowID)
+'@endcode
+
+Function BIZ_VAManagement_BasicInfo(strRowID)
+
+	FRM_Logger_ReportInfoEvent "VAManagement", "Set VAManagement screen in basic info by using Row Id '"&strRowID&"' in the VA Management screen in basic info Details datasheet", null
+
+	BIZ_Forms_Open "VA Management"
+	Wait g_ShortWaitMedium
+
+	Dim objVAPage, objData
+    
+	Set objData = FRM_DS_GetTestData("Forms_VA", "VAManagement_BasicInfo", strRowID)
+	Set objVAPage = SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0")
+	
+	'Types of Veteran
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "TypeofVeteran")) Then
+		GUI_WebList_Select objVAPage.WebList("html id:=DropdownBox2"), FRM_DS_GetValue(objData, "TypeofVeteran")
+	End If
+	
+	'Is this the first use of the VA loan program
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Valoanprogram")) Then
+		GUI_WebList_Select objVAPage.WebList("html id:=DropdownBox3"), FRM_DS_GetValue(objData, "Valoanprogram")
+	End If
+	
+	'Borrower / Co-Borrower are Married 
+ 	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "BorrowerCo-BorrowerMarried")) Then
+		GUI_WebCheckbox_Set objVAPage.WebCheckBox("html id:=__cid_CheckBox1_Ctrl"), FRM_DS_GetValue(objData, "BorrowerCo-BorrowerMarried") 
+	End If	
+	
+	'One or More Borrowers Qualifies as a veteran 
+ 	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "OneOrMoreBorrowersQualifiesVeteran")) Then
+		GUI_WebCheckbox_Set objVAPage.WebCheckBox("html id:=__cid_CheckBox2_Ctrl"), FRM_DS_GetValue(objData, "OneOrMoreBorrowersQualifiesVeteran") 
+	End If
+	
+	'Legal Description
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LegalDescription")) Then
+	   GUI_WebEdit_Set objVAPage.WebEdit("html id:=TextBox19"),FRM_DS_GetValue(objData, "LegalDescription") 
+	End If
+	
+End Function
+	
+	
+
+'This function is to set the data VA Management screen in Qualification tab
+'@code
+'    BIZ_VAManagement_Qualification(strRowID)
+'@endcode
+
+Function BIZ_VAManagement_Qualification(strRowID)
+
+	FRM_Logger_ReportInfoEvent "VAManagement", "Set VAManagement screen in qualification by using Row Id '"&strRowID&"' in the VA Management screen in qualification Details datasheet", null
+
+	BIZ_Forms_Open "VA Management"
+	Wait g_ShortWaitLarge
+
+	SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControlForm").Highlight
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControlForm"),"Qualification"
+	Wait g_ShortWaitLarge
+
+	Dim objVAPage, objData
+    
+	Set objData = FRM_DS_GetTestData("Forms_VA", "VAManagement_Qualification", strRowID)
+	Set objVAPage = SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0")
+	
+	'Country Region
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CountryRegion")) Then
+		GUI_WebList_Select  objVAPage.WebList("html id:=DropdownBox1"), FRM_DS_GetValue(objData, "CountryRegion")
+	End If
+	
+End Function
+
+
+
+'This function is to set the data VA Management screen in Tracking tab
+'@code
+'    BIZ_VAManagement_Tracking(strRowID)
+'@endcode
+
+Function BIZ_VAManagement_Tracking(strRowID)
+
+	FRM_Logger_ReportInfoEvent "VAManagement", "Set VAManagement screen in Tracking details by using Row Id '"&strRowID&"' in the VA Management screen in Tracking Details datasheet", null
+
+	BIZ_Forms_Open "VA Management"
+	Wait g_ShortWaitMedium
+
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControlForm"),"Tracking"
+	Wait g_ShortWaitMedium
+
+	Dim objVAPage, objData
+    
+	Set objData = FRM_DS_GetTestData("Forms_VA", "VAManagement_Tracking", strRowID)
+	Set objVAPage = SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0")
+	
+	'Flood policy
+ 	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FloodPolicy")) Then
+		GUI_WebCheckbox_Set objVAPage.WebCheckBox("html id:=__cid_CheckBox8_Ctrl"), FRM_DS_GetValue(objData, "FloodPolicy") 
+	End If
+	
+	'Hazard policy
+ 	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "HazardPolicy")) Then
+		GUI_WebCheckbox_Set objVAPage.WebCheckBox("html id:=__cid_CheckBox9_Ctrl"), FRM_DS_GetValue(objData, "HazardPolicy") 
+	End If
+	
+	'Wood Destroying Policy 
+ 	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "WoodDestroyingPolicy")) Then
+		GUI_WebCheckbox_Set objVAPage.WebCheckBox("html id:=__cid_CheckBox14_Ctrl"), FRM_DS_GetValue(objData, "WoodDestroyingPolicy") 
+	End If
+	
+	'Wind/Hail Policy
+ 	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "WindHailPolicy")) Then
+		GUI_WebCheckbox_Set objVAPage.WebCheckBox("html id:=__cid_CheckBox12_Ctrl"), FRM_DS_GetValue(objData, "WindHailPolicy") 
+	End If
+	
+End Function
+
+'@}

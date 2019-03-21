@@ -1,0 +1,3728 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_TablesFees BIZ_TablesFees
+'
+' List of functions here
+' @code
+'	Function BIZ_TablesFees_SetTitleFeesAsDefault(strTitleFeesTableName)
+'   Function BIZ_TablesFees_DeleteTitleFees(strTitleFeesTableName)
+'	Function BIZ_TablesFees_SetEscrowFeesAsDefault(strEscrowFeesTableName)
+'   Function BIZ_TablesFees_DeleteEscrowFees(strEscrowFeesTableName)
+'   Function BIZ_TablesFees_SelectFees(strFeesName)
+'	Function BIZ_TablesAndFees_AddMIScenarioData(strRowID)
+'	Function BIZ_TablesAndFees_AddMIScenarioData_AddEditFilterData(intField, strOperator, strRowID)
+'	Function BIZ_TablesAndFees_EditMITableData(strScenario, strRowID)
+'	Function BIZ_TablesAndFees_DuplicateMITableData(strScenario, strRowID)
+'	Function BIZ_TablesAndFees_DeleteMITableRecord(strScenario)
+'   Function BIZ_TablesFees_CreateTitleFees(strRowID)
+'   Function BIZ_BorrowerSummaryOrigination_SetProperty_EstateWillBeHeldIn(strRowID)
+'	Function BIZ_Settings_TablesandFees_TaxRecord_Creation(strRowID,strTaxType)
+'   Function BIZ_Settings_TablesAndFees_TaxRecord_Delete(strFeeDescription,strTaxType)
+'   Function BIZ_Settings_TablesandFees_ItemizationFeeRecord_Creation(strRowID) 
+'	Function BIZ_Settings_TablesandFees_ItemizationFeeRecord_Delete(strFeeDataName)
+'   Function BIZ_Settings_TablesandFees_CreateFeesRecord(strRowID)
+'	Private Function BIZ_Settings_Escrow_Fees_FeesSection(strRowID)
+'   Function BIZ_TableAndFees_LoanCreation(strRowID)
+'	Function BIZ_Settings_TablesandFees_EscrowFees_Duplicate(strRowID, strPurchaseTableName)
+'	Function BIZ_Settings_TablesandFees_EscrowFees_Delete(strRowID, strRefinanceTableName)
+'	Function BIZ_Settings_TablesandFees_TaxAmountValidation(strCityTaxRecord,strRowID,strRowID2,strTaxType)
+'	Function BIZ_Settings_TablesandFees_SelectTaxRecord(strTaxRecord,strTaxType)
+'   Function BIZ_Settings_CreateUserDefinedFeeRecord(strRowID)
+'   Function BIZ_Settings_TablesandFees_ValidateTaxRecord (strRowID,strTaxType,strFeeDescription,strActionType)
+'   Function BIZ_Settings_TablesAndFees_TaxRecord_Edit(strRowID,strFeeDescription,strTaxType)
+'   Function BIZ_TablesAndFees_SelectMITableConvTab(strRowID,strMITab)
+'	Function BIZ_TableandFees_SelectMIDetailPage_GetMIPDetails(strRowID,strScenarioName)
+'	Function BIZ_TableandFees_MIFF_AmountAutoPopulate_Verify_ConventionalLoanRecord(strRowID)
+'	Function BIZ_TableandFees_MIFF_AmountAutoPopulate_ConventionalLoanAmountValidation(strRowID,strRowID2)
+'   Function BIZ_TablesAndFees_SelectMIConventionalTab(strConventionalTab)
+'	Function BIZ_Settings_TablesandFees_DuplicateEscrowRecord(strTableNameActual,strRowID)
+'	Function BIZ_Settings_TablesandFees_DeleteEscrowRecord(strTableNameActual)
+'	Function BIZ_Settings_TablesandFees_RenameEscrowRecord(strTableNameActual,strRowID)
+'	Function BIZ_Settings_TablesandFees_EditEscrowRecord(strTableNameActual,strRowID)
+'   Function BIZ_Settings_TablesandFees_VerifyEscrowFeesDetailsVerify(strTableName,strRowID)
+'   Function BIZ_Settings_TablesandFees_CreateFHACountyLoanLimits(strRowID)
+'	Function TablesAndFees_Verify_MIScenarioData(strScenario,strRowID)
+'	Function BIZ_TablesAndFees_SetMIPFundingGuaranteeValue(strRowID)
+'	Function BIZ_Settings_TablesAndFees_ValidateLOCompPlanDetails(strLOCompPlanName)
+'	Function BIZ_Settings_TablesAndFees_SetLOCompPlanDetails(strRowID)
+'	Function BIZ_Settings_TablesAndFees_CreateLOCompPlanDetails(strRowID)
+'	Function BIZ_Settings_TablesAndFees_DeleteLOCompPlan (strLOCompPlanName)
+' 	Function BIZ_Settings_TableAndFees_LoanCreation_1003Page1(strRowID)
+' 	Function BIZ_Settings_TablesandFees_VerifyFHACountyLoanLimits(strRowID)
+' 	Function BIZ_Settings_TablesAndFeees_DeleteHelocTableRecord(strHeloctableName,strRowID,strPopUpText)
+' 	Function BIZ_Settings_TablesAndFeees_VerifyHelocTableNameCreatedOrDelete(strHeloctableName,boolStatus)
+' 	Function BIZ_Settings_TablesAndFeees_HelocTableCreation(strRowID)
+' 	Function BIZ_Settings_TablesandFeees_HelocTableRename(strHeloctableName,strRowID)
+'   Function BIZ_Settings_TablesAndFeees_EditHelocTable (strHeloctableName,strRowID)
+'   Function BIZ_Settings_TablesandFeees_SetHelocTable(strRowID)
+'	Function BIZ_Settings_TablesAndFees_LOCompensation_SetDefaultPlanSetting(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to set title fees as default
+'@code
+'    BIZ_TablesFees_SetTitleFeesAsDefault(strTitleFeesTableName)
+'@endcode
+'@param strTitleFeesTableName - Table fees to make as default
+
+Function BIZ_TablesFees_SetTitleFeesAsDefault(strTitleFeesTableName)
+
+	Set objTitleFeeTable = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	
+	GUI_List_ClickRow objTitleFeeTable.SwfObject("swfname:=listView"), NULL, "Table Name", strTitleFeesTableName, True, False, False, "Single"
+	
+	GUI_SwfButton_Click objTitleFeeTable.SwfButton("swfname:=setDefaultBtn")
+		
+	Set objTitleFeeTable = Nothing
+
+End Function
+
+
+
+'This function is used to delete title fees
+'@code
+'    BIZ_TablesFees_DeleteTitleFees(strTitleFeesTableName)
+'@endcode
+'@param strTitleFeesTableName - Table fees to delete
+
+Function BIZ_TablesFees_DeleteTitleFees(strTitleFeesTableName)
+
+Set objTitleFeeTable = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+
+boolFound = GUI_List_ClickRow(objTitleFeeTable.SwfObject("swfname:=listView"), NULL, "Table Name", strTitleFeesTableName, True, False, False, "Single")
+
+If boolFound Then
+	GUI_SwfObject_Click objTitleFeeTable.SwfObject("swfname:=stdIconBtnDelete")
+
+	If objTitleFeeTable.Dialog("text:=Encompass").Exist(10) Then
+		GUI_WinButton_Click objTitleFeeTable.Dialog("text:=Encompass").WinButton("text:=&Yes")
+	End If
+	
+End If
+	
+Set objTitleFeeTable = Nothing
+
+End Function
+
+
+
+
+'This function is used to set title fees as default
+'@code
+'    BIZ_TablesFees_SetEscrowFeesAsDefault(strTitleFeesTableName)
+'@endcode
+'@param strEscrowFeesTableName - Table fees to make as default
+
+Function BIZ_TablesFees_SetEscrowFeesAsDefault(strEscrowFeesTableName)
+
+Set objEscrowFeeTable = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+
+GUI_List_ClickRow objEscrowFeeTable.SwfObject("swfname:=listView"), NULL, "Table Name", strTitleFeesTableName, True, False, False, "Single"
+
+GUI_SwfButton_Click objEscrowFeeTable.SwfButton("swfname:=setDefaultBtn")
+	
+Set objEscrowFeeTable = Nothing
+
+End Function
+
+
+
+'This function is used to delete title fees
+'@code
+'    BIZ_TablesFees_DeleteEscrowFees(strEscrowFeesTableName)
+'@endcode
+'@param strEscrowFeesTableName - Table fees to delete
+
+Function BIZ_TablesFees_DeleteEscrowFees(strEscrowFeesTableName)
+
+Set objEscrowFeeDetails = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+
+boolFound = GUI_List_ClickRow(objEscrowFeeDetails.SwfObject("swfname:=listView"), NULL, "Table Name", strTitleFeesTableName, True, False, False, "Single")
+
+If boolFound Then
+	GUI_SwfObject_Click objEscrowFeeDetails.SwfObject("swfname:=stdIconBtnDelete")
+
+	If objTitleFeeTable.Dialog("text:=Encompass").Exist(10) Then
+		GUI_WinButton_Click objEscrowFeeDetails.Dialog("text:=Encompass").WinButton("text:=&Yes")
+	End If
+	
+End If
+	
+Set objEscrowFeeDetails = Nothing
+
+End Function
+
+
+
+'This function is used to select fees
+'@code
+'    BIZ_TablesFees_SelectFees(strFeesName)
+'@endcode
+'@param strFeesName - fees to select
+
+Function BIZ_TablesFees_SelectFees(strFeesName)
+
+Set objEscrowFeeDetails = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+
+GUI_List_ClickRow objEscrowFeeDetails.SwfObject("swfname:=listView"), NULL, "Table Name", strFeesName, True, False, False, "Single"
+
+End Function
+
+
+
+'This function is used to Add MI Table Scenario Data
+'@code
+'    BIZ_TablesAndFees_AddMIScenarioData(strRowID)
+'@endcode
+'@param strRowID - row id for data
+'@param strMITab Tab name of MITable
+
+Function BIZ_TablesAndFees_AddMIScenarioData(strRowID,strMITab)
+
+	FRM_Logger_ReportInfoEvent "BIZ_TablesAndFees_AddMIScenarioData","BIZ_TablesAndFees_AddMIScenarioData using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objData, objSettings, objMIScenario, objScenarioBuilder
+	Set objData 			= FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	Set objSettings 		= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objMIScenario 		= objSettings.SwfWindow("swfname:=MIRecordSetupForm")
+	Set objScenarioBuilder 	= objMIScenario.SwfWindow("swfname:=QueryBuilderForm")
+	
+	If GUI_Object_IsExist(objMIScenario) = True Then
+		GUI_SwfObject_Click objMIScenario.SwfButton("swfname:=btnCreate")
+	Else
+		FRM_Logger_ReportFailEvent "Check if MI Scenario Window exist", "MI Scenario window is not populated", Null
+	End If
+		
+	If GUI_Object_IsExist(objScenarioBuilder) = True Then
+		GUI_SwfObject_Click objScenarioBuilder.SwfObject("swfname:=btnAddFilter")
+	Else
+		FRM_Logger_ReportFailEvent "Check if Scenario Builder Window exist", "Scenario builder window is not populated", Null
+	End If
+	
+
+	IF UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Field")) and  UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Operator")) Then 
+	
+	BIZ_TablesAndFees_AddMIScenarioData_AddEditFilterData FRM_DS_GetValue(objData, "Field"), FRM_DS_GetValue(objData, "Operator"), strRowID
+	End IF
+	GUI_List_SelectItem objScenarioBuilder.SwfObject("swfname:=gvFilters"), FRM_DS_GetValue(objData, "Operator"), "Operator"
+	GUI_SwfButton_Click objScenarioBuilder.SwfButton("swfname:=btnInsertFilter")
+	
+	GUI_Object_WaitTillExistX objScenarioBuilder.SwfButton("swfname:=btnOK"),30
+	BIZ_TablesAndFees_AddMIScenarioData_AddEditFilterData FRM_DS_GetValue(objData, "Field1"), FRM_DS_GetValue(objData, "Operator1"), strRowID
+	GUI_SwfButton_Click objScenarioBuilder.SwfButton("swfname:=btnOK") 
+	
+	GUI_Object_WaitTillExistX objSettings,30	
+	If InStr(1,strMITab,"Other")>0 Then     
+    	FRM_Logger_ReportInfoEvent "MI Table 1st Premium  Other Tab","Tab Other MI Table 1st Premium Not Required", null        
+    Else
+       If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Premium")) Then
+			GUI_SwfEdit_Set objMIScenario.SwfEdit("swfname:=txtPremium1"), FRM_DS_GetValue(objData, "Premium")
+	   End If
+    End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "SubPremiumVA")) Then
+		GUI_SwfEdit_Set objMIScenario.SwfEdit("swfname:=txtSub"), FRM_DS_GetValue(objData, "SubPremiumVA")	 
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FirstMonthly")) Then
+		GUI_SwfEdit_Set objMIScenario.SwfEdit("swfname:=txtMonthly1"), FRM_DS_GetValue(objData, "FirstMonthly")	 
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "SecondMonthly")) Then
+		GUI_SwfEdit_Set objMIScenario.SwfEdit("swfname:=txtMonthly2"), FRM_DS_GetValue(objData, "SecondMonthly")	 
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FirstMonth")) Then
+		GUI_SwfEdit_Set objMIScenario.SwfEdit("swfname:=txtMonth1"), FRM_DS_GetValue(objData, "FirstMonth")	 
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "SecondMonth")) Then
+		GUI_SwfEdit_Set objMIScenario.SwfEdit("swfname:=txtMonth2"), FRM_DS_GetValue(objData, "SecondMonth")	 
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Cutoff")) Then
+		GUI_SwfEdit_Set objMIScenario.SwfEdit("swfname:=txtCutoff"), FRM_DS_GetValue(objData, "Cutoff")	 
+	End If
+	
+		
+	Set objData 			= Nothing
+	Set objSettings 		= Nothing
+	Set objMIScenario 		= Nothing
+	Set objScenarioBuilder 	= Nothing
+	
+End Function
+
+
+'This function is used to Add MI Table Data in add edit filter Window
+'@code
+'    BIZ_TablesAndFees_AddMIScenarioData_AddEditFilterData(intField, strOperator, strRowID)
+'@endcode
+'@param intField - to enter field data in AddEditFilter Window
+'@param strOperator - to select operator in AddEditFilter Window
+'@param strRowID - row id for data
+
+Function BIZ_TablesAndFees_AddMIScenarioData_AddEditFilterData(intField, strOperator, strRowID)
+	
+	FRM_Logger_ReportInfoEvent "BIZ_TablesAndFees_AddMIScenarioData_AddEditFilterData","BIZ_TablesAndFees_AddMIScenarioData_AddEditFilterData using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objData, objSettings, objMIScenario, objAddEditWIndow, objSelectField 
+	Set objData = FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objMIScenario = objSettings.SwfWindow("swfname:=MIRecordSetupForm")
+	Set objAddEditWIndow = objMIScenario.SwfWindow("swfname:=QueryBuilderForm").SwfWindow("swfname:=AddEditFilterDialog")
+	Set objSelectField = objAddEditWIndow.SwfWindow("swfname:=ReportFieldSelector")
+	
+	If GUI_Object_IsExist(objAddEditWIndow) = True Then
+		GUI_SwfObject_Click objAddEditWIndow.SwfObject("swfname:=btnFieldList")
+	Else
+		FRM_Logger_ReportFailEvent "Check if AddEdit Window exist", "AddEdit window is not populated", Null
+		
+	End If
+		
+	GUI_SwfEdit_Set objSelectField.SwfEdit("swfname:=txtFind"), intField
+	GUI_SwfButton_Click objSelectField.SwfButton("swfname:=btnFind")
+	GUI_SwfButton_Click objSelectField.SwfButton("swfname:=btnOK")
+		
+	GUI_SwfComboBox_Select objAddEditWIndow.SwfComboBOx("swfname:=cboOperator"), strOperator
+		
+	If GUI_Object_IsExist(objAddEditWIndow.Dialog("regexpwndtitle:=Encompass")) = True  Then
+		GUI_WinButton_Click objAddEditWIndow.Dialog("regexpwndtitle:=Encompass").WinButton("regexpwndtitle:=OK")
+	End If
+	
+    
+    If strOperator = "Is any of" Then
+
+        If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LoanType")) Then
+			GUI_List_Select objAddEditWIndow.SwfList("swfname:=lstOptions"), FRM_DS_GetValue(objData, "LoanType") 
+		End If  
+	ElseIf (strOperator = "Between") Or (strOperator = "Not between") Then	
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MinValue") ) Then
+			GUI_SwfEdit_Set objAddEditWIndow.SwfEdit("swfname:=txtMinNumber"), FRM_DS_GetValue(objData, "MinValue") 
+		End If
+	
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MaxValue")) Then
+			GUI_SwfEdit_Set objAddEditWIndow.SwfEdit("swfname:=txtMaxNumber"), FRM_DS_GetValue(objData, "MaxValue")
+		End If
+	Else
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Value")) Then
+			GUI_SwfEdit_Set objAddEditWIndow.SwfEdit("swfname:=txtMinNumber"), FRM_DS_GetValue(objData, "Value")
+		End If
+	End If
+		
+	GUI_SwfButton_Click objAddEditWIndow.SwfButton("swfname:=btnOK")
+	
+	Set objData = Nothing
+	Set objSettings = Nothing
+	Set objMIScenario = Nothing 
+	Set objAddEditWIndow = Nothing 
+	Set objSelectField = Nothing
+	
+End Function
+
+
+
+'This function is used to Edit MI Table Scenario Data
+'@code
+'    BIZ_TablesAndFees_EditMITableData(strScenario, strRowID)
+'@endcode
+'@param strRowID - row id for data
+'@param strScenario - Scenario to edit in MI Table
+
+Function BIZ_TablesAndFees_EditMITableData(strScenario, strRowID)
+	
+	FRM_Logger_ReportInfoEvent "BIZ_TablesAndFees_EditMITableData","BIZ_TablesAndFees_EditMITableData using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objData, objSettings, objMIScenario, objScenarioBuilder, objAddEditWIndow, objSelectField, strOperator, strEdittedScenario,intRowNum,intExpectedValue
+	Set objData 			= FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	Set objSettings 		= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objMIScenario 		= objSettings.SwfWindow("swfname:=MIRecordSetupForm")
+	Set objScenarioBuilder 	= objMIScenario.SwfWindow("swfname:=QueryBuilderForm")
+	Set objAddEditWIndow 	= objScenarioBuilder.SwfWindow("swfname:=AddEditFilterDialog")
+	Set objSelectField 		= objAddEditWIndow.SwfWindow("swfname:=ReportFieldSelector")
+	
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Operator")) Then
+		strOperator = FRM_DS_GetValue(objData, "Operator")		    
+	End if
+	
+	Wait g_TinyWaitMedium 'Explicit Wait Added Due to Sync
+	GUI_List_SelectItem objSettings.SwfObject("swfname:=listViewMI"), strScenario, "Scenario"
+	
+	BIZ_Settings_ClickEdit()
+	
+	If GUI_Object_IsExist(objMIScenario)  Then
+		GUI_SwfObject_Click objMIScenario.SwfButton("swfname:=btnCreate")
+	Else
+		FRM_Logger_ReportFailEvent "Check if MI Scenario Window exist", "MI Scenario window is not populated", Null
+	End If
+	
+	If GUI_Object_IsExist(objScenarioBuilder) Then
+		GUI_List_SelectItem objScenarioBuilder.SwfObject("swfname:=gvFilters"), strOperator, "Operator"
+		GUI_SwfObject_Click objScenarioBuilder.SwfObject("swfname:=btnEditFilter")
+	Else
+		FRM_Logger_ReportFailEvent "Check if Scenario Builder Window exist", "Scenario builder window is not populated", Null
+	End If
+	
+	If GUI_Object_IsExist(objAddEditWIndow) Then
+		If  (strOperator = "Between") Or (strOperator = "Not between") Then
+			
+			If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MinValue")) Then
+			GUI_SwfEdit_Set objAddEditWIndow.SwfEdit("swfname:=txtMinNumber"), FRM_DS_GetValue(objData, "MinValue")
+			End If
+			
+			If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "EditMaxValue")) Then
+			GUI_SwfEdit_Set objAddEditWIndow.SwfEdit("swfname:=txtMaxNumber"), FRM_DS_GetValue(objData, "EditMaxValue")
+			End If
+			
+			
+			GUI_SwfButton_Click objAddEditWIndow.SwfButton("swfname:=btnOK")
+	
+			intRowNum = GUI_List_GetRowIndex(objScenarioBuilder.SwfObject("swfname:=gvFilters"), "Operator", strOperator)
+			intExpectedValue =  FRM_DS_GetValue(objData, "MinValue")&" and "&FRM_DS_GetValue(objData, "EditMaxValue")
+	
+			GUI_List_ValidateCellData objScenarioBuilder.SwfObject("swfname:=gvFilters"), intRowNum, "Value", intExpectedValue
+			GUI_SwfButton_Click objScenarioBuilder.SwfButton("swfname:=btnOK")
+		Else
+			
+			If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "EditValue")) Then
+			GUI_SwfEdit_Set objAddEditWIndow.SwfEdit("swfname:=txtMinNumber"), FRM_DS_GetValue(objData, "EditValue")
+			End If
+			
+			GUI_SwfButton_Click objAddEditWIndow.SwfButton("swfname:=btnOK")
+		
+			intRowNum = GUI_List_GetRowIndex(objScenarioBuilder.SwfObject("swfname:=gvFilters"), "Operator", strOperator)
+		
+			GUI_List_ValidateCellData objScenarioBuilder.SwfObject("swfname:=gvFilters"), intRowNum, "Value", FRM_DS_GetValue(objData, "EditValue")
+			GUI_SwfButton_Click objScenarioBuilder.SwfButton("swfname:=btnOK")
+		End If
+	Else
+		FRM_Logger_ReportFailEvent "Check if AddEdit Window exist", "AddEdit window is not populated", Null
+	End If
+	
+	strEditScenario = GUI_Object_GetPropertyValue (objMIScenario.SwfEditor("swfname:=txtScenario"), "Text")
+	GUI_SwfButton_Click objMIScenario.SwfButton("swfname:=okBtn")  
+	
+	Set objData            = Nothing
+	Set objSettings        = Nothing
+	Set objMIScenario      = Nothing
+	Set objScenarioBuilder = Nothing
+	Set objAddEditWIndow   = Nothing
+	Set objSelectField     = Nothing
+	
+	BIZ_TablesAndFees_EditMITableData = strEditScenario
+End Function
+
+
+
+'This function is used to Duplicate MI Table Scenario Data
+'@code
+'    BIZ_TablesAndFees_DuplicateMITableData(strScenario, strRowID)
+'@endcode
+'@param strRowID - row id for data
+'@param strScenario - scenario to duplicate in MI Table
+
+Function BIZ_TablesAndFees_DuplicateMITableData(strScenario, strRowID)
+
+	FRM_Logger_ReportInfoEvent "BIZ_TablesAndFees_DuplicateMITableData","BIZ_TablesAndFees_DuplicateMITableData using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objData, objSettings, objMIScenario, objScenarioBuilder, objAddEditWIndow, strOperator, intRowNum, strDuplicateScenario
+	Set objData 			= FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	Set objSettings 		= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objMIScenario 		= objSettings.SwfWindow("swfname:=MIRecordSetupForm")
+	Set objScenarioBuilder 	= objMIScenario.SwfWindow("swfname:=QueryBuilderForm")
+	Set objAddEditWIndow 	= objScenarioBuilder.SwfWindow("swfname:=AddEditFilterDialog")
+
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Operator")) Then
+		strOperator = FRM_DS_GetValue(objData, "Operator")		    
+	End if
+	
+    Wait g_TinyWaitMedium 'Explicit wait added due to Sync
+	GUI_List_SelectItem objSettings.SwfObject("swfname:=listViewMI"), strScenario, "Scenario"
+	BIZ_Settings_ClickDuplicate()
+	
+	If GUI_Object_IsExist(objMIScenario)  Then
+        GUI_SwfObject_Click objMIScenario.SwfButton("swfname:=btnCreate")
+	Else
+		FRM_Logger_ReportFailEvent "Check if MI Scenario Window exist", "MI Scenario window is not populated", Null
+	End If
+	
+	If GUI_Object_IsExist(objScenarioBuilder) Then
+		GUI_List_SelectItem objScenarioBuilder.SwfObject("swfname:=gvFilters"), strOperator, "Operator"
+		GUI_SwfObject_Click objScenarioBuilder.SwfObject("swfname:=btnEditFilter")
+	Else
+		FRM_Logger_ReportFailEvent "Check if Scenario Builder Window exist", "Scenario builder window is not populated", Null
+	End If
+	
+	If GUI_Object_IsExist(objAddEditWIndow) Then
+		If  (strOperator = "Between") Or (strOperator = "Not between") Then
+			
+				If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "DuplicateMaxValue")) Then
+				GUI_SwfEdit_Set objAddEditWIndow.SwfEdit("swfname:=txtMaxNumber"), FRM_DS_GetValue(objData, "DuplicateMaxValue")
+				End if
+				
+				If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MinValue")) Then
+				GUI_SwfEdit_Set objAddEditWIndow.SwfEdit("swfname:=txtMinNumber"), FRM_DS_GetValue(objData, "MinValue")
+				End if
+		Else
+			    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "DuplicateValue")) Then
+			    GUI_SwfEdit_Set objAddEditWIndow.SwfEdit("swfname:=txtMinNumber"), FRM_DS_GetValue(objData, "DuplicateValue")
+				End if
+		End If
+	Else
+		FRM_Logger_ReportFailEvent "Check if AddEdit Window exist", "AddEdit window is not populated", Null
+	End If
+	
+	GUI_SwfButton_Click objAddEditWIndow.SwfButton("swfname:=btnOK")
+	GUI_SwfButton_Click objScenarioBuilder.SwfButton("swfname:=btnOK")
+	strDuplicateScenario = GUI_Object_GetPropertyValue (objMIScenario.SwfEditor("swfname:=txtScenario"), "Text")
+	GUI_SwfButton_Click objMIScenario.SwfButton("swfname:=okBtn")  
+
+	Wait g_ShortWaitSmall 'Explicit wait added due sync
+	
+	intRowIndex=GUI_List_GetRowIndex(objSettings.SwfObject("swfname:=listViewMI"),"Scenario",strDuplicateScenario)
+	If intRowIndex>=0 Then
+    FRM_Logger_ReportPassEvent "MI Duplicate Scenario", "MI Duplicate Scenario Created is "&strDuplicateScenario, Null
+    Else
+    FRM_Logger_ReportFailEvent "MI Duplicate Scenario ", "MI Duplicate Scenario is not Created", Null    
+	End If
+ 		
+ 	Set objData            = Nothing
+ 	Set objSettings        = Nothing
+ 	Set objMIScenario      = Nothing
+ 	Set objScenarioBuilder = Nothing 	
+ 	Set objAddEditWIndow   = Nothing
+ 	
+ 	BIZ_TablesAndFees_DuplicateMITableData = strDuplicateScenario 
+ End Function
+ 
+ 
+'This function is used for Loan Creation
+'@code
+'    BIZ_TableAndFees_LoanCreation(strRowID)
+'@endcode
+'@param strRowID is RowID in excel to read data for loan creation 
+
+Function BIZ_TableAndFees_LoanCreation(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Loan Creation:" ,"Loan Creation for'"&strRowID&"'", Null
+	BIZ_Loan_AddNewBlankLoanUnderSelectedLoanFolder "Super Administrator - Default View","My Pipeline"  							
+	BIZ_BorrowerSummaryOrigination_SetHeadInfo strRowID
+	BIZ_BorrowerSummaryOrigination_SetBorrower strRowID
+	BIZ_BorrowerSummaryOrigination_SetSSNVerification_Borrower strRowID
+	BIZ_BorrowerSummaryOrigination_SetCreditInformation strRowID
+	BIZ_BorrowerSummaryOrigination_SetProperty strRowID
+	BIZ_BorrowerSummaryOrigination_SetTransactionDetails strRowID
+	BIZ_1003Page1_SetEmployment strRowID
+	BIZ_1003Page1_SetTitleDetails strRowID
+	BIZ_BorrowerSummaryOrigination_SetProperty_EstateWillBeHeldIn(strRowID)
+	BIZ_1003Page2_SetMonthlyIncomeExpensesData strRowID
+	BIZ_Forms_Open "2015 itemization"
+	BIZ_2015Itemization_Set800Section strRowID
+	
+End Function
+
+
+
+'This function is used for Title Fee Table
+'@code
+'    BIZ_TablesFees_CreateTitleFees(strRowID)
+'@endcode
+'@param strRowID is RowID in excel to read data for Title fee table creation
+
+Function BIZ_TablesFees_CreateTitleFees(strRowID)
+     
+	FRM_Logger_ReportInfoEvent "Table and Fees", "Create Title Fees, Read Data @ RowID ' "&strRowID, Null  
+	Dim objData,objTitleFeeDetails,stTitleFee
+	Set objData = FRM_DS_GetTestData("Settings_TablesFees", "TitleFees", strRowID)
+	Set objTitleFeeDetails = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfWindow("swfname:=TableGroupDialog")
+
+	BIZ_Settings_ClickAdd()
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "TableName")) Then
+		stTitleFee=FRM_DS_GetValue(objData, "TableName")
+		GUI_SwfEdit_Set objTitleFeeDetails.SwfEdit("swfname:=tableNameTxt"), stTitleFee
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LoanPurpose")) Then
+		GUI_SwfComboBox_Select objTitleFeeDetails.SwfComboBox("swfname:=cboPurpose"), FRM_DS_GetValue(objData, "LoanPurpose")	
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Type")) Then
+		GUI_SwfComboBox_Select objTitleFeeDetails.SwfComboBox("swfname:=cboFeeType"), CSTR(FRM_DS_GetValue(objData, "Type"))
+	End If
+
+    GUI_SwfObject_Click objTitleFeeDetails.SwfObject("swfname:=btnIconAdd")
+
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Base")) Then
+		GUI_SwfEdit_Set objTitleFeeDetails.SwfWindow("swfname:=TableDialog").SwfEdit("swfname:=baseTxt"), FRM_DS_GetValue(objData, "Base")
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "RangeUpto")) Then
+		GUI_SwfEdit_Set objTitleFeeDetails.SwfWindow("swfname:=TableDialog").SwfEdit("swfname:=upToTxt"), FRM_DS_GetValue(objData, "RangeUpto")
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Factor")) Then
+		GUI_SwfEdit_Set objTitleFeeDetails.SwfWindow("swfname:=TableDialog").SwfEdit("swfname:=factorTxt"), FRM_DS_GetValue(objData, "Factor")
+	End If
+
+	GUI_SwfButton_Click 	objTitleFeeDetails.SwfWindow("swfname:=TableDialog").SwfButton("swfname:=okBtn") 
+
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CalcBasedOn")) Then
+		GUI_SwfComboBox_Select objTitleFeeDetails.SwfComboBox("swfname:=calcOnCombo"),FRM_DS_GetValue(objData, "CalcBasedOn") 
+	End If
+	
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ToNearest")) Then
+		GUI_SwfEdit_Set objTitleFeeDetails.SwfEdit("swfname:=nearestTxt"),FRM_DS_GetValue(objData, "ToNearest") 
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "WithOffset")) Then
+		GUI_SwfEdit_Set objTitleFeeDetails.SwfEdit("swfname:=offsetTxt"),FRM_DS_GetValue(objData, "WithOffset") 
+	End If
+	
+	GUI_SwfButton_Click     objTitleFeeDetails.SwfButton("swfname:=okBtn")
+	
+    FRM_Logger_ReportInfoEvent "Table and Fees", " Title  Create ' "& stTitleFee&" '" ,Null  
+    BIZ_TablesFees_CreateTitleFees = stTitleFee
+	
+	Set objTitleFeeDetails =  Nothing
+	Set objData =  Nothing
+	
+End Function
+
+
+
+
+'This function is used for Tables and Fee object set as default
+'@code
+'    BIZ_TablesFees_SetDefaultCloseSettings(SheetName,strRowID)
+'@endcode
+'@param strRowID,SheetName is RowID and ColmName in excel to read data 
+
+Function BIZ_TablesFees_SetDefaultCloseSettings(SheetName,strRowID)
+	
+	FRM_Logger_ReportInfoEvent "Table and Fees", "Set Table and Fees object as default @ RowID ' "&strRowID&"' SheetName' "&SheetName&"' And Close Settings Window", Null 
+    
+	Dim objData 	
+	Set objData = FRM_DS_GetTestData("Settings_TablesFees", SheetName, strRowID)
+	
+	BIZ_TablesFees_SetEscrowFeesAsDefault FRM_DS_GetValue(objData, "TableName")
+	BIZ_Settings_ClickClose()
+    
+	Set objData=Nothing 
+	
+ End Function       
+
+ 
+
+Function BIZ_Settings_TablesandFeees_HelocTablegridValidation(intRowIndex,intColumnIndexorText,strvalue)
+                                
+Dim   objEncompassSettings
+Set objEncompassSettings=SwfWindow("swfname:=SetUpContainer").SwfWindow("swfname:=HelocTableContainer")
+Set objHelocTable=objEncompassSettings.SwfWindow("swfname:=HelocDetailControl")
+
+GUI_List_ValidateCellData objHelocTable.SwfObject("swfname:=gridViewYearList"), intRowIndex,intColumnIndexorText, strvalue
+
+Set objHelocTable                           = Nothing
+Set objEncompassSettings = Nothing
+                
+End Function
+
+
+
+'This Function is set value in Estate Will Be Held In Field
+'@code
+'    	BIZ_BorrowerSummaryOrigination_SetProperty_EstateWillBeHeldIn(strRowID)
+'@endcode
+'@Praram strRowID is excel RowID to get data from excel 
+
+Function BIZ_BorrowerSummaryOrigination_SetProperty_EstateWillBeHeldIn(strRowID)
+    
+	FRM_Logger_ReportInfoEvent "Set Loan Data Property", "Estate Will Be Held In, Read Data @RowID '"&strRowID, Null
+	
+	Dim obj1003Page,objData,objEstateWillBeHeldIn
+	
+	Set obj1003Page =  SwfWindow("swfname:=MainForm").Page("index:=0")
+	Set objData = FRM_DS_GetTestData("Forms_1003page", "SetTitleDetails", strRowID)
+	Set objEstateWillBeHeldIn = obj1003Page.WebList("html id:=DropdownBox1")	
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "EstateWillBeHeldIn")) Then
+	GUI_WebList_Select objEstateWillBeHeldIn, FRM_DS_GetValue(objData, "EstateWillBeHeldIn")
+	End if
+	
+	Set obj1003Page 			= Nothing
+	Set objData					= Nothing
+	Set objEstateWillBeHeldIn	= Nothing
+	
+End Function
+
+
+
+'This function is used to Create Tax Record
+'@code
+'    BIZ_Settings_TablesandFees_TaxRecord_Creation(strRowID,strTaxType)
+'@endcode
+'@param strRowID row id test data
+'@param strTaxType tax type of record city/state
+
+Function BIZ_Settings_TablesandFees_TaxRecord_Creation(strRowID,strTaxType)    
+    FRM_Logger_ReportInfoEvent "Creation of "&strTaxType&" record","Creation of "&strTaxType&" record ", Null    
+    Dim objData,objSettings,objListView,objCityorStateList,strFeeDescription,intRowIndex	
+    Set objData=FRM_DS_GetTestData("Settings_TablesFees", "TaxRecord", strRowID)
+    Set objSettings=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+    Set objListView=objSettings.SwfObject("swfname:=listView")
+    Set objCityorStateList= objSettings.SwfWindow("swfname:=FeeDialog")  
+	Set objScrollBar=objSettings.SwfScrollBar("swfname:=vPanelScrollBar")	
+    strFeeDescription = FRM_DS_GetValue(objData, "Fee Description")
+	boolExists = GUI_List_ClickRow(objListView, objScrollBar, "Fee Name", strFeeDescription, True, False, False, "Single")	
+	'check if Tax Record already exists
+    If boolExists Then				
+		BIZ_Settings_ClickDelete()
+		BIZ_Settings_Dialog_YES_Click()
+		GUI_Object_WaitTillExistX objListView, 10
+		wait g_ShortWaitMedium 	'Explicit wait used to handle application synchronization 
+		intRowIndex=GUI_List_GetRowIndex(objListView,"Fee Name",strFeeDescription)		
+		If intRowIndex<0 Then
+			FRM_Logger_ReportInfoEvent "Deletion of "&strTaxType&" record","Deleted the tax record '"&strFeeDescription&"'", Null
+		Else
+			FRM_Logger_ReportInfoEvent "Deletion of "&strTaxType&" record","Failed to delete tax record '"&strFeeDescription&"'",  Null
+		End If		
+	End If	
+		
+    BIZ_Settings_ClickAdd()
+	If UTIL_String_IsNotEmpty (strFeeDescription) then
+		GUI_SwfEdit_Set objCityorStateList.SwfEdit("swfname:=feeNameTxt"),strFeeDescription
+	End If
+	
+	If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "Calculatebasedon")) Then
+		GUI_SwfComboBox_Select objCityorStateList.SwfComboBox("swfname:=calcOnCombo"), FRM_DS_GetValue(objData, "Calculatebasedon")
+	End If
+	
+    If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "Rate")) Then
+		GUI_SwfEdit_Set objCityorStateList.SwfEdit("swfname:=rateTxt"), FRM_DS_GetValue(objData, "Rate")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Additional Amount")) Then
+		GUI_SwfEdit_Set objCityorStateList.SwfEdit("swfname:=additionalTxt"), FRM_DS_GetValue(objData, "Additional Amount")
+	End If
+    GUI_SwfButton_Click objCityorStateList.SwfButton("swfname:=addBtn")
+         
+    Set objData               = Nothing
+    Set objSettings           = Nothing
+    Set objListView           = Nothing
+    Set objCityorStateList    = Nothing
+	Set objScrollBar          =	Nothing		
+    BIZ_Settings_TablesandFees_TaxRecord_Creation = strFeeDescription
+    
+End Function
+
+
+
+'This function is used to Edit Tax Record
+'@code
+'    BIZ_Settings_TablesAndFees_TaxRecord_Edit(strRowID,strFeeDescription,strTaxType)
+'@endcode
+'@param strRowID row id of test data
+'@Praram strFeeDescription is Tax Record created
+'@param strTaxType tax type of record city/state
+
+Function BIZ_Settings_TablesAndFees_TaxRecord_Edit(strRowID,strFeeDescription,strTaxType)
+               
+   FRM_Logger_ReportInfoEvent "Verify Edit of "&strTaxType&" record","Verification of Edit of "&strTaxType&" record ", Null
+   
+   Dim objData,objSettings,objListView,objCityorStateList,intRowIndex  
+   
+   Set objData            = FRM_DS_GetTestData("Settings_TablesFees", "TaxRecord", strRowID)
+   Set objSettings        = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+   Set objListView        = objSettings.SwfObject("swfname:=listView")
+   Set objCityorStateList = objSettings.SwfWindow("swfname:=FeeDialog")
+   
+   Wait g_ShortWaitSmall 'Explicit wait added Due to Sync issue
+   intRowIndex=GUI_List_GetRowIndex(objSettings.SwfObject("swfname:=listView"),"Fee Name",strFeeDescription )
+   If intRowIndex>=0 Then
+      GUI_List_ActOnRow objSettings.SwfObject("swfname:=listView"), intRowIndex, True, False, False,"Single"
+      BIZ_Settings_ClickEdit()
+	  If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "EditCalculatebasedon")) Then
+		GUI_SwfComboBox_Select objCityorStateList.SwfComboBox("swfname:=calcOnCombo"), FRM_DS_GetValue(objData, "EditCalculatebasedon")
+	  End If 
+	  If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "Rate")) Then
+		GUI_SwfEdit_Set        objCityorStateList.SwfEdit("swfname:=rateTxt"),(FRM_DS_GetValue(objData, "Rate")*2)
+	  End If
+	  If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "Additional Amount")) Then
+		GUI_SwfEdit_Set        objCityorStateList.SwfEdit("swfname:=additionalTxt"),FormatNumber(FRM_DS_GetValue(objData, "Additional Amount")*2,2)  
+	  End If
+      GUI_SwfButton_Click    objCityorStateList.SwfButton("swfname:=addBtn")
+   Else
+      FRM_Logger_ReportFailEvent "Verify Edit of "&strTaxType&" record","'"&strFeeDescription&"' record is not availble" , Null
+   End If
+   
+   Set objData             = Nothing
+   Set objSettings         = Nothing
+   Set objListView         = Nothing     
+   Set objCityorStateList  = Nothing
+               
+End Function
+
+
+
+'This function is used to validate CityTax,StateTax,UserDefine fee Records
+'@code
+'  Function  BIZ_Settings_TablesandFees_ValidateTaxRecord (strRowID,strTaxType,strFeeDescription,strActionType)
+'@endcode
+'@param strRowID row id of test data
+'@param strTaxType is Type of Record
+'@param strFeeDescription Record name
+'@param strActionType Create or Edit action type
+
+Function BIZ_Settings_TablesandFees_ValidateTaxRecord (strRowID,strTaxType,strFeeDescription,strActionType)
+    
+   Set objSettings	= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+   Set objListView	= objSettings.SwfObject("swfname:=listView")
+   Set objData      = FRM_DS_GetTestData("Settings_TablesFees", "TaxRecord", strRowID)
+   
+      If GUI_Object_IsExistX(objListView,20)=True Then
+        Wait g_ShortWaitSmall 'Explicit wait added Due to Sync issue 
+		
+		intColIndex  = GUI_List_GetColumnIndex(objListView, "Fee Name")
+        intRowIndex=GUI_List_GetRowIndex(objListView, intColIndex, strFeeDescription)
+		Select Case strActionType
+			Case "Create"
+				strCalculationType 		= FRM_DS_GetValue(objData, "Calculatebasedon")
+				strTaxRateval 			= FRM_DS_GetValue(objData, "Rate")
+				strTaxAdditionaltextval = FormatNumber(FRM_DS_GetValue(objData, "Additional Amount"),2) 
+			Case "Edit"
+				strCalculationType 		= FRM_DS_GetValue(objData, "EditCalculatebasedon")
+				strTaxRateval 			= (FRM_DS_GetValue(objData, "Rate")*2)
+      			strTaxAdditionaltextval = FormatNumber(FRM_DS_GetValue(objData, "Additional Amount")*2,2) 
+			Case Else
+				FRM_Logger_ReportFailEvent "Validate Tax Record","'"&strActionType&"' is not a valid Option (Create/Edit Option)", Null
+		End Select
+        
+        GUI_List_ValidateCellData objListView, intRowIndex, "Fee Name", strFeeDescription
+        GUI_List_ValidateCellData objListView, intRowIndex, "Rate", FormatNumber(strTaxRateval,5)
+        GUI_List_ValidateCellData objListView, intRowIndex, "Additional Amount", strTaxAdditionaltextval
+        GUI_List_ValidateCellData objListView, intRowIndex, "Calc. Based On", strCalculationType
+                             
+      Else
+        FRM_Logger_ReportFailEvent "Verify creation of "&strTaxType&" record","System created "&strTaxType&" record not created/Updated with all possible data", Null
+      End If
+      
+   Set objListView           = Nothing
+   Set objSettings           = Nothing 
+End Function
+
+'This function is used to Delete Tax Record
+'@code
+'    BIZ_Settings_TablesAndFees_TaxRecord_Delete(strFeeDescription,strTaxType)
+'@endcode
+'@Praram strFeeDescription is Tax Record created
+'@param strTaxType tax record type city/state
+
+Function BIZ_Settings_TablesAndFees_TaxRecord_Delete(strFeeDescription,strTaxType)
+	
+	FRM_Logger_ReportInfoEvent "Verify Delete of "&strTaxType&" record","Verification of delete of "&strTaxType&" record ", Null
+	
+	Dim objSettings,objListView,intRowIndex
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objListView = objSettings.SwfObject("swfname:=listView")
+	
+	intRowIndex=GUI_List_GetRowIndex(objListView,"Fee Name",strFeeDescription)
+	
+	If intRowIndex>=0 Then
+		
+		GUI_List_ActOnRow objListView, intRowIndex, True, False, False,"Single"
+		FRM_Logger_ReportInfoEvent "Selected the created record to delete","Selected record '"&strFeeDescription&"' to delete", Null
+		BIZ_Settings_ClickDelete()
+		BIZ_Settings_Dialog_YES_Click()
+		GUI_Object_WaitTillExistX objListView, 10
+		
+		wait g_ShortWaitMedium 	'Explicit wait used to handle application synchronization 
+		intRowIndex=GUI_List_GetRowIndex(objListView,"Fee Name",strFeeDescription)
+		
+		If intRowIndex<0 Then
+			FRM_Logger_ReportPassEvent "Verify Deletion of "&strTaxType&" record","System deleted the selected record '"&strFeeDescription&"'", Null
+		Else
+			FRM_Logger_ReportFailEvent "Verify Deletion of "&strTaxType&" record","System failed to  delete selected record",  Null
+		End If
+		
+	End If
+	
+	Set objSettings	= Nothing
+	Set objListView	= Nothing
+	
+End Function
+
+
+
+'This function is used to Create Itemization Fee Management Record
+'@code
+'     BIZ_Settings_TablesandFees_ItemizationFeeRecord_Creation(strRowID)
+'@endcode
+'@param strRowID row Id of testdata
+
+Function BIZ_Settings_TablesandFees_ItemizationFeeRecord_Creation(strRowID)
+	
+	FRM_Logger_ReportInfoEvent "Itemization Fee Management Record", "Itemization Fee Management New Record Creation", Null
+	Dim objSettings, objFeeDialog, intRowIndex, objData, strFeeDataName
+	
+	Set objSettings		=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objFeeDialog	=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AddFeeForm")
+	Set objData			=	FRM_DS_GetTestData("Settings_TablesFees", "ItemizationFee", strRowID)
+	
+	'Click on new icon
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=iconBtnNew")
+	
+	'Set Fee data name and Save
+	strFeeDataName=FRM_DS_GetValue(objData, "FeeDataName")
+	GUI_Object_WaitTillExistX objFeeDialog.SwfEdit("swfname:=txtFeeName"), 30
+	
+	If UTIL_String_IsNotEmpty (strFeeDataName)  Then
+		GUI_SwfEdit_Set objFeeDialog.SwfEdit("swfname:=txtFeeName"), strFeeDataName
+	End If
+	
+	GUI_SwfButton_Click objFeeDialog.SwfButton("swfname:=btnOK") 
+	
+	If (UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "Apply_Itemization")) and (FRM_DS_GetValue(objData, "Apply_Itemization"))="ON")  Then
+		
+		If (GUI_Object_GetPropertyValue(objSettings.SwfCheckBox("swfname:=chkCompanyOptIn"),"Checked")) Then
+			FRM_Logger_ReportInfoEvent "Apply To Itemization ", "Apply To Itemization  Set ON", Null 		
+		Else
+	      GUI_SwfCheckbox_Set objSettings.SwfCheckBox("swfname:=chkCompanyOptIn"),FRM_DS_GetValue(objData, "Apply_Itemization")	
+		End If 
+	    GUI_Object_ValidateChecked objSettings.SwfCheckBox("swfname:=chkCompanyOptIn"), "True","Apply To Itemization Set ON"
+	    
+	ElseIf (UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "Apply_Itemization")) and  (FRM_DS_GetValue(objData, "Apply_Itemization"))="OFF")  Then
+	
+	    If (GUI_Object_GetPropertyValue(objSettings.SwfCheckBox("swfname:=chkCompanyOptIn"),"Checked")) Then
+			GUI_SwfCheckbox_Set objSettings.SwfCheckBox("swfname:=chkCompanyOptIn"),FRM_DS_GetValue(objData, "Apply_Itemization")            		
+		Else
+	      FRM_Logger_ReportInfoEvent "Apply To Itemization ", "Apply To Itemization  Set OFF", Null 
+		End If 
+	    GUI_Object_ValidateChecked objSettings.SwfCheckBox("swfname:=chkCompanyOptIn"), "False","Apply To Itemization Set OFF"
+	
+	
+	End IF
+	
+	BIZ_Settings_ClickSave()
+		
+	Set objSettings	 	= 	Nothing
+	Set objFeeDialog 	= 	Nothing
+	Set objData		 	= 	Nothing
+	
+	BIZ_Settings_TablesandFees_ItemizationFeeRecord_Creation=strFeeDataName
+
+End Function
+	
+	
+	
+'This function is used to delete Itemization Fee Management Record
+'@code
+'     BIZ_Settings_TablesandFees_ItemizationFeeRecord_Delete(strFeeDataName)
+'@endcode
+'@param strFeeDataName - Set Fee Data name
+	
+Function BIZ_Settings_TablesandFees_ItemizationFeeRecord_Delete(strFeeDataName)
+	
+	FRM_Logger_ReportInfoEvent "Itemization Fee Management Record","Itemization Fee Management Record Deletion", Null
+	Dim objSettings, objEncompassDialog,boolValue
+	
+	Set objSettings				=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEncompassDialog		=	objSettings.Dialog("text:=Encompass")
+	Set objSettingsItemView		=	objSettings.SwfObject("swfname:=gridFees")
+	 
+	Wait g_TinyWaitMedium 'Explicit Wait added Due to Sync
+	boolValue = GUI_List_ClickRow(objSettingsItemView, objSettingsItemView.SwfScrollBar("swfname:=vPanelScrollBar"), "Encompass Fee Name", strFeeDataName, True, False, False, "Single") 
+    If boolValue Then
+	    GUI_SwfObject_Click objSettings.SwfObject("swfname:=iconBtnDelete")
+		GUI_Object_WaitTillExistX objEncompassDialog, 5
+		BIZ_Settings_Dialog_YES_Click()
+    Else
+    	FRM_Logger_ReportFailEvent "Itemization Fee Management  Record Deletion","Itemization Fee Management  Record' "&strFeeDataName&" ' Not available for Deletion", Null
+    End If
+		
+	Set objSettings			= Nothing
+	Set objEncompassDialog	= Nothing
+	Set objSettingsItemView	= Nothing
+	
+		
+End Function
+
+
+
+'This function is used to verify Fee Management Record Created or deleted
+'@code
+'     BIZ_Settings_TablesandFees_Validate_ItemizationCreateOrDelete(strFeeDataName,boolvalue)
+'@endcode
+'@param strFeeDataName - Set Fee Data name
+'@param boolvalue - True or False
+	
+Function BIZ_Settings_TablesandFees_Validate_ItemizationCreateOrDelete(strFeeDataName,boolvalue)
+	
+	FRM_Logger_ReportInfoEvent "Itemization Fee management Record","Verification of Itemization Fee Management Record Creation or Deletion" , Null
+	Dim objSettings,boolCondition
+	
+	Set objSettings				=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objSettingsItemView		=	objSettings.SwfObject("swfname:=gridFees")
+	 
+	Wait g_ShortWaitSmall 'Explicit Wait added Due Sync
+	boolCondition = GUI_List_ClickRow(objSettingsItemView, objSettingsItemView.SwfScrollBar("swfname:=vPanelScrollBar"), "Encompass Fee Name", strFeeDataName, True, False, False, "Single") 
+    If boolValue Then	  
+ 		FRM_VerifyTrue boolCondition, "Itemization Fee Management  Record", "Itemization Fee Management  Record Created'  "&strFeeDataName	  
+    Else
+    	FRM_VerifyFalse boolCondition, "Itemization Fee Management  Record", "Itemization Fee Management  Record Deleted '  "&strFeeDataName	  
+    End If
+			
+	Set objSettings			= Nothing
+	Set objEncompassDialog	= Nothing
+	
+End Function
+
+
+
+'This function is used to Validate creation of EscrowFees record 
+'@code
+'    	BIZ_Settings_TablesandFees_CreateFeesRecord(strRowID)
+'@endcode
+'@Param strRowID - Row id of testdata in excelfile
+
+Function BIZ_Settings_TablesandFees_CreateFeesRecord(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Create  New  fee Record","Creation of new  fee Record Started", Null 
+	
+	Dim objSetupContainer,objEscrowFeedetailsWindow,objData,strTableName,intRowIndex
+	
+	Set objSetupContainer 			= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEscrowFeedetailsWindow 	= objSetupContainer.SwfWindow("swfname:=TableGroupDialog")
+	Set objData						= FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID)
+  
+    GUI_Object_WaitTillExistX objSetupContainer, 30 
+	BIZ_Settings_ClickAdd()
+	
+	' Fees Record Creation Started
+	strTableName = FRM_DS_GetValue(objData, "TableName")
+	If UTIL_String_IsNotEmpty (strTableName)  Then
+		GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=tableNameTxt"), strTableName
+	End If
+	
+	If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "LoanPurpose"))  Then
+		GUI_SwfComboBox_Select objEscrowFeedetailsWindow.SwfComboBox("swfname:=cboPurpose"), FRM_DS_GetValue(objData, "LoanPurpose")
+	End If
+	
+	If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "Type"))  Then
+		GUI_SwfComboBox_Select objEscrowFeedetailsWindow.SwfComboBox("swfname:=cboFeeType"), FRM_DS_GetValue(objData, "Type")
+	End If
+
+	GUI_SwfObject_Click objEscrowFeedetailsWindow.SwfObject("swfname:=groupContainer1").SwfObject("swfname:=btnIconAdd")
+	Wait g_TinyWaitSmall 'Explicit Wait Added Due to Sync
+	
+	'Set testdata in required fields
+	BIZ_Settings_Escrow_Fees_FeesSection strRowID
+
+    'Calculation Section
+    If UTIL_String_IsNotEmpty ((FRM_DS_GetValue(objData, "CalcBasedOn")))  Then
+		GUI_SwfComboBox_Select objEscrowFeedetailsWindow.SwfComboBox("swfname:=calcOnCombo"),(FRM_DS_GetValue(objData, "CalcBasedOn"))	 
+	End If
+	        
+	If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "ToNearest"))  Then
+		GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=nearestTxt"), FRM_DS_GetValue(objData, "ToNearest")
+	End If
+	    
+	If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "WithOffset"))  Then
+	    GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=offsetTxt"), FRM_DS_GetValue(objData, "WithOffset")
+	End If 
+	GUI_SwfObject_Click objEscrowFeedetailsWindow.SwfObject("swfname:=okBtn")	
+    
+    Set objSetupContainer		  = Nothing
+    Set objEscrowFeedetailsWindow = Nothing
+	Set objData					  = Nothing
+	
+	BIZ_Settings_TablesandFees_CreateFeesRecord = strTableName
+
+End Function
+
+
+
+'This function is used to set values in fee section of EscrowFees  record
+'@code
+'    	BIZ_Settings_TablesandFees_VerifyEscrowFeesDetails(strTableName,strRowID)
+'@endcode
+'@param strTableName - Name of Escrow Fees Record
+'@param strRowID - Row id of Escrow fee record in excel file
+
+Function BIZ_Settings_TablesandFees_VerifyEscrowFeesDetails(strTableName,strRowID)
+
+	FRM_Logger_ReportInfoEvent "Verify  Fee Record Details","Verify '"&strTableName&"'  Fee Record Details", Null 
+	
+	Dim objSetupContainer,objEscrowFeedetailsWindow,objData
+	
+	Set objSetupContainer 			= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEscrowFeedetailsWindow 	= objSetupContainer.SwfWindow("swfname:=TableGroupDialog")
+	Set objData						= FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID)
+
+    GUI_Object_WaitTillExistX objSetupContainer, 30
+	Wait g_TinyWaitSmall 'Explicit Wait Added Due Sync
+	intRowIndex=GUI_List_GetRowIndex(objSetupContainer.SwfObject("swfname:=listView"), "Table Name", strTableName)
+	
+	'Record  Section verify
+	GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intRowIndex, "Table Name",  strTableName
+	GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intRowIndex, "Calc. Based On", FRM_DS_GetValue(objData, "CalcBasedOn")
+	
+	If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "Type")) Then
+		GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intRowIndex, "Type", FRM_DS_GetValue(objData, "Type")
+	End If
+	
+	GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intRowIndex, "Rounding", FRM_DS_GetValue(objData, "Rounding")
+	GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intRowIndex, "Purpose", FRM_DS_GetValue(objData, "LoanPurpose")
+	GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intRowIndex, "To Nearest", FormatNumber(FRM_DS_GetValue(objData, "ToNearest"),2)
+	GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intRowIndex, "With Offset", Formatnumber(FRM_DS_GetValue(objData, "WithOffset"),2)
+    FRM_Logger_ReportPassEvent "Verify creation of  fee record","fee record populated in   grid" , Null		
+	
+	BIZ_Settings_ClickEdit ()
+	Wait g_TinyWaitSmall 'Explicit Wait Added Due Sync
+	FRM_Logger_ReportInfoEvent "Verify  Fee Details Record","Fee Details Record" , Null	
+	
+	'Fee Details Section verify		
+	GUI_List_TextExists objEscrowFeedetailsWindow.SwfObject("swfname:=gridViewTable"),"Up to",FormatNumber(FRM_DS_GetValue(objData, "RangeUpto"),2) 	  	        	    
+	GUI_List_TextExists objEscrowFeedetailsWindow.SwfObject("swfname:=gridViewTable"),"Base",FormatNumber(FRM_DS_GetValue(objData, "Base"),2)
+	GUI_List_TextExists objEscrowFeedetailsWindow.SwfObject("swfname:=gridViewTable"),"Factor",FormatNumber(FRM_DS_GetValue(objData, "Factor"),2)
+	GUI_SwfButton_Click objEscrowFeedetailsWindow.SwfEdit("swfname:=okBtn")
+	FRM_Logger_ReportInfoEvent "Verified Fee Record Details ","'"&strTableName&"' Fee Details Record" , Null	
+
+	Set objSetupContainer 			= Nothing
+	Set objEscrowFeedetailsWindow   = Nothing
+	Set objData                     = Nothing
+	
+End Function
+
+
+
+'This function is used to set values in fee section of EscrowFees  record
+'@code
+'    	BIZ_Settings_Escrow_Fees_FeesSection(strRowID)
+'@endcode
+'@Param strRowID - Row id of Escrow fee record in excel file
+
+Private Function BIZ_Settings_Escrow_Fees_FeesSection(strRowID)
+    
+    FRM_Logger_ReportInfoEvent "Fee Record Details","Enter  Fee Record Details", Null
+	
+	Dim objSetupContainer,objEscrowFeedetailsWindow,objFeeDetails,objData,strBase,strRangeUpto,strFactor
+	
+	Set objSetupContainer 			= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEscrowFeedetailsWindow 	= objSetupContainer.SwfWindow("swfname:=TableGroupDialog")
+	Set objFeeDetails				= objEscrowFeedetailsWindow.SwfWindow("swfname:=TableDialog")
+	Set objData						= FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID)
+	
+	strRangeUpto = FRM_DS_GetValue(objData, "RangeUpto")
+	strBase		 = FRM_DS_GetValue(objData, "Base")
+	strFactor    = FRM_DS_GetValue(objData, "Factor")
+	
+	'Set testdata in required fields
+	If UTIL_String_IsNotEmpty (strRangeUpto) Then
+		GUI_SwfEdit_Set objFeeDetails.SwfEdit("swfname:=upToTxt"), strRangeUpto
+	End If
+	
+	If UTIL_String_IsNotEmpty (strBase) Then
+		GUI_SwfEdit_Set objFeeDetails.SwfEdit("swfname:=baseTxt"), strBase
+	End If 
+	
+	If UTIL_String_IsNotEmpty (strFactor) Then
+		GUI_SwfEdit_Set objFeeDetails.SwfEdit("swfname:=factorTxt"),strFactor
+	End If 
+		
+	GUI_SwfObject_Click objFeeDetails.SwfObject("swfname:=okBtn")
+	
+	FRM_Logger_ReportInfoEvent "Set values in 'Range Up to', 'Base', 'Factor fields","Values are set  as 'Range Up to: "&strRangeUpto&"','Base: "&strBase&"','Factor: "&strFactor&"'" , Null 
+	
+	Set objSetupContainer 		  = Nothing
+	Set objEscrowFeedetailsWindow = Nothing
+	Set objData                   = Nothing
+    Set objFeeDetails             = Nothing
+  
+End Function
+
+
+
+'This function is used to set input data in calculation section  of EscrowFees record 
+'@code
+'    	BIZ_Settings_Escrow_Fees_CalculationSection(strRowID)
+'@endcode
+'@Param strRowID row id of escrow fee record in excel file
+
+Private Function BIZ_Settings_Escrow_Fees_CalculationSection(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Set values in calculation section", "Set  values in 'To Nearest', 'With Offset' fields", Null 
+
+	Dim objSetupContainer, objEscrowFeedetailsWindow, objData
+	Set objSetupContainer = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEscrowFeedetailsWindow = objSetupContainer.SwfWindow("swfname:=TableGroupDialog")
+	Set objData=FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID)
+
+	If  GUI_Object_IsEnabled(objEscrowFeedetailsWindow)=True Then
+		If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "ToNearest"))= True Then
+			GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=nearestTxt"), FRM_DS_GetValue(objData, "ToNearest")
+		End If 
+		If UTIL_String_IsNotEmpty (FRM_DS_GetValue(objData, "WithOffset"))= True Then
+			GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=offsetTxt"), FRM_DS_GetValue(objData, "WithOffset")
+		End If 
+		FRM_Logger_ReportPassEvent "Set values in 'To Nearest' and 'WithOffset' fields","Values are set  as 'To Nearest':"&FRM_DS_GetValue(objData, "To Nearest")&" and 'WithOffset':"&FRM_DS_GetValue(objData, "With Offset")&"'" , Null 
+	Else
+		FRM_Logger_ReportFailEvent "Set values in 'To Nearest' and 'WithOffset' fields","Failed to set data", Null 
+	End If
+
+    Set objSetupContainer		  = Nothing
+    Set objEscrowFeedetailsWindow = Nothing
+    Set objData                   = Nothing
+
+End Function
+
+
+	
+
+'This function is for select State,City and User Defined Record Tax Record
+'@code
+'    BIZ_Settings_TablesandFees_SelectTaxRecord(strTaxRecord,strTaxType)
+'@endcode
+'@Praram strTaxRecord is type of tax record to select for calculation
+'@Praram strTaxType is type of Tax
+
+Function BIZ_Settings_TablesandFees_SelectTaxRecord(strTaxRecord,strTaxType)
+   
+   FRM_Logger_ReportInfoEvent "Tax Record Selection","Tax Record Selected is ' "&strTaxRecord&" '", Null
+	
+	Dim objFeeListDialog,objCityOrStateBtn,objSettings
+	Set objFeeListDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=FeeListDialog")
+	Set objSettings = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+	
+	Select Case lcase(strTaxType)
+		Case lcase("CityTax")
+			Set objCityOrStateBtn = objSettings.WebButton("html id:=StandardButton1")
+		Case lcase("StateTax")
+			Set objCityOrStateBtn = objSettings.WebButton("html id:=StandardButton2")
+		Case lcase("UserDefinedFee")
+			Set objCityOrStateBtn = objSettings.WebButton("html id:=StandardButton11")
+		Case Else
+			FRM_Logger_ReportFailEvent "BIZ_Settings_TablesandFees_SelectTaxRecord","'"&strTaxType&"' is not a valid option", Null
+	End Select
+	
+	GUI_WebButton_Click objCityOrStateBtn 
+		
+	IF GUI_Object_IsExistX(objFeeListDialog.SwfObject("swfname:=gridFeeList") ,15) = True Then 
+		GUI_List_ClickRow objFeeListDialog.SwfObject("swfname:=gridFeeList"),objFeeListDialog.SwfObject("swfname:=gridFeeList").SwfScrollBar("swfname:=vPanelScrollBar"), 0, strTaxRecord, True, FALSE, FALSE, "Single"
+		GUI_SwfButton_Click objFeeListDialog.SwfButton("swfname:=okBtn") 
+		'wait till main windows appears
+		GUI_Object_WaitTillVisibleX SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0"), 120
+	Else
+		FRM_Logger_ReportFailEvent "Tax Record Select", strTaxRecord&" Tax Record is not Available", Null      
+	End If   
+	
+	Set objCityOrStateBtn = Nothing
+    Set objSettings		  = Nothing
+    Set objFeeListDialog  = Nothing
+
+ End Function
+
+ 
+ 
+'This function is for State ,City and User Defined Record Amount Validation
+'@code
+'    BIZ_Settings_TablesandFees_TaxAmountValidation(strTaxRecord,strRowID,strRowID2,strTaxType)
+'@endcode
+'@Praram strTaxRecord is type of tax record to select for calculation 
+'@Praram strRowID is loan creation record in excel
+'@Praram strRowID2 is State Tax record in excel	
+'@Praram strTaxType type of Tax, City , State and User Defined Record
+
+Function BIZ_Settings_TablesandFees_TaxAmountValidation(strTaxRecord,strRowID,strRowID2,strTaxType)
+    
+    FRM_Logger_ReportInfoEvent strTaxType &" Amount Calculated on Purchase Amount ", strTaxType &" Amount Field Auto Populated", Null
+	
+	Dim objData,objData2,intPurchasePrice,intRate,intAdditionalAmount,intCalAmount,strAppTax,strApplicationValue
+    Dim objParent,objTaxRec,objTaxRecValue
+	
+	Set objParent = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+	Set objData2 = FRM_DS_GetTestData("Settings_TablesFees", "TaxRecord", strRowID2)
+	
+	Select Case lcase(strTaxType)
+		
+		Case lcase("CityTax")
+			Set objTaxRec 		= objParent.WebEdit("html id:=l_1637")
+			Set objTaxRecValue 	= objParent.WebEdit("html id:=TextBox36")
+			strFiled 			= "1204"
+			
+		Case lcase("StateTax")
+			Set objTaxRec		= objParent.WebEdit("html id:=l_1638")
+			Set objTaxRecValue 	= objParent.WebEdit("html id:=TextBox38")
+			strFiled 			= "1205"
+			
+		Case lcase("UserDefinedFee")
+			Set objTaxRec		= objParent.WebEdit("html id:=l_373")
+			Set objTaxRecValue 	= objParent.WebEdit("html id:=TextBox18")
+			strFiled 			= "1206"
+			
+		Case Else
+			
+		FRM_Logger_ReportFailEvent "BIZ_Settings_TablesandFees_TaxAmountValidation","'"&strTaxType&"' is not a valid option", Null
+	
+	End Select
+		
+	Set objData = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetTransactionDetails",strRowID )
+	
+	intPurchasePrice 	= FRM_DS_GetValue(objData, "PurchasePrice") 
+	intRate 			= FRM_DS_GetValue(objData2, "Rate")
+	intAdditionalAmount = FRM_DS_GetValue(objData2, "Additional Amount")
+	
+	FRM_Logger_ReportInfoEvent strTaxType &" Amount Calculated on Purchase Amount ", " Loan Purchase Amount "&intPurchasePrice, Null
+	FRM_Logger_ReportInfoEvent strTaxType &" Amount Field "& strFiled &"  Calculation Formula ", " (Purchase Amount * intRate)/100 + intAdditionalAmount ", Null
+	
+	intCalAmount		= FormatNumber( ((intPurchasePrice * intRate)/100 )+intAdditionalAmount)
+    strAppTax 			= GUI_Object_GetPropertyValue(objTaxRec,"value")
+	strApplicationValue = GUI_Object_GetPropertyValue(objTaxRecValue,"value")   	
+    	
+	FRM_VerifyEqual strTaxRecord,strAppTax,strTaxType & " Record  Validation ",strTaxType & " Record Selected ' "&strCityTaxRecord&" 'Record in Application '"&strAppTax
+	FRM_VerifyEqual intCalAmount,strApplicationValue,strTaxType & " Amount Validation ",strTaxType & " Amount Validation Calculated ' "& intCalAmount&" ' Value Application '"&strApplicationValue
+	
+	Set objData  		= Nothing 
+	Set objData2 		= Nothing
+    Set objParent 		= Nothing
+    Set objTaxRec 		= Nothing
+    Set objTaxRecValue  = Nothing
+	
+End Function
+
+
+'This function is used Select MITable Tab
+'@code
+'    	BIZ_TablesAndFees_SelectMITableConvTab(strRowID,strMITab)
+'@endcode
+'@Param strMITab is Tab in MITable
+'@Param strRowID rowid of testdata in excelfile
+
+ Function BIZ_TablesAndFees_SelectMITableConvTab(strRowID,strMITab)
+	
+	FRM_Logger_ReportInfoEvent "BIZ_TablesAndFees_SelectMITableTab","BIZ_TablesAndFees_SelectMITableTab using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objData, objSettings,  objTabForm, objMITab,strTabName	
+	
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")	
+	Set objTabForm 	= objSettings.SwfWindow("swfname:=AddTabNameForm")
+	Set objMITab   	= objSettings.SwfTab("swfname:=tabControlMI")
+	Set objData 	= FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	strTabName 		= FRM_DS_GetValue(objData, "TabName")
+	
+	Select CASE ucase(strMITab)
+		CASE "CONVENTIONAL"	
+		    GUI_SwfTab_Click objMITab,"Conventional"
+		    GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnNewTab")
+			If  GUI_Object_IsExist(objTabForm) Then
+				If UTIL_String_IsNotEmpty(strTabName) Then GUI_SwfEdit_Set objTabForm.SwfEdit("swfname:=textBoxName"), strTabName
+				GUI_SwfButton_Click objTabForm.SwfButton("swfname:=okBtn")
+		    Else
+		        FRM_Logger_ReportInfoEvent "BIZ_TablesAndFees_SelectMITableConvTab","BIZ_TablesAndFees_SelectMITableConvTab using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null		
+			End IF	
+		CASE "FHA"
+	      	GUI_SwfTab_Click objMITab,"FHA"
+		Case "VA"
+	      	GUI_SwfTab_Click objMITab,"VA"
+	    Case "OTHER"
+         	GUI_SwfTab_Click objMITab,"Other"
+	    Case Else
+			FRM_Logger_ReportFailEvent "MI table Select Tab",strMITab& "tab not available to select ", Null
+	End Select
+		
+	Set objData     = Nothing
+	Set objSettings = Nothing
+	Set objTabForm  = Nothing
+    Set objMITab    = Nothing
+	
+	BIZ_TablesAndFees_SelectMITableConvTab = strTabName
+End Function
+
+
+
+'This function is used Create MITable Secnario 
+'@code
+'    	BIZ_TablesAndFees_CreateMITableSecnario(strRowID,strMITab)
+'@endcode
+'@Param strMITab is Tab in MITable
+'@Param strRowID rowid of testdata in excelfile
+
+Function BIZ_TablesAndFees_CreateMITableSecnario(strRowID,strMITab)
+
+	FRM_Logger_ReportInfoEvent "BIZ_TablesAndFees_CreateMITableSecnario","BIZ_TablesAndFees_CreateMITableSecnario using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objData, objSettings, objMIScenario, objTabForm, strScenario,  intRowNum, objTab
+	Set objData 		= FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	Set objSettings 	= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objMIScenario 	= objSettings.SwfWindow("swfname:=MIRecordSetupForm")
+	Set objTabForm 		= objSettings.SwfWindow("swfname:=AddTabNameForm")
+	Set objTab   		= objSettings.SwfTab("swfname:=tabControlMI")
+
+	BIZ_Settings_ClickAdd()
+	
+	If GUI_Object_IsExist(objMIScenario) Then
+		BIZ_TablesAndFees_AddMIScenarioData strRowID,strMITab
+	End If
+	
+	strScenario = GUI_Object_GetPropertyValue (objMIScenario.SwfEditor("swfname:=txtScenario"), "Text")
+	GUI_SwfButton_Click objMIScenario.SwfButton("swfname:=okBtn")  	
+	GUI_Object_WaitTillExistX objSettings.SwfObject("swfname:=listViewMI"),30
+		
+ 	 	
+ 	Set objSettings   = Nothing
+ 	Set objMIScenario = Nothing
+    Set objTabForm    = Nothing
+    Set objData       = Nothing    
+    
+    BIZ_TablesAndFees_CreateMITableSecnario = strScenario
+End Function 
+
+
+
+'This function is used to Caliculate MIFF Amount validation
+'@code
+'    BIZ_TableandFees_SelectMIDetailPage_GetMIPDetails(strRowID,strScenarioName)
+'@endcode
+'@param strRowID - Pointed to Row in excel to read data from SetTransactionDetails
+'@param strScenarioName - MI Scenario Name
+
+Function BIZ_TableandFees_SelectMIDetailPage_GetMIPDetails(strRowID,strScenarioName)
+
+	FRM_Logger_ReportInfoEvent "MI Record Selection","MI Record Selection Based On MI Scenario '"&strScenarioName&"'in MI table ", null
+	
+	Dim objData,objMIFFButton,objMainWindow, objMIList, strBasedOn ,strScenario,boolValue
+		 
+	Set objMIFFButton = SwfWindow("swfname:=MainForm").Page("micClass:=Page").WebButton("html id:=StandardButton2")  
+	Set objMainWindow = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog")
+	Set objMIList 	  = objMainWindow.SwfWindow("swfname:=MIRecordsSelectForm").SwfObject("swfname:=listViewMI")
+	Set objData 	  = FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	strBasedOn	      = FRM_DS_GetValue(objData, "BasedOn") 	
+	
+	BIZ_Forms_Open "1003 Page 1"
+	GUI_WebButton_Click(objMIFFButton)
+	
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "strMIWindow")) Then	
+		GUI_Object_ValidateExists objMainWindow, 4, FRM_DS_GetValue(objData, "strMIWindow")		
+	End If 
+
+	GUI_Object_WaitTillExistX objMainWindow.SwfComboBox("swfname:=typeCombo"),30
+	
+	If UTIL_String_IsNotEmpty(strBasedOn) Then
+		GUI_SwfComboBox_Select objMainWindow.SwfComboBox("swfname:=typeCombo"), strBasedOn	
+	End If
+	
+	GUI_SwfButton_Click objMainWindow.SwfButton("swfname:=btnGetMI")
+	
+	If GUI_Object_IsExistX(objMainWindow.SwfWindow("swfname:=MIRecordsSelectForm") ,25) Then
+	    Wait g_ShortWaitMedium  'Explicit wiat added due to sync
+	 	boolValue=GUI_List_ClickRow (objMIList, null, "Scenario", strScenarioName, True, FALSE, FALSE, "Single")    
+	    FRM_VerifyTrue  boolValue, "MI Table Record", "MI Table Record Created:"&strScenarioName    
+	    GUI_SwfButton_Click objMainWindow.SwfWindow("swfname:=MIRecordsSelectForm").SwfButton("swfname:=tbnSelect")
+    Else
+        FRM_Logger_ReportInfoEvent "GET MI Records", "Only Single Record Available in Application ", Null
+    End If
+	    
+	Set objData              = Nothing
+	Set objMIFFButton        = Nothing
+	Set objMIList            = Nothing
+
+End Function
+
+
+
+'This function is used to Caliculate MIFF Amount 
+'@code
+'    BIZ_TableandFees_MIFF_AmountAutoPopulate_Verify_ConventionalLoanRecord(strRowID)
+'@endcode
+'@param strRowID - Pointed to Row in excel toread data
+
+Function BIZ_TableandFees_MIFF_AmountAutoPopulate_Verify_ConventionalLoanRecord(strRowID)
+	
+	FRM_Logger_ReportInfoEvent "MI FF Guarantee Fee Calculation At MI Record", "MI FF Guarantee Fee Calculation For MI Record", null
+
+	Dim objData,objMainWindow,strMIFFPremiumPercent,strMIFFFirstMonthRate,strMIFFSecondMonthRate,strMIFFFirstMonths,strMIFFSecondMonths,strMIFFCancelAt
+	Dim strAppMIPPercent,strAppFirstMonthRate,strAppFirstMonths,strAppSecondMonthRate,strAppSecondMonths,strAppCancelAt
+
+	Set objData 			= FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	Set objMainWindow 		= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog")
+    strMIFFPremiumPercent	= FormatNumber(FRM_DS_GetValue(objData, "Premium"),6 )
+	strMIFFFirstMonthRate	= FormatNumber(FRM_DS_GetValue(objData, "FirstMonthly"),3 )
+	strMIFFSecondMonthRate	= FormatNumber(FRM_DS_GetValue(objData, "SecondMonthly"),3 )
+	strMIFFCancelAt			= FormatNumber(FRM_DS_GetValue(objData, "Cutoff"),3 )
+	strMIFFFirstMonths		= FormatNumber(FRM_DS_GetValue(objData, "FirstMonth"),0 )
+	strMIFFSecondMonths		= FormatNumber(FRM_DS_GetValue(objData, "SecondMonth"),0 ) 
+	strAppMIPPercent		= GUI_Object_GetPropertyValue(objMainWindow.SwfEdit("swfname:=rateFundingTxt"),"text")
+	strAppFirstMonthRate	= GUI_Object_GetPropertyValue(objMainWindow.SwfEdit("swfname:=rateMI1Txt"),"text")
+	strAppFirstMonths		= GUI_Object_GetPropertyValue(objMainWindow.SwfEdit("swfname:=monthMI1Txt"),"text")
+	strAppSecondMonthRate	= GUI_Object_GetPropertyValue(objMainWindow.SwfEdit("swfname:=rateMI2Txt"),"text")
+	strAppSecondMonths 		= GUI_Object_GetPropertyValue(objMainWindow.SwfEdit("swfname:=monthMI2Txt"),"text")
+	strAppCancelAt     		= GUI_Object_GetPropertyValue(objMainWindow.SwfEdit("swfname:=rateMICancelTxt"),"text")
+      
+	 If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Premium")) Then
+		FRM_VerifyEqual strMIFFPremiumPercent,strAppMIPPercent,"MI Premium Percent Validation","MI Premium Percent Entered' "&strMIFFPremiumPercent&" ' Value Application '"&strAppMIPPercent	
+	 End If 
+	 
+	 FRM_VerifyEqual strMIFFFirstMonthRate,strAppFirstMonthRate,"MI First Month Rate Validation","MI First MonthRate Entered' "&strMIFFFirstMonthRate&" ' Value Application '"&strAppFirstMonthRate
+	 FRM_VerifyEqual strMIFFFirstMonths,strAppFirstMonths,"MI First Months Validation","MI First Months Entered' "&strMIFFFirstMonths&" ' Value Application '"&strAppFirstMonths
+	 FRM_VerifyEqual strMIFFSecondMonthRate,strAppSecondMonthRate,"MI Second Month Rate Validation","MI Second MonthRate Entered' "&strMIFFSecondMonthRate&" ' Value Application '"&strAppSecondMonthRate
+	 FRM_VerifyEqual strMIFFSecondMonths,strAppSecondMonths,"MI Second Months Validation","MI Second Months Entered' "&strMIFFSecondMonths&" ' Value Application '"&strAppSecondMonths
+	 FRM_VerifyEqual strMIFFCancelAt,strAppCancelAt,"MI Cancel At","MI Cancel At Entered' "&strMIFFCancelAt&" ' Value Application '"&strAppCancelAt
+
+	GUI_SwfButton_Click(objMainWindow.SwfButton("swfname:=okBtn"))
+
+	set objData      	= Nothing
+	set objMainWindow  	= Nothing
+	
+End Function 
+
+
+
+'This function is used to Select MI Conventional Dynemic Tab
+'@code
+'    BIZ_TablesAndFees_SelectMIConventionalTab(strConventionalTab){
+'@endcode
+'@param strConventionalTab - Dynamic Tab Name
+
+Function BIZ_TablesAndFees_SelectMIConventionalTab(strConventionalTab)
+
+	FRM_Logger_ReportInfoEvent "MI Conventional Table Tab ","MI Conventional Table' "& strConventionalTab &" 'Tab Select", Null
+	
+	Dim objControlMITab,objControlMIConvTab,objSettings
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objControlMITab=objSettings.SwfTab("swfname:=tabControlMI")
+	Set objControlMIConvTab=objSettings.SwfTab("swfname:=tabControlConv")
+	
+	GUI_SwfTab_Click objControlMITab,"Conventional"
+	GUI_SwfTab_Click objControlMIConvTab,strConventionalTab
+	
+	Set objControlMITab     = Nothing
+	Set objControlMIConvTab = Nothing
+	Set objSettings         = Nothing
+
+End Function	
+
+
+
+'This function is used to Caliculate MIFF Amount validation
+'@code
+'    BIZ_TableandFees_MIFF_AmountAutoPopulate_ConventionalLoanAmountValidation(strRowID,strRowID2)
+'@endcode
+'@param strRowID2 - Pointed to Row in excel to read data from MITable
+'@param strRowID - Pointed to Row in excel to read data from SetTransactionDetails
+
+Function BIZ_TableandFees_MIFF_AmountAutoPopulate_ConventionalLoanAmountValidation(strRowID,strRowID2)
+
+	FRM_Logger_ReportInfoEvent "MI FF Guarantee Fee Calculation At Application", "MI FF Guarantee Fee Calculation For MI Record", null
+
+	Dim objData,objData2,objParentObject
+	Dim strMIFFPremiumPercent,strLoanType,strLoanPurchasePrice,strLoanDownPaymentPercent,strAppPurchasePrice,strAppLoanAmount,strAppMIPFFAmount
+	Dim strPaidAmount,strLoanAmount,strMIPFFAmount
+	
+	Set objData 	= FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetTransactionDetails", strRowID)
+	Set objData2 	= FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID2)
+		   
+	strMIFFPremiumPercent=FRM_DS_GetValue(objData2, "Premium")	
+	strLoanType=FRM_DS_GetValue(objData, "LoanType")
+	strLoanPurchasePrice=FRM_DS_GetValue(objData, "PurchasePrice")
+	strLoanDownPaymentPercent=FRM_DS_GetValue(objData, "DownPaymentPercent")
+
+	strLoanPurchasePrice=FormatNumber(strLoanPurchasePrice,0)
+	strLoanDownPaymentPercent=FormatNumber(strLoanDownPaymentPercent,0)  
+	Set objParentObject = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+	Wait g_TinyWaitMedium
+	strAppPurchasePrice=GUI_Object_GetPropertyValue(objParentObject.WebEdit("html id:=l_136"),"value")
+	strAppLoanAmount=GUI_Object_GetPropertyValue(objParentObject.WebEdit("html id:=l_1109"),"value")
+	strAppMIPFFAmount=GUI_Object_GetPropertyValue(objParentObject.WebEdit("html id:=l_1045"),"value")
+
+	strLoanType=FRM_DS_GetValue(objData, "LoanType")
+	strLoanPurchasePrice=FRM_DS_GetValue(objData, "PurchasePrice")
+	strLoanDownPaymentPercent=FRM_DS_GetValue(objData, "DownPaymentPercent")
+	FRM_Logger_ReportInfoEvent "MIFF Amount Auto Population Loan Type", "Loan Type is: "&strLoanType, Null
+	strLoanPurchasePrice=FormatNumber(strLoanPurchasePrice)
+	FRM_VerifyEqual strLoanPurchasePrice,strAppPurchasePrice," ","Loan Purchase Price' "&strLoanPurchasePrice&" 'Value In Application '"&strAppPurchasePrice
+	FRM_Logger_ReportInfoEvent "Loan Down Payment", "Loan Down Payment is '"&strLoanDownPaymentPercent&"' % Of Purchase Price", Null
+	
+	strPaidAmount = (strLoanPurchasePrice*strLoanDownPaymentPercent)/100
+	strLoanAmount= strLoanPurchasePrice - strPaidAmount
+	strLoanAmount=formatnumber (strLoanAmount)
+	FRM_Logger_ReportInfoEvent "Loan Amount", "Loan Amount is 'strLoanDownPaymentPercent' * 'Purchase Price' "&strLoanAmount, Null
+	FRM_VerifyEqual strLoanAmount,strAppLoanAmount," ","Loan Amount ' "&strLoanAmount&" ' Value Application '"&strAppLoanAmount
+	strMIPFFAmount=(strAppLoanAmount * strMIFFPremiumPercent)/100
+	FRM_Logger_ReportInfoEvent "MIP FF Amount Formula", "MIP FF Amount is '(strAppLoanAmount * strAppMIPPercent)/100 =  "&strMIPFFAmount, Null
+	strMIPFFAmount=FormatNumber(strMIPFFAmount)
+	FRM_VerifyEqual strMIPFFAmount,strAppMIPFFAmount," ","MIP FF Amount ' "&strMIPFFAmount&" ' Value Application '"&strAppMIPFFAmount
+
+	Set objData         = Nothing
+	Set objData2        = Nothing
+	Set objParentObject = Nothing
+
+End Function
+
+
+
+'This function is used to Delete MI Conventional Dynemic Tab
+'@code
+'    BIZ_TablesAndFees_DeleteMIConventionalTab(strConventionalTab)
+'@endcode
+'@param strConventionalTab - Dynamic Tab Name
+
+Function BIZ_TablesAndFees_DeleteMIConventionalTab(strConventionalTab)
+
+	FRM_Logger_ReportInfoEvent "MI Conventional Table Tab ","MI Conventional Table' "& strConventionalTab &" 'Tab Select", Null
+	
+	Dim objDeleteTab,objSettings
+	
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objDeleteTab =objSettings.SwfObject("swfname:=stdIconBtnDeleteTab")
+	
+	GUI_SwfObject_Click objDeleteTab
+	
+	Set objDeleteTab = Nothing
+	Set objSettings  = Nothing
+
+End Function
+
+
+
+'This function is used to Validate creation of Duplicate Escrow Record 
+'@code
+'    	BIZ_Settings_TablesandFees_DuplicateEscrowRecord(strTableNameActual,strRowID)
+'@endcode
+'@param strTableNameActual - Escrow Record Name 
+'@param strRowID - Points Row Data in Excel 
+
+Function BIZ_Settings_TablesandFees_DuplicateEscrowRecord(strTableNameActual,strRowID)
+
+	FRM_Logger_ReportInfoEvent "Verify Duplicate of a Fees Record","Verify  'Duplicate' functionality on Fees Record ", Null
+	
+	Dim intTblNameRowindex,objSetupContainer,objEscrowFeedetailsWindow,objData
+    
+	Set objData 					= FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID) 
+	Set objSetupContainer 			= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEscrowFeedetailsWindow 	= objSetupContainer.SwfWindow("swfname:=TableGroupDialog")
+	strTableNameDuplicate 			= FRM_DS_GetValue(objData, "Duplicate_TableName")
+	
+    GUI_Object_WaitTillExistX objSetupContainer.SwfObject("swfname:=listView"),60
+	GUI_List_SelectItem objSetupContainer.SwfObject("swfname:=listView"),strTableNameActual,"Table Name"
+	BIZ_Settings_ClickDuplicate()
+	
+	GUI_Object_WaitTillExistX objEscrowFeedetailsWindow.SwfEdit("swfname:=tableNameTxt","index:=0"),40
+	GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=tableNameTxt","index:=0"),strTableNameDuplicate
+	GUI_SwfButton_Click objEscrowFeedetailsWindow.SwfEdit("swfname:=okBtn")
+
+    'Duplication Validation
+    Wait g_TinyWaitSmall 'Explicit Wait used to handle sync isuues 	
+    intTblNameRowindex = GUI_List_GetRowIndex(objSetupContainer.SwfObject("swfname:=listView"), "Table Name",Trim(strTableNameDuplicate)) 
+    GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intTblNameRowindex, "Table Name", strTableNameDuplicate
+    
+	Set objEscrowFeedetailswindow = Nothing
+	Set objSetupContainer		  = Nothing
+	Set objData					  = Nothing
+	
+	BIZ_Settings_TablesandFees_DuplicateEscrowRecord = strTableNameDuplicate
+	
+End Function
+
+
+
+'This function is used to Validate Deletion of  Escrow Fees Record 
+'@code
+'    	BIZ_Settings_TablesandFees_DeleteEscrowRecord(strTableNameActual)
+'@endcode 
+'@Param strTableNameActual - Escrow Fees Record Name 
+
+Function BIZ_Settings_TablesandFees_DeleteEscrowRecord(strTableNameActual)
+
+	FRM_Logger_ReportInfoEvent "Verify 'Delete' functionality of a  Fees Record","Verify  'Delete'  functionality on  Fees Record ", Null
+	
+	Dim objSetupContainer,objEscrowFeedetailswindow,objEscrowFeedetailDelete,intTblNameRowindex
+	
+	Set objSetupContainer 		  = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+ 	Set objEscrowFeedetailswindow = objSetupContainer.SwfWindow("swfname:=TableGroupDialog")
+	Set objEscrowFeedetailDelete  = objEscrowFeedetailswindow.SwfObject("swfname:=btnIconDelete")
+ 	
+	GUI_Object_WaitTillExistX objSetupContainer.SwfObject("swfname:=listView"),60
+	GUI_List_SelectItem objSetupContainer.SwfObject("swfname:=listView"),strTableNameActual,"Table Name"
+	BIZ_Settings_ClickEdit ()
+	Wait g_TinyWaitSmall 'Explicit Wait Added Due Sync
+	GUI_List_SelectItem objEscrowFeedetailswindow.SwfObject("swfname:=gridViewTable"),CStr(FormatNumber(FRM_DS_GetValue(objData, "Base"),2)),"Base"
+	GUI_SwfObject_Click  objEscrowFeedetailDelete
+	
+	Wait g_TinyWaitSmall 'Explicit Wait Added Due Sync
+	intTblNameRowindex = GUI_List_GetRowIndex(objSetupContainer.SwfObject("swfname:=listView"), "Base",Trim(CStr(FormatNumber(FRM_DS_GetValue(objData, "Base"),2))))		
+	If intTblNameRowindex < 0 Then
+		FRM_Logger_ReportPassEvent " Fees Record Delete"," Fees Details Deleted", Null
+	Else	
+		FRM_Logger_ReportFailEvent " Fees Record Delete"," Fees Details Not Deleted", Null
+	End If	
+	
+	GUI_SwfObject_Click objEscrowFeedetailsWindow.SwfObject("swfname:=okBtn")
+
+	If GUI_Object_IsEnabled(objSetupContainer.SwfObject("swfname:=stdIconBtnDelete")) Then
+		GUI_SwfObject_Click objSetupContainer.SwfObject("swfname:=stdIconBtnDelete")
+		GUI_Dialog_Encompass_Yes("")		
+		Wait g_TinyWaitSmall 'Explicit Wait Added Due Sync isuues
+		intTblNameRowindex = GUI_List_GetRowIndex(objSetupContainer.SwfObject("swfname:=listView"), "Table Name",Trim(strTableNameActual))
+		If intTblNameRowindex < 0 Then
+			FRM_Logger_ReportPassEvent " Record Delete","System deletes the selected Fees record '"+strTableNameActual+"' and it should not be available in  grid", Null
+		Else	
+			FRM_Logger_ReportFailEvent " Record Delete","System Failed to deletes the selected Fees record and it should  be available in  grid", Null
+		End If		
+	Else
+	 	FRM_Logger_ReportFailEvent "Delete Disabled","Fees Record Delete Failed", Null
+	End If	 	
+
+	Set objSetupContainer 		  = Nothing 
+    Set objEscrowFeedetailswindow = Nothing
+	Set objEscrowFeedetailDelete  = Nothing
+	
+End Function
+
+
+
+'This function is used to Validate Rename of Escrow Record 
+'@code
+'    	BIZ_Settings_TablesandFees_RenameEscrowRecord(strTableNameActual,strRowID)
+'@endcode
+'@Param strTableNameActual - Escrow Record Name 
+'@Param strRowID - RowID from Excel 
+
+Function BIZ_Settings_TablesandFees_RenameEscrowRecord(strTableNameActual,strRowID)
+
+	FRM_Logger_ReportInfoEvent "Verify 'Rename' of a Fees Record","Verify 'Rename' functionality on Fees Record ", Null	
+	
+	Dim objData,objSetupContainer,objEscrowFeedetailswindow,objEscrowFeedetailEdit,intTblNameRowindex,strRenameTableName
+	
+	Set objData 					= FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID)
+	Set objSetupContainer 			= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEscrowFeedetailswindow 	= objSetupContainer.SwfWindow("swfname:=TableGroupDialog")
+	Set objEscrowFeedetailEdit 		= objSetupContainer.SwfObject("swfname:=stdIconBtnEdit")
+	strRenameTableName				= FRM_DS_GetValue(objData, "ReName_TableName")
+	
+    GUI_Object_WaitTillExistX objSetupContainer.SwfObject("swfname:=listView"),60
+	intTblNameRowindex =  GUI_List_GetRowIndex(objSetupContainer.SwfObject("swfname:=listView"), "Table Name", strTableNameActual)
+	GUI_List_SelectItem objSetupContainer.SwfObject("swfname:=listView"),strTableNameActual,"Table Name"
+	GUI_SwfObject_Click objEscrowFeedetailEdit
+	GUI_Object_WaitTillExistX objEscrowFeedetailsWindow.SwfEdit("swfname:=tableNameTxt","index:=0"),60
+	GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=tableNameTxt","index:=0"),Trim(strRenameTableName)
+	GUI_SwfButton_Click objEscrowFeedetailsWindow.SwfEdit("swfname:=okBtn")
+	
+	'Validate Rename
+	Wait g_TinyWaitSmall 'Explicit Wait used to handle sync issues 
+	intTblNameRowindex = GUI_List_GetRowIndex(objSetupContainer.SwfObject("swfname:=listView"), "Table Name", Trim(strRenameTableName))
+	GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intTblNameRowindex, "Table Name", Trim(strRenameTableName)
+	
+	Set objSetupContainer			= Nothing
+	Set objEscrowFeedetailsWindow	= Nothing
+	Set objData						= Nothing
+    Set objEscrowFeedetailEdit      = Nothing	
+	
+	BIZ_Settings_TablesandFees_RenameEscrowRecord = Trim(strRenameTableName)
+End Function 
+
+
+				
+'This function is used to Edit  Escrow Record 
+'@code
+'    	BIZ_Settings_TablesandFees_EditEscrowRecord(strTableNameActual,strRowID)
+'@endcode
+'@param strRowID - points to Row in Excel  
+'@param strTableNameActual - Escrow Record Name 
+
+Function BIZ_Settings_TablesandFees_EditEscrowRecord(strTableNameActual,strRowID)
+
+	FRM_Logger_ReportInfoEvent "Verify 'Edit' of a Fees Record","Verify  'Edit' functionality on  Fees Record ", Null
+
+	Dim objSetupContainer,objEscrowFeedetailswindow,objEscrowTableDialog,objEscrowTableDialogUPTO,objEscrowTableDialogOK,objEscrowFeedetailEdit,objData
+	Dim strRangeUPTO,strTableNameEdit,intTblNameRowindex
+	
+	Set objSetupContainer 			= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEscrowFeedetailswindow 	= objSetupContainer.SwfWindow("swfname:=TableGroupDialog")
+	Set objEscrowTableDialog 		= objEscrowFeedetailswindow.SwfWindow("swfname:=TableDialog")
+	Set objEscrowTableDialogUPTO 	= objEscrowTableDialog.SwfEdit("swfname:=upToTxt")
+	Set objEscrowTableDialogOK		= objEscrowTableDialog.SwfButton("swfname:=okBtn")
+	Set objEscrowFeedetailEdit 		= objEscrowFeedetailswindow.SwfObject("swfname:=btnIconEdit")
+	Set objData 					= FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID)
+
+    GUI_Object_WaitTillExistX objSetupContainer.SwfObject("swfname:=listView"),60
+	GUI_List_SelectItem objSetupContainer.SwfObject("swfname:=listView"),strTableNameActual,"Table Name"
+	BIZ_Settings_ClickEdit ()
+	
+	Wait g_TinyWaitSmall 'Explicit Wait used to handle Sync issues
+	GUI_List_SelectItem objEscrowFeedetailswindow.SwfObject("swfname:=gridViewTable"),CStr(FormatNumber(FRM_DS_GetValue(objData, "Base"),2)),"Base"
+	strRangeUPTO = CStr(formatNumber(FRM_DS_GetValue(objData, "RangeUpto_1"),2))
+	GUI_SwfObject_Click  objEscrowFeedetailEdit 	
+	GUI_SwfEdit_Set objEscrowTableDialogUPTO, strRangeUPTO	
+	GUI_SwfButton_Click objEscrowTableDialogOK
+	
+	'Edited Value Validation
+	Wait g_TinyWaitSmall 'Explicit Wait used to handle Sync issues
+	intTblNameRowindex = GUI_List_GetRowIndex (objEscrowFeedetailswindow.SwfObject("swfname:=gridViewTable"), "Up to", strRangeUPTO)
+	GUI_List_ValidateCellData objEscrowFeedetailswindow.SwfObject("swfname:=gridViewTable"), intTblNameRowindex, "Up to", strRangeUPTO
+	GUI_SwfObject_Click objEscrowFeedetailsWindow.SwfObject("swfname:=okBtn")
+	
+	Wait g_TinyWaitSmall 'Explicit Wait used to handle Sync issues
+	GUI_List_SelectItem objSetupContainer.SwfObject("swfname:=listView"),strTableNameActual,"Table Name"
+	BIZ_Settings_ClickEdit ()
+	strTableNameEdit = FRM_DS_GetValue(objData, "Edit_TableName")
+	GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=tableNameTxt","index:=0"),strTableNameEdit
+	GUI_SwfButton_Click objEscrowFeedetailsWindow.SwfEdit("swfname:=okBtn")
+	
+	'Edit Record Validation
+    Wait g_TinyWaitSmall 'Explicit Wait used to handle Sync issues 	
+    intTblNameRowindex = GUI_List_GetRowIndex(objSetupContainer.SwfObject("swfname:=listView"), "Table Name",Trim(strTableNameEdit)) 
+    GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intTblNameRowindex, "Table Name", strTableNameEdit
+   
+	Set objSetupContainer          = Nothing
+	Set objEscrowFeedetailswindow  = Nothing
+	Set objEscrowTableDialog       = Nothing
+	Set objEscrowTableDialogUPTO   = Nothing
+	Set objEscrowTableDialogOK	   = Nothing
+	Set objEscrowFeedetailEdit 	   = Nothing
+	Set objData                    = Nothing
+	
+	BIZ_Settings_TablesandFees_EditEscrowRecord = strTableNameEdit
+End Function
+
+
+
+'This function is used for Creation of FHA County Loan Limits
+'@code
+'   BIZ_Settings_TablesandFees_CreateFHACountyLoanLimits(strRowID)
+'@endcode
+'@param strRowID is RowID in excel to read data from Excel
+
+Function BIZ_Settings_TablesandFees_CreateFHACountyLoanLimits(strRowID)
+	FRM_Logger_ReportInfoEvent "FHA County Loan Limits","Create FHA County Loan Limits", null	
+	
+	Dim objSettings,objEnforceLoanLimit,objCountyEdit,objCountySearch,objCountyLimitDialog,objData,objIconBtnSave
+	Dim strCountyName,strLimitfor1Unit,strLimitfor2Unit,strLimitfor3Unit,strLimitfor4Unit
+
+	Set objSettings 			= 	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEnforceLoanLimit 	= 	objSettings.SwfCheckBox("swfname:=chbEnforceSetting")
+	Set objCountyLimitDialog 	= 	objSettings.SwfWindow("swfname:=CountyLimitEditDialog")
+	Set objIconBtnSave          =   objSettings.SwfObject("swfname:=stdIconBtnSave")
+	Set objData 				= 	FRM_DS_GetTestData("Settings_TablesFees", "FHACountyLimits", strRowID)
+	strCountyName				=	FRM_DS_GetValue(objData, "CountyName")
+	strLimitfor1Unit			=	FRM_DS_GetValue(objData, "Limitfor1Unit")
+	strLimitfor2Unit			=	FRM_DS_GetValue(objData, "Limitfor2Unit")
+	strLimitfor3Unit			=	FRM_DS_GetValue(objData, "Limitfor3Unit")
+	strLimitfor4Unit			=	FRM_DS_GetValue(objData, "Limitfor4Unit")
+	strLoanLimitCheck			=	FRM_DS_GetValue(objData, "LoanLimitCheck")
+
+	Select case strLoanLimitCheck
+		case "ON"
+			If (GUI_Object_GetPropertyValue(objEnforceLoanLimit,"Checked")) Then
+				FRM_Logger_ReportInfoEvent "Enforce Loan Limits","Enforce Loan Limits Already Set ON", null
+			Else	
+				GUI_SwfCheckbox_Set objEnforceLoanLimit, "ON"
+				GUI_SwfObject_Click objIconBtnSave		
+			End If 
+			GUI_Object_ValidateChecked objEnforceLoanLimit, "True","Enforce Loan Limits Checked"
+		case "OFF"
+			If (GUI_Object_GetPropertyValue(objEnforceLoanLimit,"Checked")) Then			
+				GUI_SwfCheckbox_Set objEnforceLoanLimit, "OFF"
+				GUI_SwfObject_Click objIconBtnSave				
+			Else	
+				FRM_Logger_ReportInfoEvent "Enforce Loan Limits","Enforce Loan Limits  Set OFF", null			
+			End If 
+			GUI_Object_ValidateChecked objEnforceLoanLimit, "False","Enforce Loan Limits Checked OFF"
+		
+		case Else
+			 FRM_Logger_ReportInfoEvent "Enforce Loan Limits Check Box","Enter Valid Option ON OFF", null
+	End Select
+	
+	
+	If UTIL_String_IsNotEmpty(strCountyName) Then
+		GUI_SwfEdit_Set  objSettings.SwfEdit("swfname:=txtFindCounty"),strCountyName		
+	End If
+	GUI_SwfButton_Click objSettings.SwfButton("swfname:=btnSearch")
+	
+	Wait g_TinyWaitMedium 'Explicit Wait Added Due Sync Issue
+	GUI_List_SelectItem objSettings.SwfObject("swfname:=lsvCountyLimit"), strCountyName, "County Name"
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnEdit")
+
+	If UTIL_String_IsNotEmpty(strLimitfor1Unit) Then
+		GUI_SwfEdit_Set objCountyLimitDialog.SwfEdit("swfname:=txtLimit1"), strLimitfor1Unit		
+	End If
+
+	If UTIL_String_IsNotEmpty(strLimitfor2Unit) Then
+		GUI_SwfEdit_Set objCountyLimitDialog.SwfEdit("swfname:=txtLimit2"), strLimitfor2Unit		
+	End If
+
+	If UTIL_String_IsNotEmpty(strLimitfor3Unit) Then
+		GUI_SwfEdit_Set objCountyLimitDialog.SwfEdit("swfname:=txtLimit3"), strLimitfor3Unit		
+	End If
+
+	If UTIL_String_IsNotEmpty(strLimitfor4Unit) Then
+		GUI_SwfEdit_Set objCountyLimitDialog.SwfEdit("swfname:=txtLimit4"), strLimitfor4Unit		
+	End If
+	GUI_SwfButton_Click objCountyLimitDialog.SwfButton("swfname:=btnSave")
+
+
+	Set objSettings					=	Nothing
+	Set objEnforceLoanLimit			=	Nothing
+	Set objCountyLimitDialog		=	Nothing
+	Set objData						=	Nothing
+	Set objIconBtnSave				=	Nothing
+End Function
+
+
+
+'This function is used to Verify MI Scenario Data
+'@code
+'    BIZ_TablesAndFees_Verify_MIScenarioData(strScenario,strRowID)
+'@endcode
+'@param strRowID - row id for data
+'@param strScenario - MI Scenario Name
+
+Function BIZ_TablesAndFees_Verify_MIScenarioData(strScenario,strRowID)
+	
+	FRM_Logger_ReportInfoEvent "MI Scenario Data","Verify MI Scenario Data", null	
+	Dim objData,objSettings,objMainView
+	
+	Set objData 	= 	FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	Set objSettings = 	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objMainView =	objSettings.SwfObject("swfname:=listViewMI")
+	intRowNum 		=	GUI_List_GetRowIndex (objSettings.SwfObject("swfname:=listViewMI"), "Scenario", strScenario)
+	
+	FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRowNum, GUI_List_GetColumnIndex(objMainView, "Scenario")) ,strScenario,"Value ", "MIScenarioName"
+	If Not ((UTIL_String_IsNotEmpty("strMITabType") and  FRM_DS_GetValue(objData, "strMITabType")="Other")) Then
+		FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRowNum, GUI_List_GetColumnIndex(objMainView, "1st Premium %")) ,FormatNumber(FRM_DS_GetValue(objData, "Premium"),3),"Value ", "Premium"		
+	End If
+	
+	FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRowNum, GUI_List_GetColumnIndex(objMainView, "1st Monthly MI %")),FormatNumber(FRM_DS_GetValue(objData, "FirstMonthly"),3),"Value ", "First Monthly"
+	FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRowNum, GUI_List_GetColumnIndex(objMainView, "1st MI Months")),Trim(FRM_DS_GetValue(objData, "FirstMonth")),"Value ", "First Month"
+	FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRowNum, GUI_List_GetColumnIndex(objMainView, "2nd Monthly MI %")),FormatNumber(FRM_DS_GetValue(objData, "SecondMonthly"),3),"Value ", "Second Monthly"
+	FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRowNum, GUI_List_GetColumnIndex(objMainView, "2nd MI Months")),Trim(FRM_DS_GetValue(objData, "SecondMonth")),"Value ", "Second Month"
+	FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRowNum, GUI_List_GetColumnIndex(objMainView, "Cutoff %")),FormatNumber(FRM_DS_GetValue(objData, "Cutoff"),3),"Value ", "Cutoff"
+	
+	Set objData		=	Nothing 
+	Set objSettings	=	Nothing 
+	Set objMainView	=	Nothing 
+
+End Function 
+
+
+
+'This function is used to Verify MI Values of Amortization Schedule
+'@code
+'    BIZ_Settings_TablesandFees_AmortizationSchedule_VerifyMIValues(strRowID)
+'@endcode
+
+Function BIZ_Settings_TablesandFees_AmortizationSchedule_VerifyMIValues(strRowID)
+    
+    FRM_Logger_ReportInfoEvent "MI Values of Amortization Schedule","Verify MI Values of Amortization Schedule ", null
+	Dim objAmortSchDialog,objAmortSchDialogClose,objListView
+			
+	Set objAmortSchDialog      = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AmortSchDialog")	
+	Set objAmortSchDialogClose = objAmortSchDialog.SwfButton("swfname:=okBtn")
+	Set objListView            = objAmortSchDialog.SwfObject("swfname:=amortListview")
+	Set objData 			   = FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	intMonth 				   = FRM_DS_GetValue(objData, "FirstMonth")
+	intMonth1 				   = intMonth + FRM_DS_GetValue(objData, "SecondMonth")
+	intMonth1Int			   = FRM_DS_GetValue(objData, "Month1Int")
+	intMonth2Int			   = FRM_DS_GetValue(objData, "Month2Int")
+	
+	intColNo = GUI_List_GetColumnIndex(objListView,"MI")
+	intRowCont = GUI_List_GetNumberofRows(objListView)
+	For i = 1 To intRowCont
+		If i <= intMonth Then
+			If UTIL_String_IsNotEmpty(GUI_List_GetCellData(objListView, i, intColNo)) Then
+				GUI_List_ValidateCellData objListView,i,intColNo,intMonth1Int 
+			End If
+		ElseIf i > intMonth and i <= (intMonth1+2) Then
+			If UTIL_String_IsNotEmpty(GUI_List_GetCellData(objListView, i, intColNo)) Then
+				GUI_List_ValidateCellData objListView,i,intColNo,intMonth2Int
+			End If
+		ElseIf i > (intMonth1 + 3) Then
+			Exit for
+		End If
+	Next
+	
+	GUI_SwfButton_Click objAmortSchDialogClose
+	
+	Set objAmortSchDialog      = Nothing
+	Set objAmortSchDialogClose = Nothing
+	Set objListView            = Nothing
+
+End Function
+
+
+
+'This function is used to Set MIP Funding Guarantee Value
+'@code
+'    BIZ_TablesAndFees_SetMIPFundingGuaranteeValue(strRowID)
+'@endcode
+'@ Param strRowID- Points to Row Data in Excel
+
+Function BIZ_TablesAndFees_SetMIPFundingGuaranteeValue(strRowID)
+   
+   Dim objData,intLoanAmtTxt,intMIFFValue
+   
+   Set objData = FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+   
+   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Premium")) Then    
+        GUI_WebEdit_Set SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog").SwfEdit("swfname:=rateFundingTxt"), FRM_DS_GetValue(objData, "Premium")
+   End If
+   
+   util_win_sendkey "{TAB}"
+   Wait  g_TinyWaitMedium  'Explicit Wait added Due to sync
+   
+   intLoanAmtTxt=CLng(GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog").SwfEdit("swfname:=baseLoanAmtTxt"),"text"))
+   intMIFFValue=Clng(GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog").SwfEdit("swfname:=fundingFeeTxt"),"text"))
+   intLoanAmtTxt=(intLoanAmtTxt/100) * Clng(FRM_DS_GetValue(objData, "Premium"))
+   FRM_VerifyEqual formatNumber(intLoanAmtTxt,3),formatnumber(intMIFFValue,3),"MI/FF Fee","MI/FF Fee"
+ 
+   Set objData = Nothing
+   
+End Function
+
+
+
+'This function is to fill the compensation plan details 
+'@code
+'    BIZ_Settings_TablesAndFees_SetLOCompPlanDetails(strRowID)
+'@endcode
+'@param strRowID - RowId for Data
+
+Function BIZ_Settings_TablesAndFees_SetLOCompPlanDetails(strRowID)
+	
+	FRM_Logger_ReportInfoEvent "BIZ_Settings_TablesAndFees_SetLOCompPlanDetails","Setting LO Comp Plan Details using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objData, objSettings, objListView, objCompensationDetail, strName	
+	
+	Set objSettings 			= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objListView 			= objSettings.SwfObject("swfname:=listView")
+	Set objCompensationDetail 	= objSettings.SwfWindow("swfname:=LOCompGroupDialog")
+	Set objData     			= FRM_DS_GetTestData("Settings_TablesFees", "CompensationPlan", strRowID)
+	strName 					= FRM_DS_GetValue(objData, "UserName")
+	strDescription 				= FRM_DS_GetValue(objData, "Description")
+	strLoanOfficerOrBroker 		= FRM_DS_GetValue(objData, "LoanOfficerOrBroker")
+	strActiveOnOrOff			= FRM_DS_GetValue(objData, "Active")		
+	
+	If Not UTIL_String_IsEmpty(strName) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtName"), strName
+	End If
+	
+	If Not UTIL_String_IsEmpty(strDescription) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtDescription"), strDescription
+	End If
+	
+	If Not UTIL_String_IsEmpty(strLoanOfficerOrBroker) Then
+		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbType"), strLoanOfficerOrBroker
+	End If
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Amount")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtAmount"), FRM_DS_GetValue(objData, "Amount")
+	End IF
+		
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "AmountOf")) Then
+		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbAmount"), FRM_DS_GetValue(objData, "AmountOf")
+	End IF
+		
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Amount2")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtAmount2"), FRM_DS_GetValue(objData, "Amount2")
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Minimum")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtMinAmt"), FRM_DS_GetValue(objData, "Minimum")
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Maximum")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtMaxAmt"), FRM_DS_GetValue(objData, "Maximum")
+	End IF
+	
+	If Not UTIL_String_IsEmpty(strActiveOnOrOff) Then
+		GUI_SwfCheckbox_Set objCompensationDetail.SwfCheckBox("swfname:=chkStatus"), strActiveOnOrOff
+		GUI_DialogObject_Encompass_OKX objCompensationDetail.Dialog("text:=Encompass"), 60, "For audit purposes, compensation plans cannot be modified once they are activated and assigned to an originator. Be sure to make any needed changes here before assigning the plan to an originator."
+		
+	End If
+	
+	GUI_SwfButton_Click objCompensationDetail.SwfButton("swfname:=btnSave")
+		
+	Set objData		          = Nothing
+	Set objSettings	          = Nothing
+	Set objListView	          = Nothing
+	Set objCompensationDetail = Nothing
+	
+	BIZ_Settings_TablesAndFees_SetLOCompPlanDetails = strName
+End Function
+
+
+
+'This function is to Delete the LO Compensation Plan
+'@code
+'    BIZ_Settings_TablesAndFees_DeleteLOCompPlan(strLOCompPlanName)
+'@endcode
+'@param strLOCompPlanName - Plan Name should be passed
+
+Function BIZ_Settings_TablesAndFees_DeleteLOCompPlan (strLOCompPlanName)
+	
+	FRM_Logger_ReportInfoEvent "BIZ_Settings_TablesAndFees_DeleteLOCompPlan","Delete LO Comp Plan using LOCompPlanName: '"&strLOCompPlanName&"'",null
+	
+	Dim objEncompassSettings, objLOCompensationPlans
+	Set objEncompassSettings 	= 	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objLOCompensationPlans	=	objEncompassSettings.swfobject("swfname:=listView")
+     Wait  g_ShortWaitLarge  'Explicit wait added due to synce
+	If GUI_List_TextExists(objLOCompensationPlans, "Name", strLOCompPlanName) Then
+		FRM_Logger_ReportPassEvent "LO Compensation Plan Selection", "LO Compensation Plan Selected To Delete Is: '"&strLOCompPlanName&"' name", null
+		intRow = GUI_List_GetRowIndex (objLOCompensationPlans, "Name", strLOCompPlanName)
+		
+		GUI_List_ClickRow objLOCompensationPlans, objLOCompensationPlans.SwfScrollBar("swfname:=vPanelScrollBar"), "Name", strLOCompPlanName, True, False, False, "Single"
+		
+		Wait  g_TinyWaitSmall  'Explicit wait added due to synce    
+		GUI_SwfObject_Click objEncompassSettings.SwfObject("swfname:=stdIconBtnDelete")
+		GUI_Dialog_Encompass_Yes "The selected LO Comp Plans will be deleted permanently. Do you want to continue?"
+	Else
+		FRM_Logger_ReportFailEvent "LO Compensation Plan Selection", "LO Compensation Plan is not selected To Delete", null
+	End If
+	
+	Set objEncompassSettings 	= 	Nothing
+	Set objLOCompensationPlans	=	Nothing
+	
+End Function
+
+
+
+'This function is used for Loan Creation till 1003Page1
+'@code
+'    BIZ_Settings_TableAndFees_LoanCreation_1003Page1(strRowID)
+'@endcode
+'@param strRowID - is RowID in excel to read data for loan creation 
+
+Function BIZ_Settings_TableAndFees_LoanCreation_1003Page1(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Loan Creation:" ,"Loan Creation for'"&strRowID&"'", Null
+	BIZ_Loan_AddNewBlankLoanUnderSelectedLoanFolder "Super Administrator - Default View","My Pipeline"  							
+	BIZ_BorrowerSummaryOrigination_SetHeadInfo strRowID
+	BIZ_BorrowerSummaryOrigination_SetBorrower strRowID
+	BIZ_BorrowerSummaryOrigination_SetSSNVerification_Borrower strRowID
+	BIZ_BorrowerSummaryOrigination_SetCreditInformation strRowID
+	BIZ_BorrowerSummaryOrigination_SetProperty strRowID
+	BIZ_BorrowerSummaryOrigination_SetTransactionDetails strRowID
+	BIZ_1003Page1_SetTitleDetails strRowID
+	BIZ_1003Page1_SetData(strRowID)
+	
+End Function
+
+
+
+
+'This function is used for Verify FHA County Loan Limits
+'@code
+'    BIZ_Settings_TablesandFees_VerifyFHACountyLoanLimits(strRowID)
+'@endcode
+'@param strRowID is RowID in excel to read data from Excel
+
+Function BIZ_Settings_TablesandFees_VerifyFHACountyLoanLimits(strRowID)
+
+	FRM_Logger_ReportInfoEvent "FHA County Loan Limits for Units","Verify FHA County Loan Limits for Units", null
+	
+	Dim objSettings,objData,strCountyName,strLimitfor1Unit,strLimitfor2Unit,strLimitfor3Unit,strLimitfor4Unit,intRowNum,intColNum
+
+	Set objSettings 	= 	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objData 		= 	FRM_DS_GetTestData("Settings_TablesFees", "FHACountyLimits", strRowID)
+	
+	Wait g_TinyWaitMedium   'Explicit Wait Added Due Sync Issue
+	strCountyName		=	FRM_DS_GetValue(objData, "CountyName")
+	strLimitfor1Unit	=	FRM_DS_GetValue(objData, "Limitfor1Unit")
+	strLimitfor2Unit	=	FRM_DS_GetValue(objData, "Limitfor2Unit")
+	strLimitfor3Unit	=	FRM_DS_GetValue(objData, "Limitfor3Unit")
+	strLimitfor4Unit	=	FRM_DS_GetValue(objData, "Limitfor4Unit")
+
+    intColNum 			=	GUI_List_GetColumnIndex(objSettings.SwfObject("swfname:=lsvCountyLimit"),"County Name")
+	intRowNum 			= 	GUI_List_GetRowIndex(objSettings.SwfObject("swfname:=lsvCountyLimit"), intColNum, strCountyName)
+
+	If UTIL_String_IsNotEmpty(strLimitfor1Unit) Then
+		GUI_List_ValidateCellData objSettings.SwfObject("swfname:=lsvCountyLimit"), intRowNum,  "Limit for 1 Unit",FormatNumber(strLimitfor1Unit,0)		
+	End If
+
+	If UTIL_String_IsNotEmpty(strLimitfor2Unit) Then
+		GUI_List_ValidateCellData objSettings.SwfObject("swfname:=lsvCountyLimit"), intRowNum, "Limit for 2 Units",FormatNumber(strLimitfor2Unit,0)		
+	End If
+
+	If UTIL_String_IsNotEmpty(strLimitfor3Unit) Then
+		GUI_List_ValidateCellData objSettings.SwfObject("swfname:=lsvCountyLimit"), intRowNum, "Limit for 3 Units",FormatNumber(strLimitfor3Unit,0) 		
+	End If
+
+	If UTIL_String_IsNotEmpty(strLimitfor4Unit) Then
+		GUI_List_ValidateCellData objSettings.SwfObject("swfname:=lsvCountyLimit"), intRowNum, "Limit for 4 Units", FormatNumber(strLimitfor4Unit,0) 		
+	End If
+
+	Set objSettings			=	Nothing
+	Set objData				=	Nothing
+
+End Function
+
+
+
+'This function is used for Verify Enforce County Loan Limits for Units
+'@code
+'    BIZ_Settings_TablesandFees_VerifyCountyLimit(strRowID,strRowID2,strColName)
+'@endcode
+'@Param strRowID - is RowID in excel to read data from Borrower Summary origination excel
+'@Param strRowID2 - is RowID in excel to read data from Tables and Fees Excel
+'@Param strColName - is Name of colunm in excel 
+
+Function BIZ_Settings_TablesandFees_VerifyCountyLimit(strRowID,strRowID2,strColName)
+
+	FRM_Logger_ReportInfoEvent "Enforce County Loan Limit","Enforce County Loan  "&strColName, null
+	
+	Dim	objParentObject,objLoanAmount,objData,objData2,strLoanAmount,strCountyName,strLimitfor1Unit,strPurchasePrice,strDownPaymentPercent,strAppLoanAmount
+	Dim  strPopupMsg,objStaticDialogMsg
+	Set objParentObject		=	SwfWindow("swfname:=MainForm").Page("index:=0")
+	Set objStaticDialogMsg	=	SwfWindow("swfname:=MainForm").Dialog("text:=Encompass").Static("text:=Loan amt.*")
+	Set objLoanAmount		=	objParentObject.WebEdit("html id:=l_1109")
+	Set objData 			= 	FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetTransactionDetails", strRowID)
+	Set objData2 			= 	FRM_DS_GetTestData("Settings_TablesFees", "FHACountyLimits", strRowID2)
+	
+	strCountyName			=	FRM_DS_GetValue(objData2, "CountyName")
+	strLimitfor1Unit		=	FRM_DS_GetValue(objData2, strColName)
+	strPopupMsg				=	FRM_DS_GetValue(objData2, "PopupMsg")
+	strPurchasePrice		=	FRM_DS_GetValue(objData, "PurchasePrice")
+	strDownPaymentPercent	=	FRM_DS_GetValue(objData, "DownPaymentPercent")
+	strLoanAmount			=	FRM_DS_GetValue(objData, "1109_LoanAmount")
+	
+	IF ucase(strLoanAmount)= "NULL" then
+		strLoanAmount = ""
+	Else
+		strLoanAmount = strPurchasePrice-(strPurchasePrice*strDownPaymentPercent)/100
+		strLoanAmount = FormatNumber(strLoanAmount,2)
+	End if 
+	
+	FRM_Logger_ReportInfoEvent "County Loan Purchase Price ","Purchase Price "&strPurchasePrice, null
+	FRM_Logger_ReportInfoEvent "County Loan Amount ","Loan Amount "&strLoanAmount, null
+	FRM_Logger_ReportInfoEvent "County Name ","County Name "&strCountyName, null
+	FRM_Logger_ReportInfoEvent "County "&strColName,"County Loan Limit "&strLimitfor1Unit, null
+	'Verify Pop Up Message
+	GUI_Dialog_VerifyStaticText objStaticDialogMsg, strPopupMsg, "Verify County Limit POP UP "
+	GUI_Dialog_Encompass_Click 3, "exceeds county limit", "OK"
+	
+	Wait g_LongWaitLarge + g_ShortWaitLarge 'Explicit wait added due to sync, Here Wait increased
+	strAppLoanAmount = GUI_Object_GetPropertyValue (objLoanAmount,"value")
+	FRM_VerifyEqual strAppLoanAmount,strLoanAmount,"Loan Amount on Hold","Loan Amount Display "
+	
+	Set objParentObject			= 	Nothing
+	Set objLoanAmount   		= 	Nothing
+	Set objData					= 	Nothing
+	Set objData2				= 	Nothing
+	Set objStaticDialogMsg      = 	Nothing
+End Function
+
+
+
+'This function is used to Set Compensation Plan
+'@code
+'    BIZ_TablesAndFees_SetCompensationPlan(strRowID)
+'@endcode
+'@Param strRowID Points to row in excel
+
+Function BIZ_TablesAndFees_SetCompensationPlan(strRowID)
+	FRM_Logger_ReportInfoEvent "TablesAndFees Set data Compensation Plan","TablesAndFees Set Data Compensation Plan using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objData, objSettings, objListView, objCompensationDetail	
+	Set objData = FRM_DS_GetTestData("Settings_TablesFees", "CompensationPlan", strRowID)
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objListView = objSettings.SwfObject("swfname:=listView")
+	Set objCompensationDetail = objSettings.SwfWindow("swfname:=LOCompGroupDialog")
+	
+	strName=FRM_DS_GetValue(objData, "Name")
+	If Not UTIL_String_IsEmpty(strName) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtName"), strName
+	End IF
+		
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Description")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtDescription"), FRM_DS_GetValue(objData, "Description")
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "LoanOfficerOrBroker")) Then
+		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbType"), FRM_DS_GetValue(objData, "LoanOfficerOrBroker")
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Minimum_TermDays")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=textMinTerm"), FRM_DS_GetValue(objData, "Minimum_TermDays")
+	End IF
+		
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Rounding")) Then
+		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbRounding"), FRM_DS_GetValue(objData, "Rounding")
+	End IF
+		
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Amount")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtAmount"), FRM_DS_GetValue(objData, "Amount")
+	End IF
+		
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "AmountOf")) Then
+		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbAmount"), FRM_DS_GetValue(objData, "AmountOf")
+	End IF
+		
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Amount2")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtAmount2"), FRM_DS_GetValue(objData, "Amount2")
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Minimum")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtMinAmt"), FRM_DS_GetValue(objData, "Minimum")
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Maximum")) Then
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtMaxAmt"), FRM_DS_GetValue(objData, "Maximum")
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Status_Active")) Then
+		GUI_SwfCheckbox_Set objCompensationDetail.SwfCheckBox("swfname:=chkStatus"), FRM_DS_GetValue(objData, "Status_Active")
+		If objCompensationDetail.Dialog("text:=Encompass").Exist(20) Then
+			GUI_Dialog_Encompass_OK "For audit purposes, compensation plans cannot be modified once they are activated and assigned to an originator. Be sure to make any needed changes here before assigning the plan to an originator."
+		End If
+	End If
+		
+	GUI_SwfButton_Click objCompensationDetail.SwfButton("swfname:=btnSave")
+	
+	Set objData		          = Nothing
+	Set objSettings	          = Nothing
+	Set objListView	          = Nothing
+	Set objCompensationDetail = Nothing
+  
+    BIZ_TablesAndFees_SetCompensationPlan = strName
+End Function
+
+
+
+'This function is used to Create Compensation Plan
+'@code
+'    BIZ_TablesAndFees_CreateCompensationPlan(strRowID)
+'@endcode
+'@Param strRowID Points to row in excel
+
+Function BIZ_TablesAndFees_CreateCompensationPlan(strRowID)
+	
+	FRM_Logger_ReportInfoEvent "TablesAndFees_Create Compensation Plan","TablesAndFees Create Compensation Plan using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	BIZ_Settings_ClickAdd()
+	strName = BIZ_TablesAndFees_SetCompensationPlan(strRowID)
+    BIZ_TablesAndFees_CreateCompensationPlan=strName
+    
+End Function
+
+
+
+'This function is used to Edit Compensation Plan
+'@code
+'    BIZ_TablesAndFees_EditCompensationPlan(strName,strRowID)
+'@endcode
+'@Param strName Name of CompensationPlan
+'@Param strRowID Points to row in excel
+
+Function BIZ_TablesAndFees_EditCompensationPlan(strName,strRowID)
+	
+	FRM_Logger_ReportInfoEvent "TablesAndFees Edit Compensation Plan","TablesAndFees Edit Compensation Plan ", null
+	
+	Dim objSettings,objListView
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objListView = objSettings.SwfObject("swfname:=listView")
+	
+	GUI_List_ClickRow objListView, Null, "Name", strName, True, false, false, "Single"
+	BIZ_Settings_ClickEdit()
+	strEditedName = BIZ_TablesAndFees_SetCompensationPlan(strRowID)
+	
+	Set objSettings	          = Nothing
+	Set objListView	          = Nothing
+	
+	BIZ_TablesAndFees_EditCompensationPlan = strEditedName
+    
+End Function
+
+
+
+'This function is used to Duplicate Compensation Plan
+'@code
+'    BIZ_TablesAndFees_DuplicateCompensationPlan(strName,strRowID)
+'@endcode
+'@Param strName Name of CompensationPlan
+'@Param strRowID Points to row in excel
+
+Function BIZ_TablesAndFees_DuplicateCompensationPlan(strName,strRowID)
+	
+	FRM_Logger_ReportInfoEvent "TablesAndFees_Duplicate Compensation Plan","TablesAndFees Create Duplicate Compensation Plan ", null
+	
+	Dim objSettings,objListView
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objListView = objSettings.SwfObject("swfname:=listView")
+	
+	GUI_List_ClickRow objListView, Null, "Name", strName, True, false, false, "Single"
+	BIZ_Settings_ClickDuplicate()
+	strDuplicateName = BIZ_TablesAndFees_SetCompensationPlan(strRowID)
+	
+	Set objSettings	          = Nothing
+	Set objListView	          = Nothing
+	
+    BIZ_TablesAndFees_DuplicateCompensationPlan=strDuplicateName
+    
+End Function
+
+
+
+'This function is used to Delete Compensation Plan
+'@code
+'    BIZ_TablesAndFees_DeleteCompensationPlan(strName)
+'@endcode
+'@Param strName Name of CompensationPlan
+
+Function BIZ_TablesAndFees_DeleteCompensationPlan(strName)
+	
+	FRM_Logger_ReportInfoEvent "TablesAndFees Delete Compensation Plan","TablesAndFees Delete Compensation Plan and Verify Deleted" &strName, null
+	Dim  objSettings,objListView
+	
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objListView = objSettings.SwfObject("swfname:=listView")
+	
+	FRM_VerifyTrue GUI_List_ClickRow (objListView, Null, "Name", strName, True, false, false, "Single"), " Compensation Plan ", "Compensation Plan Available to Delete is "&strName
+	BIZ_Settings_ClickDelete()
+	BIZ_Settings_Dialog_YES_Click()
+	FRM_VerifyFalse GUI_List_ClickRow (objListView, Null, "Name", strName, True, false, false, "Single"), " Compensation Plan ", "Compensation Plan  Deleted is "&strName
+	
+	Set objSettings	          = Nothing
+	Set objListView	          = Nothing
+	  
+End Function
+
+
+
+'This function is used to Verify Compensation Plan Details
+'@code
+'    BIZ_TablesAndFees_ValidateCompensationPlanDetails(strName,strRowID)
+'@endcode
+'@Param strName Name of CompensationPlan
+'@Param strRowID Points Row in Excel
+ 'Note :Broker and Loan Officers are shown as Tick mark so we are not validating
+
+Function BIZ_TablesAndFees_ValidateCompensationPlanDetails(strName,strRowID)
+    
+	FRM_Logger_ReportInfoEvent "TablesAndFees_Compensation Plan Details","Verify Compensation Plan Details Of "&strName , null
+	Dim objSettings,objListView,objData,intRowNum
+	
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objListView = objSettings.SwfObject("swfname:=listView")
+	Set objData 	= FRM_DS_GetTestData("Settings_TablesFees", "CompensationPlan", strRowID)
+	 
+	intRowNum		= 	GUI_List_GetRowIndex (objListView, "Name",strName)
+
+	If  UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Status_Active")) Then
+	   strPlanStatus="No"
+	Else
+	    strPlanStatus="Yes"
+	End IF
+	 
+	FRM_VerifyEqual GUI_List_GetCellData(objListView, intRowNum, GUI_List_GetColumnIndex(objListView, "Name")), strName, " Value", "Compensation Plan Name"
+	FRM_VerifyEqual GUI_List_GetCellData(objListView, intRowNum, GUI_List_GetColumnIndex(objListView, "Description")), FRM_DS_GetValue(objData, "Description"), " Value", "Compensation Plan Description"
+	FRM_VerifyEqual GUI_List_GetCellData(objListView, intRowNum, GUI_List_GetColumnIndex(objListView, "Active")), strPlanStatus, " Value", "Compensation Plan Status"
+	
+	Set objSettings = Nothing
+	Set objListView = Nothing
+	Set objData 	= Nothing
+	
+End Function 
+
+
+
+'This function is used for Delete  HelocTable and its record
+'@code
+'    	BIZ_Settings_TablesAndFeees_DeleteHelocTableRecord(strHeloctableName,strRowID,strPopUpText)
+'@endcode
+'@Param strRowID  row id testdata in excel file
+'@Param strHeloctableName  Heloctable Name
+'@Param strPopUpText POP UP Text
+
+Function BIZ_Settings_TablesAndFeees_DeleteHelocTableRecord(strHeloctableName,strRowID,strPopUpText)
+	
+	FRM_Logger_ReportInfoEvent "TablesAndFeees  HELOC Table", "Verify TablesAndFeees  HELOC Table Record Delete", Null
+	
+	Dim objSettings, objHelocEdit, objData,objYearListView
+	Set objSettings			=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objHelocEdit		=	objSettings.SwfWindow("swfname:=HelocTableContainer")
+	Set objYearListView 	=	objHelocEdit.swfObject("swfname:=gridViewYearList")
+	Set objData				=	FRM_DS_GetTestData("Settings_TablesFees", "HelocTable", strRowID)
+		
+	GUI_List_ClickRow objSettings.SwfObject("swfname:=listViewHeloc"), null, "Table Name", strHeloctableName, True, False, False, "Single"
+   	BIZ_Settings_ClickEdit()	
+   	
+   	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Year")) Then
+  		GUI_List_ClickRow objYearListView, null, "Year", cstr(FRM_DS_GetValue(objData, "Year")), True, False, False, "Single" 	
+	End If
+   	
+   	GUI_SwfButton_Click  objHelocEdit.SwfButton("swfname:=deleteBtn")
+   	'GUI_Dialog_Encompass_YesX 2, strPopUpText
+	GUI_DialogObject_Encompass_YesX objHelocEdit.Dialog("index:=0"), 20, strPopUpText
+   	Wait g_TinyWaitLarge 'Explicit Wait Added due to sync
+    boolValue=GUI_List_ClickRow (objYearListView, null, "Year", cstr(FRM_DS_GetValue(objData, "Year")), True, False, False, "Single") 
+    FRM_VerifyFalse  boolValue, "Heloc Table Record", "Heloc Table Record Deleted for Year '"&FRM_DS_GetValue(objData, "Year")	
+  
+    GUI_SwfButton_Click objHelocEdit.SwfButton("swfname:=okbtn")
+   	
+    
+	Set objSettings			=	Nothing
+	Set objHelocEdit		=	Nothing
+	Set objYearListView 	=	Nothing
+	Set objData				=	Nothing
+		
+
+End Function
+
+
+
+'This function is used for Verify HelocTable after delete and create 
+'@code
+'    	BIZ_Settings_TablesAndFeees_VerifyHelocTableNameCreatedOrDelete(strHeloctableName,boolStatus)
+'@endcode
+'@Param strRowID  row id testdata in excel file
+'@Param boolStatus  True or False
+
+Function BIZ_Settings_TablesAndFeees_VerifyHelocTableNameCreatedOrDelete(strHeloctableName,boolStatus)
+
+    FRM_Logger_ReportInfoEvent "TablesAndFeees  HELOC Table", "Verify TablesAndFeees  HELOC Table Created or Deleted ", Null
+	Dim objSettings
+	Set objSettings=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	
+	Wait g_TinyWaitLarge  'Explicit wait added Due to Sync
+	boolValue=GUI_List_ClickRow (objSettings.SwfObject("swfname:=listViewHeloc"), null, "Table Name", strHeloctableName, True, False, False, "Single")
+    
+    If boolStatus Then
+		FRM_VerifyTrue  boolValue, "Heloc Table Available in Grid", "Available Heloc Table Name '"&strHeloctableName  
+    Else
+		FRM_VerifyFalse  boolValue, "Heloc Table Not Available in Grid", "Not Available Heloc Table Name ' "&strHeloctableName  
+    End If
+      
+    Set objSettings=Nothing
+
+End Function 
+	
+
+    
+'This function is used for  HelocTable creation in Table and Fees
+'@code
+'    	Settings_TablesandFeees_HelocTableCreation(strRowID)
+'@endcode
+'@Param strRowID  row id testdata in excel file
+
+Function BIZ_Settings_TablesAndFeees_HelocTableCreation(strRowID)
+
+	FRM_Logger_ReportInfoEvent "TablesAndFeees Heloc Table", "TablesAndFeees Heloc Table Creation", Null
+	
+	Dim strHelocTableName, objSettings, objHelocEdit,objData 
+	Set objSettings		=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objHelocEdit	=	objSettings.SwfWindow("swfname:=HelocTableContainer")
+	Set objData			=	FRM_DS_GetTestData("Settings_TablesFees", "HelocTable", strRowID)
+
+	
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconTableNew")
+	
+	strHelocTableName=FRM_DS_GetValue(objData, "TableName")
+	
+	If UTIL_String_IsNotEmpty(strHelocTableName) Then	
+    	GUI_SwfEdit_Set  objHelocEdit.SwfEdit("swfname:=textBoxName"), strHelocTableName 
+	End If
+	
+	GUI_SwfButton_Click  objHelocEdit.SwfButton("swfname:=addBtn")
+	
+	BIZ_Settings_TablesandFeees_SetHelocTable strRowID
+	
+	GUI_SwfButton_Click objHelocEdit.SwfButton("swfname:=okbtn")
+
+    Set objSettings			 = Nothing
+	Set objHelocEdit         = Nothing
+	Set objData				 = Nothing
+
+	BIZ_Settings_TablesAndFeees_HelocTableCreation  = strHelocTableName
+End Function
+
+
+
+'This function is Set Data to HelocTable 
+'@code
+'    	BIZ_Settings_TablesandFeees_SetHelocTable(strRowID))
+'@endcode
+'@Param strRowID  row id testdata in excel file
+
+Function BIZ_Settings_TablesandFeees_SetHelocTable(strRowID)
+
+	Dim strHelocTableName, intMMPvalue,  objSettings, objHelocEdit, objHelocMMP,objData 
+	Set objSettings		=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objHelocEdit	=	objSettings.SwfWindow("swfname:=HelocTableContainer")
+	Set objHelocMMP		=	objHelocEdit.SwfWindow("swfname:=MMPFormDialog")
+	Set objData			=	FRM_DS_GetTestData("Settings_TablesFees", "HelocTable", strRowID)
+	
+	GUI_Object_WaitTillExistX objHelocMMP.SwfEdit("swfname:=textBoxYear"),60
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Year")) Then
+		GUI_SwfEdit_Set objHelocMMP.SwfEdit("swfname:=textBoxYear"), FRM_DS_GetValue(objData, "Year")
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Period")) Then
+		GUI_SwfComboBox_Select objHelocMMP.SwfComboBox("swfname:=comboBoxPeriod"), FRM_DS_GetValue(objData, "Period")
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Index")) Then
+		GUI_SwfEdit_Set objHelocMMP.SwfEdit("swfname:=textBoxIndex"),FRM_DS_GetValue(objData, "Index")	
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Margin")) Then
+		GUI_SwfEdit_Set objHelocMMP.SwfEdit("swfname:=textBoxMargin"),FRM_DS_GetValue(objData, "Margin")	
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "APR")) Then
+		GUI_SwfEdit_Set objHelocMMP.SwfEdit("swfname:=textBoxAPR"),FRM_DS_GetValue(objData, "APR")	
+	End If
+	
+    intMMPvalue=GUI_Object_GetPropertyValue(objHelocMMP.SwfEdit("swfname:=textBoxMMP"),"text")
+	FRM_VerifyNotNull intMMPvalue,"Min. Monthly Payment validation","Minimum Monthly Payment value is "&intMMPvalue&""
+	
+	GUI_SwfButton_Click objHelocMMP.SwfButton("swfname:=okbtn")	
+	
+	Set objSettings			 = Nothing
+	Set objHelocEdit         = Nothing
+	Set objHelocMMP			 = Nothing
+	Set objData				 = Nothing
+End Function
+
+
+
+'This function is used for Edit Existing HelocTable
+'@code
+'    	BIZ_Settings_TablesAndFeees_EditHelocTable(strHeloctableName,strRowID)
+'@endcode
+'@Param strRowID  row id testdata in excel file
+'@Param strHeloctableName  Heloctable Name
+
+Function BIZ_Settings_TablesAndFeees_EditHelocTable(strHeloctableName,strRowID)
+	
+	FRM_Logger_ReportInfoEvent "TablesAndFeees Heloc Table", "TablesAndFeees Edit Heloc Table ", Null
+	
+	Dim objSettings, objHelocEdit, objData, objHelocMMP
+	Set objSettings=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objHelocEdit=objSettings.SwfWindow("swfname:=HelocTableContainer")
+	Set objHelocMMP=objHelocEdit.SwfWindow("swfname:=MMPFormDialog")
+	Set objData=FRM_DS_GetTestData("Settings_TablesFees", "HelocTable", strRowID)
+	
+	GUI_List_ClickRow objSettings.SwfObject("swfname:=listViewHeloc"), null, "TableName", strHeloctableName, True, False, False, "Single"
+   	BIZ_Settings_ClickEdit()	  
+  
+    GUI_SwfButton_Click  objHelocEdit.SwfButton("swfname:=editBtn")
+
+	BIZ_Settings_TablesandFeees_SetHelocTable strRowID
+	
+    GUI_SwfButton_Click objHelocEdit.SwfButton("swfname:=okbtn")
+   					
+	Set objSettings 		= Nothing
+	Set objHelocEdit		= Nothing
+	Set objData				= Nothing
+    Set objHelocMMP			= Nothing
+    
+End Function
+
+
+
+'This function is used for Rename Existing HelocTable Name
+'@code
+'    	BIZ_Settings_TablesandFeees_HelocTableRename(strHeloctableName,strRowID))
+'@endcode
+'@Param strRowID  row id testdata in excel file
+'@Param strHeloctableName  Heloctable Name 
+
+Function BIZ_Settings_TablesandFeees_HelocTableRename(strHeloctableName,strRowID)
+	
+	FRM_Logger_ReportInfoEvent "TablesAndFeees Heloc Table", "TablesAndFeees ReName Heloc Table ", Null
+	
+	Dim objSettings, objHelocEdit, objData,strReNameHelocTN
+	Set objSettings		=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objHelocEdit	=	objSettings.SwfWindow("swfname:=HelocTableContainer")
+	Set objData			=	FRM_DS_GetTestData("Settings_TablesFees", "HelocTable", strRowID)
+	
+	GUI_Object_WaitTillExistX objSettings.SwfObject("swfname:=listViewHeloc"), 30
+	GUI_List_ClickRow objSettings.SwfObject("swfname:=listViewHeloc"), null, "Table Name", strHeloctableName, True, False, False, "Single"
+   	BIZ_Settings_ClickEdit()	  
+    
+    strReNameHelocTN=FRM_DS_GetValue(objData, "ReNamedTableName")
+	
+	If UTIL_String_IsNotEmpty(strReNameHelocTN) Then
+    	GUI_SwfEdit_Set  objHelocEdit.SwfEdit("swfname:=textBoxName"), strReNameHelocTN
+	End If
+ 
+    GUI_SwfButton_Click objHelocEdit.SwfButton("swfname:=okbtn")					
+	BIZ_Settings_TablesAndFeees_HelocTableRename=strReNameHelocTN			
+	
+	Set objHelocMMP			 = Nothing
+	Set objSettings 		 = Nothing
+	Set objHelocEdit		 = Nothing
+	Set objData				 = Nothing
+
+End Function
+
+
+
+  
+'This function is used to Set Default Plan Setting values
+'@code
+'    BIZ_Settings_TablesAndFees_LOCompensation_SetDefaultPlanSetting(strRowID)
+'@endcode
+'@param strRowID - row id for data
+
+Function BIZ_Settings_TablesAndFees_LOCompensation_SetDefaultPlanSetting(strRowID)
+
+	Dim objSettings,objData
+	FRM_Logger_ReportInfoEvent "Settings Table and Fees LO Compensation","Set LOCompensation Plan Default Plan Settings ", Null
+	
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+    Set objData 	= FRM_DS_GetTestData("Settings_TablesFees", "CompensationPlan", strRowID)
+    
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "LoanOfficerOrBroker")) Then
+    	GUI_SwfComboBox_Select objSettings.SwfComboBox("swfname:=cmbType"), FRM_DS_GetValue(objData, "LoanOfficerOrBroker")
+    End IF
+    
+    If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "strTrigger")) Then
+    	GUI_SwfEdit_Set objSettings.SwfEdit("swfname:=txtTriggerField"), FRM_DS_GetValue(objData, "strTrigger")
+    End IF
+    
+    If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Minimum_TermDays")) Then
+     	GUI_SwfEdit_Set objSettings.SwfEdit("swfname:=textMinTerm"), FRM_DS_GetValue(objData, "Minimum_TermDays")
+    End IF
+    
+    If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "chkDefaultHELOC")) Then
+    	GUI_SwfCheckbox_Set objSettings.SwfCheckBox("swfname:=chkDefaultHELOC"), FRM_DS_GetValue(objData, "chkDefaultHELOC")
+    End IF
+    
+    If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "chkDefaultInvestment")) Then
+    	GUI_SwfCheckbox_Set objSettings.SwfCheckBox("swfname:=chkDefaultInvestment"), FRM_DS_GetValue(objData, "chkDefaultInvestment")
+    End IF
+    
+    If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Rounding")) Then
+    	GUI_SwfComboBox_Select objSettings.SwfComboBox("swfname:=cmbRounding"), FRM_DS_GetValue(objData, "Rounding")
+    End IF
+    
+    If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "LenderOrBorrower")) Then
+    	GUI_SwfComboBox_Select objSettings.SwfComboBox("swfname:=cboPaidBy"), FRM_DS_GetValue(objData, "LenderOrBorrower")
+    End IF
+    
+    GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnSave")
+    
+    Set objSettings = Nothing
+    Set objData 	= Nothing
+    
+End  Function 
+
+
+'This function is used to Verify MI Values of Amortization Schedule
+'@code
+'   BIZ_TablesandFees_AmortizationSchedule_VerifyFHAMIValues (strRowID)
+'@endcode
+
+Function BIZ_TablesandFees_AmortizationSchedule_VerifyFHAMIValues(strRowID)
+    
+    FRM_Logger_ReportInfoEvent "MI Values of Amortization Schedule","Verify MI Values of Amortization Schedule for Loan Type FHA ", null
+	Dim objAmortSchDialog,objAmortSchDialogClose,objListView
+			
+	Set objAmortSchDialog      = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AmortSchDialog")	
+	Set objAmortSchDialogClose = objAmortSchDialog.SwfButton("swfname:=okBtn")
+	Set objListView            = objAmortSchDialog.SwfObject("swfname:=amortListview")
+	Set objData 			   = FRM_DS_GetTestData("Settings_TablesFees", "MITable", strRowID)
+	intMonth 				   = FRM_DS_GetValue(objData, "FHAFirstMonth")
+	intMonth1 				   = FRM_DS_GetValue(objData, "FirstMonth")
+	intFHAFirstMonthValue	   = FRM_DS_GetValue(objData, "FHAMonthValue")
+	intFHA120MonthValue		   = FRM_DS_GetValue(objData, "Month1Int")
+	intFHA121MonthValue		   = FRM_DS_GetValue(objData, "Month2Int")
+	
+	intColNo = GUI_List_GetColumnIndex(objListView,"MI")
+
+	GUI_List_ValidateCellData objListView,intMonth,intColNo,intFHAFirstMonthValue	
+	GUI_List_ValidateCellData objListView,intMonth1+8,intColNo,intFHA120MonthValue
+	GUI_List_ValidateCellData objListView,intMonth1+10,intColNo,intFHA121MonthValue
+
+	GUI_SwfButton_Click objAmortSchDialogClose
+	
+	Set objAmortSchDialog      = Nothing
+	Set objAmortSchDialogClose = Nothing
+	Set objListView            = Nothing
+
+End Function
+
+
+'This function is used to Verify MIP Funding Guarantee Value
+'@code
+'    TablesAndFees_Verify_MIPFundingGuaranteeValue()
+'@endcode
+
+Function BIZ_TablesAndFees_Verify_MIPFundingGuaranteeValue()   
+   Dim intLoanAmtTxt,intMIFFValue,intrateFundingTxt
+   Wait  g_TinyWaitMedium  'Explicit Wait added Due to sync
+   
+   intrateFundingTxt=CLng(GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog").SwfEdit("swfname:=rateFundingTxt"),"text"))
+   intLoanAmtTxt=CLng(GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog").SwfEdit("swfname:=baseLoanAmtTxt"),"text"))
+   intMIFFValue=Clng(GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog").SwfEdit("swfname:=fundingFeeTxt"),"text"))
+   intLoanAmtTxt=(intLoanAmtTxt/100) * intrateFundingTxt
+   FRM_VerifyEqual formatNumber(intLoanAmtTxt,3),formatnumber(intMIFFValue,3),"MI/FF Fee","MI/FF Fee" 
+   Set objData = Nothing   
+End Function
+
+
+
+'This function is used to Verify Default Plan Setting Values
+'@code
+'    Settings_TablesAndFees_LOCompensation_Verify_DefaultPlanSettingValues(strRowID)
+'@endcode
+'@param strRowID - row id for data
+
+Function BIZ_Settings_TablesAndFees_LOCompensation_VerifyDefaultPlanSetting(strRowID)
+	
+	Dim objSettings,objData
+	FRM_Logger_ReportInfoEvent "Settings Table and Fees LO Compensation","Set LOCompensation Plan Default Plan Settings ", Null        
+		
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")   
+	Set objData 	= FRM_DS_GetTestData("Settings_TablesFees", "CompensationPlan", strRowID)  
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "LoanOfficerOrBroker")) Then
+	       FRM_VerifyEqual 	GUI_Object_GetPropertyValue(objSettings.SwfComboBox("swfname:=cmbType"),"selection") , FRM_DS_GetValue(objData, "LoanOfficerOrBroker"),"LoanOfficer/Broker Value","Defualt Plan Settings LoanOfficer/Broker Value"
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "strTrigger")) Then	    
+	       FRM_VerifyEqual  GUI_Object_GetPropertyValue(objSettings.SwfEdit("swfname:=txtTriggerField"),"text"), Cstr(FRM_DS_GetValue(objData, "strTrigger")) ,"Trigger Basis","Defualt Plan Settings Trigger Basis"
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Minimum_TermDays")) Then
+	       FRM_VerifyEqual GUI_Object_GetPropertyValue(objSettings.SwfEdit("swfname:=textMinTerm"),"text"),  CStr(FRM_DS_GetValue(objData, "Minimum_TermDays")) ,"Minimum Term Days","Defualt Plan Settings Minimum Term Days"   
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "Rounding")) Then
+	       FRM_VerifyEqual GUI_Object_GetPropertyValue(objSettings.SwfComboBox("swfname:=cmbRounding"),"selection"), FRM_DS_GetValue(objData, "Rounding"),"Rounding","Defualt Plan Settings Rounding" 
+	End IF
+	
+	If Not UTIL_String_IsEmpty(FRM_DS_GetValue(objData, "LenderOrBorrower")) Then
+    	FRM_VerifyEqual GUI_Object_GetPropertyValue(objSettings.SwfComboBox("swfname:=cboPaidBy"),"selection"), FRM_DS_GetValue(objData, "LenderOrBorrower"),"Lender Paid/Borrower Paid", "Defualt Plan Settings Lender Paid/Borrower Paid" 
+    End IF
+                    
+    Set objSettings = Nothing 
+	Set objData 	= Nothing      
+            
+End Function
+
+
+'This function is used to Export Compensation Plan To Excel
+'@code
+'    Settings_TablesAndFees_Export_CompensationPlanToExcel(strFileName)
+'@endcode
+'@param strFileName - Excel File Name
+
+Function BIZ_Settings_TablesAndFees_Export_CompensationPlanToExcel(strFileName)
+    
+    Dim objSettings,objExportCompPlans,objLOCompExportOptionForm ,objLOCompExportRadio,objLOCompExport,objSaveFile, strExcelFilePath
+    FRM_Logger_ReportInfoEvent "Settings Table and Fees LO Compensation Plans Export"," Export LO Compensation Plans to Excel ", Null  
+	
+	Set objSettings 				= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objExportCompPlans 			=	objSettings.SwfObject("swfname:=stdIconBtnExport")
+	Set objLOCompExportOptionForm 	= objSettings.SwfWindow("swfname:=LOCompExportOptionForm") 
+	Set objLOCompExportRadio 		= objLOCompExportOptionForm.SwfRadioButton("swfname:=rdoSortByPlan") 
+	Set objLOCompExport 			= objLOCompExportOptionForm.SwfButton("swfname:=btnExport") 
+	Set objSaveFile				    = SwfWindow("swfname:=MainForm").Dialog("text:=Save File")
+	
+	GUI_SwfObject_Click objExportCompPlans
+	
+	If (GUI_Object_GetPropertyValue(objLOCompExportRadio,"Checked")) Then
+		FRM_Logger_ReportInfoEvent "Export List of Plans","Export List of Plans Already Set", Null			
+	Else	
+		GUI_SwfRadioButton_Click objLOCompExportRadio 	
+	End If 
+	
+    GUI_Object_ValidateChecked objLOCompExportRadio, "True","Export List of Plans"
+	GUI_SwfButton_Click  objLOCompExport
+	GUI_Object_WaitTillExistX objSaveFile.WinButton("text:=&Save"), 60
+	strExcelFilePath = Pathfinder.Locate("Test Report\")
+	strExcelFilePath = strExcelFilePath&strFileName
+	Set objSaveFile	 = SwfWindow("swfname:=MainForm").Dialog("text:=Save File")
+	
+	GUI_Object_WaitTillExistX objSaveFile.WinEdit("attached text:=File name:","index:=0"),50
+	Wait g_ShortWaitLarge+g_ShortWaitLarge+g_ShortWaitMedium
+	UTIL_Win_SendKey   strExcelFilePath
+	GUI_WinButton_Click objSaveFile.WinButton("text:=&Save")
+	If Dialog("text:=Confirm Save As").Exist(5) Then
+	GUI_WinButton_Click Dialog("text:=Confirm Save As").WinButton("text:=&Yes")
+	End If
+	
+	Set objSettings 				= Nothing
+	Set objExportCompPlans 			= Nothing
+	Set objLOCompExportOptionForm 	= Nothing 
+	Set objLOCompExportRadio 		= Nothing
+    Set objLOCompExport 			= Nothing
+    Set objSaveFile				    = Nothing
+	Set objLOCompExport 			= Nothing
+	Set objSaveFile				    = Nothing
+
+ End Function 
+   	
+
+
+'This function is used to Verify Exported Compensation Plan Details In Excel
+'@code
+'    Settings_TablesAndFees_Verify_ExportedCompensationPlanDetailsInExcel(strRowID,strFileName,strPlanName)
+'@endcode
+'@param strFileName - Excel File Name
+'@param strPlanName - Name of Plan
+'@param strRowID - Points to in Excel
+
+Function BIZ_Settings_TablesAndFees_Verify_ExportedCompensationPlanDetailsInExcel(strRowID,strFileName,strPlanName)
+	
+	FRM_Logger_ReportInfoEvent "Settings Table and Fees LO Compensation Plans Export","Verify Lo Compensation Plan Values With Exported Plan values", Null  
+	
+    Dim strExcelFilePath,objData,intRow
+	strExcelFilePath = Pathfinder.Locate("Test Report\")
+	strExcelFilePath = strExcelFilePath&strFileName 
+	Wait  g_LongWaitLarge+g_LongWaitLarge
+	intRow 		 = UTIL_Excel_GetRowIndexByColumnValue(strExcelFilePath, "Data", "Plan Name", strPlanName)
+	Set objData  = FRM_DS_GetTestData("Settings_TablesFees", "CompensationPlan", strRowID)
+	
+	FRM_VerifyEqual strPlanName,UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "A"),"Plan Name","Plan Name "
+	FRM_VerifyEqual FRM_DS_GetValue(objData, "Description"),UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "B"),"Description","Description "
+	FRM_VerifyEqual FRM_DS_GetValue(objData, "LoanOfficerOrBroker"),UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "D"),"LO/Broker","LO/Broker "
+	FRM_VerifyEqual FRM_DS_GetValue(objData, "Minimum_TermDays"),UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "E"),"Min # Days","Min # Days "
+	
+	If FRM_DS_GetValue(objData, "Status_Active") Then  
+	   FRM_VerifyEqual "Activate",UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "C"),"Status","Status "
+	   FRM_VerifyEqual FormatDateTime(FRM_DS_GetValue(objData, "ActivationDate"),2),FormatDateTime(UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "F"),2),"Activation Date","Activation Date "	
+	End If
+    
+	FRM_VerifyEqual FRM_DS_GetValue(objData, "Rounding"),UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "G"),"Rounding Type","Rounding Type "
+	FRM_VerifyEqual FRM_DS_GetValue(objData, "Amount"),UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "H"),"Loan Amount %","Loan Amount % "
+	FRM_VerifyEqual FRM_DS_GetValue(objData, "AmountOf"),UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "I"),"% of","% of "
+	FRM_VerifyEqual FRM_DS_GetValue(objData, "Amount2"),UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "J"),"Additional $ Amount","Additional $ Amount "
+	FRM_VerifyEqual FRM_DS_GetValue(objData, "Minimum"),UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "K"),"Minimum $","Minimum $ "
+	FRM_VerifyEqual FRM_DS_GetValue(objData, "Maximum"),UTIL_Excel_GetCellData(strExcelFilePath, "Data", intRow, "L"),"'Maximum $","'Maximum $ "
+	
+	Set objData = Nothing
+
+End Function
+
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@ defgroup Re-Enforcement Tables & Fees
+'@ List of Functions 
+'@code
+' Function TablesAndFees_FillCompensationDetails(strRowID, strLoanOfficerOrBroker, strName, strDescription)
+' Function TablesAndFees_ValidateLOCompensationPage(strPageTitle)
+' Function TablesAndFees_ValidateLOCompPlanCreatedAndSetActiveStatus(strLOCompPlanName,strOnorOffForActiveCheckBox)
+' Function TablesAndFees_ValidateCreatedUsersAndAssigningCompensationPlan(strUserName,strLOCompPlanName)
+' Function TablesAndFees_AssigningLoanOfficerAndValidatingDataInLOCompFromTools(strUserName,strLOCompPlanName,strRowID)
+'@endcode
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is to fill the compensation details 
+'@code
+'    TablesAndFees_FillCompensationDetails(strRowID, strLoanOfficerOrBroker, strName, strDescription)
+'@endcode
+'@param strRowID - RowId for Data
+'@param strLoanOfficerOrBroker - TO Select Loan Officer or Broker
+'@param strName - Compensation name
+'@param strDescription - Compensation description
+
+Function BIZ_TablesAndFees_FillCompensationDetails(strRowID, strLoanOfficerOrBroker, strName, strDescription)
+	
+	FRM_Logger_ReportInfoEvent "TablesAndFees_FillCompensationDetails","TablesAndFees_FillCompensationDetails using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objData, objSettings, objListView, objCompensationDetail, arrLoanOfficerOrBroker, intRowCount	
+	Set objData 				=	FRM_DS_GetTestData("Settings_TablesFees", "CompensationPlan", strRowID)
+	Set objSettings 			=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objListView 			= 	objSettings.SwfObject("swfname:=listView")
+	Set objCompensationDetail 	=   objSettings.SwfWindow("swfname:=LOCompGroupDialog")
+	
+	arrLoanOfficerOrBroker = Split(FRM_DS_GetValue(objData, "LoanOfficerOrBroker"),",")
+	
+	GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtName"), strName
+	GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtDescription"), strDescription
+	
+	GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbType"), strLoanOfficerOrBroker
+	
+'	If strLoanOfficerOrBroker = "Loan Officer" Then
+'		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbType"), arrLoanOfficerOrBroker(0)
+'	ElseIf strLoanOfficerOrBroker = "Broker" Then
+'		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbType"), arrLoanOfficerOrBroker(1)
+'	Else
+'		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbType"), arrLoanOfficerOrBroker(2)
+'	End If
+	
+	'@ % amount field
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Amount")) Then	
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtAmount"), FRM_DS_GetValue(objData, "Amount")
+		FRM_Logger_ReportInfoEvent "Percentage Amount","Percentage Amount Data Entered - "&FRM_DS_GetValue(objData, "Amount"), Null
+	End If
+	
+	'@ Percentage amount of value
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AmountOf")) Then	
+		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbAmount"), FRM_DS_GetValue(objData, "AmountOf")
+		FRM_Logger_ReportInfoEvent "Percentage Amount","Percentage Amount Of Data Entered - "&FRM_DS_GetValue(objData, "AmountOf"), Null
+	End If
+	
+	'@ amount field
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Amount2")) Then	
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtAmount2"), FRM_DS_GetValue(objData, "Amount2")
+		FRM_Logger_ReportInfoEvent "Amount","Amount Entered - "&FRM_DS_GetValue(objData, "Amount2"), Null
+	End If
+	
+	'@ Min field
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Minimum")) Then	
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtMinAmt"), FRM_DS_GetValue(objData, "Minimum")
+		FRM_Logger_ReportInfoEvent "Minimum Amount","Minimum Amount Data Entered - "&FRM_DS_GetValue(objData, "Minimum"), Null
+	End If
+	
+	'@ % Max field
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Maximum")) Then	
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=txtMaxAmt"), FRM_DS_GetValue(objData, "Maximum")
+		FRM_Logger_ReportInfoEvent "Maximum Amount","Maximum Amount Data Entered - "&FRM_DS_GetValue(objData, "Maximum"), Null
+	End If
+	
+	'@ Min Term Days
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Minimum_TermDays")) Then	
+		GUI_SwfEdit_Set objCompensationDetail.SwfEdit("swfname:=textMinTerm"), FRM_DS_GetValue(objData, "Minimum_TermDays")
+		FRM_Logger_ReportInfoEvent "Minimum_TermDays","Minimum_TermDays Data Entered - "&FRM_DS_GetValue(objData, "Minimum_TermDays"), Null
+	End If
+	
+	'@ Percentage amount of combo-box value
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AmountOf")) Then	
+		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbAmount"), FRM_DS_GetValue(objData, "AmountOf")
+		FRM_Logger_ReportInfoEvent "Percentage Amount Combo Box","Percentage Amount combo box Data Entered - "&FRM_DS_GetValue(objData, "AmountOf"), Null
+	End If
+	
+	'@ Rounding Value
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Rounding")) Then	
+		GUI_SwfComboBox_Select objCompensationDetail.SwfComboBox("swfname:=cmbRounding"), FRM_DS_GetValue(objData, "Rounding")
+		FRM_Logger_ReportInfoEvent "Percentage Amount Combo Box","Percentage Amount combo box Data Entered - "&FRM_DS_GetValue(objData, "Rounding"), Null
+	End If
+	
+	GUI_SwfButton_Click objCompensationDetail.SwfButton("swfname:=btnSave")
+	
+	intRowCount = GUI_List_GetRowIndex(objListView, "Name", strName)
+	Wait g_ShortWaitMedium 'Due To Sync Issue We Are Explicitly Passing Wait Statement
+	GUI_List_ValidateCellData objListView, intRowCount, "Name", strName
+	
+	Set objData		          = Nothing
+	Set objSettings	          = Nothing
+	Set objListView	          = Nothing
+	Set objCompensationDetail = Nothing
+
+End Function
+
+
+'This function is to Verify the LO Compensation Plan created and set active status
+'@code
+'    TablesAndFees_ValidateLOCompPlanCreatedAndSetActiveStatus(strLOCompPlanName,strOnorOffForActiveCheckBox)
+'@endcode
+'@param strLOCompPlanName - Plan Name should be passed
+'@param strOnorOffForActiveCheckBox - "ON" or "OFF" to be passed
+
+Function BIZ_TablesAndFees_ValidateLOCompPlanCreatedAndSetActiveStatus(strLOCompPlanName,strOnorOffForActiveCheckBox)
+	
+	Dim objEncompassMain, objEncompassSettings, objLOCompPlanDetails
+	
+	Set objEncompassMain 		= 	SwfWindow("swfname:=MainForm")
+	Set objEncompassSettings 	= 	objEncompassMain.SwfWindow("swfname:=SetUpContainer")
+	Set objLOCompPlanDetails 	= 	objEncompassSettings.SwfWindow("swfname:=LOCompGroupDialog")
+	
+	If GUI_List_TextExists(objEncompassSettings.SwfObject("swfname:=listView"), "Name", strLOCompPlanName) Then
+		FRM_Logger_ReportPassEvent "Validate LO Compensation Plan Created or not", "LO Compensation Plan Created created with '"&strLOCompPlanName&"' name", null
+		GUI_List_ClickRow objEncompassSettings.SwfObject("swfname:=listView"), objEncompassSettings.SwfObject("swfname:=listView").SwfScrollBar("swfname:=vPanelScrollBar"),"Name", strLOCompPlanName, true,false,false,"Double" 
+		objLOCompPlanDetails.SwfCheckBox("swfname:=chkStatus").Set strOnorOffForActiveCheckBox
+'		If objLOCompPlanDetails.Dialog("text:=Encompass").Exist(20) Then
+'			GUI_Dialog_Encompass_OK "For audit purposes, compensation plans cannot be modified once they are activated and assigned to an originator. Be sure to make any needed changes here before assigning the plan to an originator."
+'		End If
+		If objLOCompPlanDetails.Dialog("text:=Encompass").Static("text:=.*For audit purposes.*").Exist(5)  Then
+			strText=objLOCompPlanDetails.Dialog("text:=Encompass").Static("text:=.*For audit purposes.*").GetROProperty("text")	
+			If objLOCompPlanDetails.Dialog("text:=Encompass").WinButton("text:=OK").Exist(2) Then
+				objLOCompPlanDetails.Dialog("text:=Encompass").Activate
+				objLOCompPlanDetails.Dialog("text:=Encompass").WinButton("text:=OK").Click
+				FRM_Logger_ReportInfoEvent "Encompass Dialog box click", "Clicked OK button on Dialog box having text '"&strText&"'", null
+			End If
+		End If		
+		
+		GUI_SwfButton_Click objLOCompPlanDetails.SwfButton("swfname:=btnSave")
+	Else
+		FRM_Logger_ReportFailEvent "Validate LO Compensation Plan Created or not", "LO Compensation Plan not created", null
+	End If
+
+	Set objEncompassMain 		= 	Nothing
+	Set objEncompassSettings 	= 	Nothing
+	Set objLOCompPlanDetails 	= 	Nothing
+	
+End Function
+
+
+
+'This function is to validate a created user and assigning LO Compensations plan
+'@code
+'    TablesAndFees_ValidateCreatedUsersAndAssigningCompensationPlan(strUserName,strLOCompPlanName)
+'@endcode
+'@param strUserName - User name to be validated 
+'@param strLOCompPlanName - compensations plan name to be assigned to the specified user
+
+Function BIZ_TablesAndFees_ValidateCreatedUsersAndAssigningCompensationPlan(strUserName,strLOCompPlanName)
+	
+	Dim objEncompassMain, objEncompassSettings, objLOCompPlanDetails, objEnabledUsers, objScrollBar, objUserDetails, objLOCompensationPlans
+	
+	Set objEncompassMain 		= 	SwfWindow("swfname:=MainForm")
+	Set objEncompassSettings 	= 	objEncompassMain.SwfWindow("swfname:=SetUpContainer")
+	Set objLOCompPlanDetails 	= 	objEncompassSettings.SwfWindow("swfname:=LOCompGroupDialog")
+	Set objEnabledUsers			=	objEncompassSettings.SwfObject("swfname:=gvUsers")
+	Set objScrollBar 			= 	objEncompassSettings.SwfScrollBar("swfname:=vPanelScrollBar")
+	Set objUserDetails			=	objEncompassSettings.SwfWindow ("swfname:=AddEditUserCEDialog")
+	Set objLOCompensationPlans	=	objUserDetails.SwfWindow("swfname:=AssignLOCompDialog").swfobject("swfname:=gridViewPlans")
+	
+	Wait g_ShortWaitMedium 'Due To Sync Issue We Are Explicitly Passing Wait Statement
+	
+	'@ Validating User ID Existance In LIst
+	If GUI_List_TextExists(objEnabledUsers, "User ID", strUserName) Then
+		FRM_Logger_ReportPassEvent "Validate new user is created or not", "New user is created with '"&strUserName&"' name", null
+		GUI_List_ClickRow objEnabledUsers, objScrollBar, "User ID", strUserName, true, false, false, "Double"
+	Else
+		FRM_Logger_ReportFailEvent "Validate new user is created or not", "New user is  not created", null
+	End If
+	
+	'@ Selecting Add Icon
+	GUI_SwfObject_Click objUserDetails.SwfObject("swfname:=stdIconBtnNew")
+	
+	Wait g_ShortWaitMedium 'Due To Sync Issue We Are Explicitly Passing Wait Statement
+	
+	'@ Assigning LO Compensations Plan To User
+	If GUI_List_TextExists(objLOCompensationPlans, "Name", strLOCompPlanName) Then
+		FRM_Logger_ReportPassEvent "LO Compensation Plan Selection", "LO Compensation Plan Selected Is: '"&strUserName&"' name", null
+		GUI_List_ClickRow objLOCompensationPlans, objLOCompensationPlans.SwfScrollBar("swfname:=vPanelScrollBar"), 0, strLOCompPlanName, true, false, false, "Single"
+		GUI_SwfButton_Click objUserDetails.SwfWindow("swfname:=AssignLOCompDialog").SwfButton("swfname:=btnSelect")
+		'Changed by Abhishek for CTA-113
+		'GUI_SwfButton_Click objUserDetails.SwfButton("swfname:=okBtn")		
+		objUserDetails.Activate
+        Set WshShell = CreateObject("WScript.Shell")
+        WshShell.SendKeys "%s"
+        Set WshShell = Nothing
+	Else
+		FRM_Logger_ReportFailEvent "LO Compensation Plan Selection", "LO Compensation Plan is not selected", null
+	End If
+	
+	Set objEncompassMain 		= 	Nothing
+	Set objEncompassSettings 	= 	Nothing
+	Set objLOCompPlanDetails 	= 	Nothing
+	Set objEnabledUsers			=	Nothing
+	Set objScrollBar 			= 	Nothing
+	Set objUserDetails			=	Nothing
+	Set objLOCompensationPlans	=	Nothing
+
+End Function
+
+
+
+'This function is to validate a created user and assigning LO Compensations plan
+'@code
+'    TablesAndFees_AssigningLoanOfficerAndValidatingDataInLOCompFromTools(strUserName,strLOCompPlanName,strRowID)
+'@endcode
+'@param strUserName - User name to be validated 
+'@param strLOCompPlanName - compensations plan name to be assigned to the specified user
+'@param strRowID - RowID For DataSheet
+
+Function BIZ_TablesAndFees_AssigningLoanOfficerAndValidatingDataInLOCompFromTools(strUserName,strLOCompPlanName,strRowID)
+
+	Dim objEncompassMain, objLoanTeamMember, objLOCompensation, objData, objCompData, strLoanOfficerName, strPercentageAmountBasedOn, strRounding
+	
+	Set objEncompassMain 		= 	SwfWindow("swfname:=MainForm")
+	Set objLoanTeamMember 		= 	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ProcessorSelectionDialog")
+	Set objLOCompensation		=	SwfWindow("swfname:=MainForm").Page("name:=")
+	Set objData 				= 	FRM_DS_GetTestData("Tools_LOCompensation", "LOCompensation", strRowID)
+	Set objCompData				=	FRM_DS_GetTestData("Settings_TablesFees", "CompensationPlan", strRowID)
+	
+	'@ Select Loan Officer
+	GUI_SwfObject_Click objEncompassMain.SwfObject("swfname:=pictureBoxCurrentLA")
+
+	If GUI_List_TextExists(objLoanTeamMember.SwfObject("swfname:=gvUsers"), "User ID", strUserName) Then
+		FRM_Logger_ReportPassEvent "Validate new user is created or not", "New user is created with '"&strUserName&"' name", null
+		GUI_List_ClickRow objLoanTeamMember.SwfObject("swfname:=gvUsers"), objLoanTeamMember.SwfScrollBar("swfname:=vPanelScrollBar"), "User ID", strUserName, true, false, false, "Double" 
+	Else
+		FRM_Logger_ReportFailEvent "Validate new user is created or not", "New user is  not created", null
+	End If
+	
+	BIZ_Loan_Save()
+	
+	'@ Click On Tools Tab	
+	BIZ_Tools_Open "LO Compensation"
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CompPlan_Channel")) Then
+	GUI_WebList_Select objLOCompensation.WebTable("name:=Reset Comp").WebList("html id:=DropdownBox2"), FRM_DS_GetValue(objData, "CompPlan_Channel")
+	End If 
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CompPlan_Borrower/Lender")) Then
+	GUI_WebList_Select objLOCompensation.WebTable("name:=Reset Comp").WebList("html id:=DropdownBox1"), FRM_DS_GetValue(objData, "CompPlan_Borrower/Lender")
+	End If
+	
+	'@ Validation
+'	GUI_Object_ValidateValue objLOCompensation.WebTable("html tag:=TABLE","index:=3").WebEdit("html id:=TextBox10"), strLOCompPlanName, "Plan Name In Tools ; LO Compensation"
+	
+	'@ Get loan Officer Name
+	strLoanOfficerName	=	GUI_Object_GetPropertyValue(objLOCompensation.WebTable("html tag:=TABLE","index:=3").WebEdit("html id:=TextBox8"),"value")
+	If UTIL_String_IsNotEmpty(strLoanOfficerName) Then
+	    FRM_Logger_ReportInfoEvent "Loan Officer", "Name Displayed Is: '"&strLoanOfficerName&"' ", Null
+	End If
+	
+	'@ % Amount Is Based On
+	strPercentageAmountBasedOn	=	GUI_Object_GetPropertyValue(objLOCompensation.WebTable("html tag:=TABLE","index:=3").WebEdit("html id:=TextBox11"),"value")
+	If UTIL_String_IsNotEmpty(strPercentageAmountBasedOn) Then
+		GUI_Object_ValidateValue objLOCompensation.WebTable("html tag:=TABLE","index:=3").WebEdit("html id:=TextBox11"), FRM_DS_GetValue(objCompData,"AmountOf"), "% Amount Is Based On"
+	End If
+	
+	'@ Rounding
+	strRounding	=	GUI_Object_GetPropertyValue(objLOCompensation.WebTable("html tag:=TABLE","index:=3").WebEdit("html id:=TextBox16"),"value")
+	If UTIL_String_IsNotEmpty(strRounding) Then
+		'@ As The Name Is Changing In The Application We Are Validating Partial Text
+		If Instr(strRounding,Mid(FRM_DS_GetValue(objCompData,"Rounding"),1,10))>0 Then
+			FRM_Logger_ReportPassEvent "Validation Of Rounding", "Value In Encompass Is : '"&strRounding&"' And Value We Are Passing Is :'"&FRM_DS_GetValue(objCompData,"Rounding")&"' ", Null
+		Else
+			FRM_Logger_ReportFailEvent "Validation Of Rounding", "Value In Encompass Is : '"&strRounding&"' And Value We Are Passing Is :'"&FRM_DS_GetValue(objCompData,"Rounding")&"' ", Null
+		End If
+	End If
+
+	Set objEncompassMain 		= 	Nothing
+	Set objLoanTeamMember 		= 	Nothing
+	Set objLOCompensation		=	Nothing
+	Set objData 				= 	Nothing
+	Set objCompData				=	Nothing
+	
+End Function
+
+
+
+'This function is used for Verify HelocDraw and Repayment
+'@code
+    'Function TablesAndFeees_Verify_HelocDrawRepayment(strRecord,recordType,strRowID)
+'@endcode
+'@param strRowID is RowID in excel to read 
+'@Param recordType is Draw or Repayment
+'@Param strRecord Name of Heloc Record
+
+Function BIZ_TablesAndFeees_Verify_HelocDrawRepayment(strRecord,recordType,strRowID)
+	
+	FRM_Logger_ReportInfoEvent "Heloc Record Verify", "Heloc Record Verify For "&recordType, Null
+    
+	Dim objMainPage,objHelocTable,objHelocTableSelect,objHelocTableOK,objHelocTableForm,objHelocTableFormList,objHelocTableFormSelect,objData
+	
+	Set objMainPage 			= 	SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+	Set objHelocTable			= 	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=HelocTableContainer")
+	Set objHelocTableSelect		= 	objHelocTable.SwfButton("swfname:=selectBtn")
+	Set objHelocTableOK			= 	objHelocTable.SwfButton("swfname:=okBtn")
+	Set objHelocTableForm		= 	objHelocTable.SwfWindow("swfname:=SelectHelocTableForm")
+	Set objHelocTableFormList	= 	objHelocTableForm.SwfListView("swfname:=listViewHeloc")
+	Set objHelocTableFormSelect	= 	objHelocTableForm.SwfButton("swfname:=okBtn")
+	Set objData					=	FRM_DS_GetTestData("Settings_TablesFees", "HelocTable", strRowID)
+	
+	'1003 Page 3
+	BIZ_Forms_Open "RegZ - LE"
+	GUI_WebButton_Click 	objMainPage.WebButton("html id:=StandardButton5")
+	GUI_WebButton_Click 	objHelocTableSelect
+	GUI_SwfList_Select 		objHelocTableFormList, strRecord 
+	GUI_WebButton_Click 	objHelocTableFormSelect
+		
+   GUI_DialogObject_Encompass_YesX objHelocTable.Dialog("text:=Encompass"), 20, "" 	
+   GUI_WebButton_Click objHelocTableOK
+	
+	If recordType="Draw" Then		
+	   FRM_VerifyEqual cstr(GUI_Object_GetPropertyValue(objMainPage.WebEdit("html id:=l_1889"),"value")), cstr(FRM_DS_GetValue(objData, "DrawValue1")), "Heloc Draw", "Heloc Draw Period"
+	   FRM_VerifyEqual cstr(GUI_Object_GetPropertyValue(objMainPage.WebEdit("html id:=l_1890"),"value")), cstr(FRM_DS_GetValue(objData, "DrawValue2")), "Heloc Repayment", "Heloc Repayment Period"
+	Else	
+	   FRM_Logger_ReportInfoEvent "Heloc Record Verify", "Heloc Record Verify For Repayment", Null
+	   FRM_VerifyEqual cstr(GUI_Object_GetPropertyValue(objMainPage.WebEdit("html id:=l_1889"),"value")), cstr(FRM_DS_GetValue(objData, "RepaymentValue1")), "Heloc Draw", "Heloc Draw Period"
+	   FRM_VerifyEqual cstr(GUI_Object_GetPropertyValue(objMainPage.WebEdit("html id:=l_1890"),"value")), cstr(FRM_DS_GetValue(objData, "RepaymentValue2")), "Heloc Repayment", "Heloc Repayment Period"
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AnnualFee")) Then
+	   GUI_SwfEdit_Set objMainPage.WebEdit("html id:=l_1891"),FRM_DS_GetValue(objData, "AnnualFee")
+	   UTIL_Win_Sendkey "{TAB}"	
+	End If
+	
+	FRM_VerifyEqual GUI_Object_GetPropertyValue(objMainPage.WebEdit("html id:=l_1891"),"value"), FormatNumber(FRM_DS_GetValue(objData, "AnnualFee"),2), "Heloc Annual Fee", "Entered Heloc Annual Fee"
+	
+	Set objMainPage 			= 	Nothing
+	Set objHelocTable			= 	Nothing
+	Set objHelocTableSelect		= 	Nothing
+	Set objHelocTableOK			= 	Nothing
+	Set objHelocTableForm		= 	Nothing
+	Set objHelocTableFormList	= 	Nothing
+	Set objHelocTableFormSelect	= 	Nothing
+	Set objData					=	Nothing
+
+End Function
+
+
+
+'This function is used for Duplicate  HelocTable
+'@code
+'    	Settings_TablesandFeees_DuplicateHelocTable(strHeloctableName,strRowID)
+'@endcode
+'@Param strRowID  row id testdata in excel file
+'@Param strHeloctableName  Heloctable Name
+
+Function BIZ_Settings_TablesAndFeees_DuplicateHelocTable(strHeloctableName,strRowID)
+	
+	FRM_Logger_ReportInfoEvent "TablesAndFeees Heloc Table", "TablesAndFeees Duplicate Heloc Table '"& strHeloctableName, Null
+	
+	Dim objSettings, objHelocEdit, objData, strDuplicateHelocTN
+	Set objSettings			=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objHelocEdit		=	objSettings.SwfWindow("swfname:=HelocTableContainer")
+	Set objHelocMMP			=	objHelocEdit.SwfWindow("swfname:=MMPFormDialog")
+	Set objYearListView 	= 	objHelocEdit.swfObject("swfname:=gridViewYearList")
+	Set objData				=   FRM_DS_GetTestData("Settings_TablesFees", "HelocTable", strRowID)
+		
+	GUI_List_ClickRow objSettings.SwfObject("swfname:=listViewHeloc"), null, "TableName", strHeloctableName, True, False, False, "Single"
+   	BIZ_Settings_ClickEdit()	
+   	
+   	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Year")) Then
+		GUI_List_ClickRow objYearListView, null, "Year", cstr(FRM_DS_GetValue(objData, "Year")), True, False, False, "Single"  	
+	End If
+   	
+   	GUI_SwfButton_Click  objHelocEdit.SwfButton("swfname:=duplicateBtn")
+   	
+	BIZ_Settings_TablesandFeees_SetHelocTable strRowID
+
+	Wait g_TinyWaitMedium  'Expilcit Wait added due to sync
+	boolValue=GUI_List_ClickRow (objYearListView, null, "Year", cstr(FRM_DS_GetValue(objData, "Year")), True, False, False, "Single")  
+	
+	FRM_VerifyTrue  boolValue, "Heloc Table Record", "Heloc Table Record Duplicated for Year '"&FRM_DS_GetValue(objData, "Year")	  
+	
+    GUI_SwfButton_Click objHelocEdit.SwfButton("swfname:=okbtn")
+    GUI_List_ClickRow objSettings.SwfObject("swfname:=listViewHeloc"), null, "Table Name", strHeloctableName, True, False, False, "Single"
+   	GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnDuplicate")
+   	strDuplicateHelocTN=FRM_DS_GetValue(objData, "TableName")
+   	
+   	If UTIL_String_IsNotEmpty(strDuplicateHelocTN) Then
+		GUI_SwfEdit_Set  objHelocEdit.SwfEdit("swfname:=textBoxName"),  strDuplicateHelocTN
+	End If
+	    
+    GUI_SwfButton_Click objHelocEdit.SwfButton("swfname:=okbtn")
+   
+	Set objSettings 		 = Nothing
+	Set objHelocEdit		 = Nothing
+	Set objData				 = Nothing
+    Set objHelocMMP			 = Nothing
+	Set objYearListView      = Nothing
+	
+	BIZ_Settings_TablesAndFeees_DuplicateHelocTable=strDuplicateHelocTN
+End Function
+
+
+Function BIZ_Settings_TablesandFeees_Verify_EditedHelocTableValues(strHeloctableName,strRowID)    
+    FRM_Logger_ReportInfoEvent "TablesAndFeees Heloc Table", "Verify Edited  Heloc Table Values '"& strHeloctableName, Null
+    Dim objSettings,objHelocEdit,objData,objMainView,intRow
+    
+	Set objSettings		=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objHelocEdit	=	objSettings.SwfWindow("swfname:=HelocTableContainer")
+	Set objData			=	FRM_DS_GetTestData("Settings_TablesFees", "HelocTable", strRowID)
+	Set objMainView 	=	objHelocEdit.swfObject("swfname:=gridViewYearList")	
+	GUI_List_ClickRow objSettings.SwfObject("swfname:=listViewHeloc"), null, "Table Name", strHeloctableName, True, False, False, "Single"
+   	BIZ_Settings_ClickEdit()  
+    intRow=GUI_List_GetRowIndex(objMainView, "Year", cstr(FRM_DS_GetValue(objData, "Year")))
+    FRM_VerifyEqual GUI_Object_GetPropertyValue(objHelocEdit.SwfEdit("swfname:=textBoxName"),"text"), strHeloctableName, "Heloc Table Name", "Heloc Table Name"
+    FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRow, GUI_List_GetColumnIndex(objMainView, "Margin %")), FormatNumber (FRM_DS_GetValue(objData, "Margin"),3), "Margin %", "Margin %"
+    GUI_SwfButton_Click objHelocEdit.SwfButton("swfname:=cancelBtn")
+    
+	Set objSettings		=	Nothing
+	Set objHelocEdit	=	Nothing
+	Set objData			=	Nothing
+	Set objMainView 	=	Nothing
+End Function
+
+Function BIZ_Settings_TableAndFees_1003Page1_Units_SetData(strRowID)	
+	Set obj1003Page = SwfWindow("swfname:=MainForm").Page("index:=0")
+	obj1003Page.WebEdit("html id:=l_13").Set ""
+    obj1003Page.WebEdit("html id:=l_16","index:=0").Set ""
+    
+    BIZ_Forms_Open "Borrower Summary - Origination"
+	BIZ_BorrowerSummaryOrigination_SetTransactionDetails strRowID
+	BIZ_1003Page1_SetTitleDetails strRowID
+	BIZ_1003Page1_SetData(strRowID)	
+End Function
+
+
+
+
+'This function is used to validate Purchase Title Fee on 1103Owner Title insurance
+' @code
+' Function Itemization2015_1103PurchaseTitleFee_OwnerTitleInsuranceValidation (strRowID)
+' @endcode
+'@ param strTitleFeeRec - Title Fee Record
+'@ param strRowID -  Loan Creation Data
+'@ param strRowID2 - Pointing to Title Fee rowid in Excel
+		 
+Function BIZ_Itemization2015_1103PurchaseTitleFee_OwnerTitleInsuranceValidation (strTitleFeeRec,strRowID,strRowID2)
+
+	FRM_Logger_ReportInfoEvent "Purchase Title Fee", "1103 Owner Title Insurance Validation", null 
+	
+	Dim objData,objLoanData,objParentObject,objEscrowEdit,strEscrowValue,strSalesPrice,CalcBasedOn,strBase,strRangeUpTo,strFactor,strParam,strCalEscrowValue
+	
+	Set objData = FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID2)
+	Set objLoanData = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetTransactionDetails", strRowID)
+	
+	BIZ_Forms_Open "2015 itemization"
+	strEscrowName=strTitleFeeRec
+	strDialogText="The default table '"+strEscrowName+"' will be used for calculation."
+	
+	Set objParentObject =  SwfWindow("swfname:=MainForm").Page("index:=0")
+	GUI_WebButton_Click(objParentObject.WebButton("html id:=StandardButton24"))
+	GUI_Dialog_VerifyStaticText SwfWindow("swfname:=MainForm").Dialog("text:=Encompass").Static("Class Name:=Static","window id:=65535"), strDialogText, "Dialog Text Validation"
+	GUI_Dialog_Encompass_OK(strDialogText)
+	Wait g_TinyWaitMedium 'Explicit Wait Added Due to Sync
+	
+	set objEscrowEdit=objParentObject.WebEdit("html id:=TextBox61")
+	strEscrowValue = GUI_Object_GetPropertyValue (objEscrowEdit,"value")
+	
+	strSalesPrice	  = FRM_DS_GetValue(objLoanData, "PurchasePrice")
+	CalcBasedOn		  = FRM_DS_GetValue(objData, "CalcBasedOn")
+	strBase			  = FRM_DS_GetValue(objData, "Base")
+	strRangeUpTo	  = FRM_DS_GetValue(objData, "RangeUpto")
+	strFactor		  = FRM_DS_GetValue(objData, "Factor")
+	strParam 		  = strRangeUpTo*strFactor
+	strCalEscrowValue = strBase +(strParam/100)
+	strCalEscrowValue = formatnumber(strCalEscrowValue)
+	
+	FRM_Logger_ReportInfoEvent "Loan Sales Price", "Loan Sales Price:"&strSalesPrice, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculated on", "Calc Based On:"&CalcBasedOn, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculation Range Up To", "Range Up To:"&strRangeUpTo, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculated on", "Base Value:"&strBase, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculation Factor Value", "Factor "&strFactor, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculation Formula", "Base Value + (Range Up To * Factor)/100", null
+	
+	FRM_VerifyEqual strEscrowValue,strCalEscrowValue,"Title Fee Purchase Owner Title Insurance Validation","Owner Title Insurance Validation' "&strEscrowValue&" 'Calucated Value '"&strCalEscrowValue
+     
+    Set objData			= Nothing
+    Set objLoanData		= Nothing
+    Set objParentObject	= Nothing
+    Set objEscrowEdit	= Nothing
+	
+End Function
+
+
+
+'This function is used to Verify Existing title fee Record Name
+' @code
+' Function Settings_TablesandFees_FeesRecord_ExistingRecordNameValidation(strRowID)
+' @endcode
+'@ param strRowID , Points Row in Excel
+
+Function BIZ_Settings_TablesandFees_FeesRecord_ExistingRecordNameValidation(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Existing Fees Record Name","Existing Fees Record Name Validation", Null
+	
+	Dim objSetupContainer,objEscrowFeedetailsWindow,objData,strTableName,strDialogText,intTblNameRowindex
+
+	Set objSetupContainer = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objEscrowFeedetailsWindow = objSetupContainer.SwfWindow("swfname:=TableGroupDialog")
+	Set objData=FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID)
+	
+	'Title Fees Record Create
+	strTableName=FRM_DS_GetValue(objData, "TableName")
+	BIZ_Settings_ClickAdd()
+	GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=tableNameTxt"), strTableName
+	GUI_SwfObject_Click objEscrowFeedetailsWindow.SwfButton("swfname:=okBtn")
+	
+	'Verify Title Fees Record Created
+	Wait g_TinyWaitSmall 'Explicit Wait Added Due Sync
+	intRowIndex=GUI_List_GetRowIndex(objSetupContainer.SwfObject("swfname:=listView"), "Table Name", strTableName)
+	GUI_List_ValidateCellData objSetupContainer.SwfObject("swfname:=listView"), intRowIndex, "Table Name",  strTableName
+	
+	'Existing Record Name Create and verify warning dialogue message
+	BIZ_Settings_ClickAdd()
+	GUI_SwfEdit_Set objEscrowFeedetailsWindow.SwfEdit("swfname:=tableNameTxt"), strTableName
+	GUI_SwfObject_Click objEscrowFeedetailsWindow.SwfButton("swfname:=okBtn")
+	strDialogText=FRM_DS_GetValue(objData, "EncompassStaticText")
+	objEscrowFeedetailsWindow.Dialog("text:=Encompass").WinButton("text:=OK").Click	
+	GUI_Dialog_Encompass_OKX 2, strDialogText
+	GUI_SwfObject_Click objEscrowFeedetailsWindow.SwfButton("swfname:=cancelBtn")
+
+	'Title Fees Record Delete and Verify delete
+	Wait g_TinyWaitSmall 'Explicit Wait Added Due Sync isuues
+	GUI_List_SelectItem objSetupContainer.SwfObject("swfname:=listView"),strTableName,"Table Name"
+	   
+	If GUI_Object_IsEnabled(objSetupContainer.SwfObject("swfname:=stdIconBtnDelete")) Then		
+		GUI_SwfObject_Click objSetupContainer.SwfObject("swfname:=stdIconBtnDelete")
+		GUI_Dialog_Encompass_Yes("")		
+		Wait g_TinyWaitSmall 'Explicit Wait Added Due Sync isuues
+		intTblNameRowindex = GUI_List_GetRowIndex(objSetupContainer.SwfObject("swfname:=listView"), "Table Name",Trim(strTableName))				
+		If intTblNameRowindex < 0 Then
+			FRM_Logger_ReportPassEvent "Fee Record Delete","System deletes the selected record '"+strTableName+"' and it should not be available in  grid", Null
+		Else	
+			FRM_Logger_ReportFailEvent "Fee Record Delete","System Failed to deletes the selected record and it should  be available in  grid", Null
+		End If			    
+	Else
+	 	FRM_Logger_ReportFailEvent "Delete Disabled","Fees Record Delete Failed", Null
+	End If	 	
+	
+	Set objSetupContainer			= Nothing
+	Set objEscrowFeedetailsWindow	= Nothing
+	Set objData						= Nothing
+
+End Function
+
+
+
+
+'This function is used to validate default Escrow table name and fee calculation
+' @code
+' Function Itemization2015_1103RefinanceTitleFee_OwnerTitleInsuranceValidation (strRowID)
+' @endcode
+'@ Param strRowID is RowID of excel to read data from excel.
+
+Function BIZ_Itemization2015_1103RefinanceTitleFee_OwnerTitleInsuranceValidation (strTitleFeeRec,strRowID,strRowID2)
+
+	FRM_Logger_ReportInfoEvent "Refinance Title Fee", "1103 Owner Title Insurance Validation", Null
+	
+	Dim objParentObject,objLoanData,objEscrowEdit,objData,strEscrowName,strDialogText,strSalesPrice
+    Dim	strCalcBasedOn,strBase,strRangeUpTo,strFactor,strParam,strCalEscrowValue,strEscrowValue
+    
+	Set objLoanData     = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetTransactionDetails", strRowID)
+	Set objData         = FRM_DS_GetTestData("Settings_TablesFees", "TitleFees", strRowID2)
+	Set objLoanData     = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetTransactionDetails", strRowID)
+	Set objParentObject = SwfWindow("swfname:=MainForm").Page("index:=0")
+	
+	BIZ_Forms_Open "2015 itemization"
+	strEscrowName=strTitleFeeRec
+	strDialogText="The default table '"+strEscrowName+"' will be used for calculation."	
+	GUI_WebButton_Click(objParentObject.WebButton("html id:=StandardButton24"))
+	GUI_Dialog_VerifyStaticText SwfWindow("swfname:=MainForm").Dialog("text:=Encompass").Static("Class Name:=Static","window id:=65535"), strDialogText, "Dialog Text Validation"
+	GUI_WinButton_Click SwfWindow("swfname:=MainForm").Dialog("text:=Encompass").WinButton("text:=.*OK", "index:=0")
+	strSalesPrice=FRM_DS_GetValue(objLoanData, "PurchasePrice")
+	strCalcBasedOn=FRM_DS_GetValue(objData, "CalcBasedOn")
+	strBase=FRM_DS_GetValue(objData, "Base")
+	strRangeUpTo=FRM_DS_GetValue(objData, "RangeUpto")
+	strFactor=FRM_DS_GetValue(objData, "Factor")
+	strParam =strRangeUpTo*strFactor
+	strCalEscrowValue= strBase +(strParam/100)
+	strCalEscrowValue=formatnumber (strCalEscrowValue)
+    Wait g_LongWaitMedium  'Due to Sync issue we are explicitly passing wait statement
+	set objEscrowEdit=objParentObject.WebEdit("html id:=TextBox61")
+	strEscrowValue = GUI_Object_GetPropertyValue (objEscrowEdit,"value")
+	
+	FRM_Logger_ReportInfoEvent "Loan Sales Price", "Loan Sales Price:"&strSalesPrice, Null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculated on", "Calculation Based On: "&strCalcBasedOn, Null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculation Range Up To", "Range Up To:"&strRangeUpTo, Null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculated on", "Base :"&strBase, Null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculation Factor Value", "Factor "&strFactor, Null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculation Formula", "Base Value + (Range Up To * Factor)/100", Null
+	
+	FRM_VerifyEqual strEscrowValue,strCalEscrowValue,"Title Fee Refinance Owner Title Insurance Validation","Owner Title Insurance Validation' "&strEscrowValue&" 'Calucated Value '"&strCalEscrowValue
+	
+    Set objParentObject  = Nothing
+    Set objLoanData      = Nothing
+    Set objEscrowEdit    = Nothing
+    Set objData          = Nothing
+    
+End Function
+
+
+
+
+'This function is used to validate default Escrow table name and fee calculation
+' @code
+' Function Itemization2015_1102EscrowFeeDefaultTableAndFeeValidation (strRowID)
+' @endcode
+'@ Param strRowID - RowID of excel to read data from excel. 
+
+Function BIZ_Itemization2015_1102EscrowFeeDefaultTableAndFeeValidation (strRowID,strRowID2,strEscrowName)
+
+	FRM_Logger_ReportInfoEvent "Escrow Table Fee", "1102 EscrowFee Default Table And Fee Validation", null 	
+	
+	Dim objData,objLoanData,objParentObject,objEscrowEdit,strEscrowValue,strSalesPrice,strCalcBasedOn
+	Dim strBase,strRangeUpTo,strFactor,strParam,strCalEscrowValue
+	
+	Set objData 		= FRM_DS_GetTestData("Settings_TablesFees", "EscrowFees", strRowID2)
+	Set objLoanData 	= FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetTransactionDetails", strRowID)
+	Set objParentObject = SwfWindow("swfname:=MainForm").Page("index:=0")
+	Set objParentObject = SwfWindow("swfname:=MainForm").Page("index:=0")
+	set objEscrowEdit   = objParentObject.WebEdit("html id:=TextBox424")
+	Set objDialogBox    = SwfWindow("swfname:=MainForm").Dialog("text:=Encompass").Static("Class Name:=Static","window id:=65535")
+	strDialogText 		= "The default table '"+strEscrowName+"' will be used for calculation."
+	
+	BIZ_Forms_Open "2015 itemization"
+	
+	GUI_WebButton_Click(objParentObject.WebButton("html id:=StandardButton12"))
+	GUI_Object_WaitTillExistX objDialogBox,60
+	GUI_Dialog_VerifyStaticText objDialogBox, strDialogText, "Dialog Text Validation"
+	GUI_Dialog_Encompass_OK(strDialogText)
+	Wait g_ShortWaitMedium	'Used explicit wait to handle sync issue
+	
+	strSalesPrice	= FRM_DS_GetValue(objLoanData, "PurchasePrice")
+	strCalcBasedOn	= FRM_DS_GetValue(objData, "CalcBasedOn")
+	strBase			= FRM_DS_GetValue(objData, "Base")
+	strRangeUpTo	= FRM_DS_GetValue(objData, "RangeUpto")
+	strFactor		= FRM_DS_GetValue(objData, "Factor")
+	
+	strParam 		  = strRangeUpTo*strFactor
+	strCalEscrowValue = strBase +(strParam/100)
+	strCalEscrowValue = formatnumber(strCalEscrowValue) 
+	
+	FRM_Logger_ReportInfoEvent "Loan Sales Price", "Loan Sales Price:"&strSalesPrice, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculated on", "Calc Based On:"&strCalcBasedOn, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculation Range Up To", "Range Up To:"&strRangeUpTo, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculated on", "Base Value :"&strBase, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculation Factor Value", "Factor Value "&strFactor, null
+	FRM_Logger_ReportInfoEvent "Title Fee Calculation Formula", "Base Value + (Range Up To * Factor)/100", null
+	
+	strEscrowValue = GUI_Object_GetPropertyValue (objEscrowEdit,"value")
+	FRM_VerifyEqual strEscrowValue,strCalEscrowValue,"Escrow Default Fee Validation","Escrow Fee  Default Value' "&strEscrowValue&" 'Calucated Value '"&strCalEscrowValue
+
+	Set objData			= Nothing
+	Set objLoanData		= Nothing
+	Set objParentObject = Nothing
+	Set objEscrowEdit	= Nothing
+	Set objDialogBox    = Nothing
+End Function
+
+
+
+
+'This function is used to Verify Import Compliance Fee Default
+'@code
+'    Function Settings_TablesAndFees_Verify_ImportComplianceFee(strDialogText)
+'@endcode
+'@param strDialogText - Pop up Alert Message
+
+Function BIZ_Settings_TablesAndFees_Verify_ImportComplianceFee(strRowID,strDialogText)
+	
+	FRM_Logger_ReportInfoEvent "Tables And Fees Itemization Compliance Fee", "Verify Default Import Compliance Fee", Null
+	Dim objSettings,objAddFeeForm,objAddFeeFormEdit,objAddFeeFormOK,objNewItem,objMainView,objMainViewScroll,objImport,objToolBar, objData
+	
+	Set objSettings			=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objAddFeeForm		=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AddFeeForm")
+	Set objAddFeeFormEdit 	= 	objAddFeeForm.SwfEdit("swfname:=txtFeeName")
+	Set objAddFeeFormOK   	= 	objAddFeeForm.SwfButton("swfname:=btnOK")
+	Set objNewItem			=   objSettings.SwfObject("swfname:=iconBtnNew")
+	Set objMainView			=   objSettings.SwfObject("swfname:=gridFees")
+	Set objMainViewScroll   =   objMainView.SwfScrollBar("swfname:=vPanelScrollBar")
+	Set objImport			=	objSettings.SwfButton("swfname:=btnImport")
+	Set objToolBar          =   objSettings.SwfToolBar("swfname:=mnuSend")
+	Set objData             =   FRM_DS_GetTestData("Settings_TablesFees", "ItemizationFee", strRowID)
+	
+	GUI_SwfObject_Click  objNewItem
+	Dim boolValue, strItemization
+	strItemization= FRM_DS_GetValue(objData, "FeeDataName")
+	
+	If UTIL_String_IsNotEmpty(strItemization) Then	
+	   GUI_WebEdit_Set objAddFeeFormEdit ,strItemization
+	End If
+	
+	GUI_SwfButton_Click objAddFeeFormOK
+	Wait g_TinyWaitLarge ' Explicit wait added due to sync
+	boolValue=GUI_List_ClickRow (objMainView, objMainViewScroll, "Encompass Fee Name", strItemization, True, False, False, "Single")
+	FRM_VerifyTrue boolValue,"Fee Record Availability","Fee Record Available is :"&strItemization 
+	GUI_SwfButton_Click objImport
+	GUI_SwfToolbar_Select objToolBar, "Import Compliance Default Fees..."	
+	GUI_Dialog_Encompass_YesX 3, strDialogText
+	Wait g_TinyWaitLarge ' Explicit wait added due to sync
+	boolValue =  GUI_List_ClickRow (objMainView, objMainViewScroll, "Encompass Fee Name", strItemization, True, False, False, "Single")
+	FRM_VerifyFalse boolValue,"Fee Record Delete","Fee Record Deleted is :"&strItemization
+	BIZ_Settings_ClickSave
+	Set objSettings			=	Nothing
+	Set objAddFeeForm		=	Nothing
+	Set objAddFeeFormEdit 	= 	Nothing
+	Set objAddFeeFormOK   	= 	Nothing
+	Set objNewItem			=   Nothing
+	Set objMainView			=   Nothing
+	Set objMainViewScroll   =   Nothing
+	Set objImport			=	Nothing
+	Set objToolBar          =   Nothing
+	Set objData             =   Nothing
+
+End Function
+
+'This function is used for Delete  HelocTable and its record
+'@code
+'    	BIZ_Settings_TablesandFeees_DeleteHelocTable(strHeloctableName,strPopUpText)
+'@endcode
+'@Param strHeloctableName  Heloctable Name
+'@Param strPopUpText POP UP Text
+
+Function BIZ_Settings_TablesandFeees_DeleteHelocTable(strHeloctableName,strPopUpText)
+	
+	FRM_Logger_ReportInfoEvent "Verify rename of newly created  HELOC Table", "Verification and Validation of rename", Null
+	
+	Dim objSettings 
+	Set objSettings			=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+		
+    GUI_List_ClickRow objSettings.SwfObject("swfname:=listViewHeloc"), null, "Table Name", strHeloctableName, True, False, False, "Single"
+   	BIZ_Settings_ClickDelete()
+
+    GUI_Dialog_Encompass_YesX 2, strPopUpText
+
+	Set objSettings			=	Nothing
+	
+End Function
+
+
+
+'This function is used for Verify HelocTable Values
+'@code
+'    	BIZ_Settings_TablesandFeees_Verify_HelocTableValues(strHeloctableName,strRowID)
+'@endcode
+'@Param strRowID  row id testdata in excel file
+'@Param strHeloctableName  Heloctable Name 
+
+Function BIZ_Settings_TablesandFeees_Verify_HelocTableValues(strHeloctableName,strRowID)
+    
+    FRM_Logger_ReportInfoEvent "TablesAndFeees Heloc Table", "Verify   Heloc Table Values '"& strHeloctableName, Null
+    Dim objSettings,objHelocEdit,objData,objMainView,intRow,objHelocMMP
+	
+	Set objSettings		=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objHelocEdit	=	objSettings.SwfWindow("swfname:=HelocTableContainer")
+	Set objHelocMMP		=	objHelocEdit.SwfWindow("swfname:=MMPFormDialog")
+	Set objData			=	FRM_DS_GetTestData("Settings_TablesFees", "HelocTable", strRowID)
+	Set objMainView 	=	objHelocEdit.swfObject("swfname:=gridViewYearList")
+	
+	GUI_Object_WaitTillExistX objSettings.SwfObject("swfname:=listViewHeloc"), 30
+	GUI_List_ClickRow objSettings.SwfObject("swfname:=listViewHeloc"), null, "Table Name", strHeloctableName, True, False, False, "Single"
+   	BIZ_Settings_ClickEdit()
+  
+    intRow=GUI_List_GetRowIndex(objMainView, "Year", cstr(FRM_DS_GetValue(objData, "Year")))
+
+    FRM_VerifyEqual GUI_Object_GetPropertyValue(objHelocEdit.SwfEdit("swfname:=textBoxName"),"text"), strHeloctableName, "Heloc Table Name", "Heloc Table Name"
+    FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRow, GUI_List_GetColumnIndex(objMainView, "Year")), cstr(FRM_DS_GetValue(objData, "Year")), "Year", "Year"	
+    FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRow, GUI_List_GetColumnIndex(objMainView, "Period Type")),FRM_DS_GetValue(objData, "Period"), "Period Type", "Period Type"
+    FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRow, GUI_List_GetColumnIndex(objMainView, "Index %")), FormatNumber (FRM_DS_GetValue(objData, "Index"),3), "Index %", "Index %" 
+    FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRow, GUI_List_GetColumnIndex(objMainView, "Margin %")), FormatNumber (FRM_DS_GetValue(objData, "Margin"),3), "Margin %", "Margin %"
+    FRM_VerifyEqual GUI_List_GetCellData(objMainView, intRow, GUI_List_GetColumnIndex(objMainView, "APR %")), FormatNumber (FRM_DS_GetValue(objData, "Index")+FRM_DS_GetValue(objData, "Margin"),3), "APR %", "APR %"
+    GUI_SwfButton_Click objHelocEdit.SwfButton("swfname:=cancelBtn")
+    
+	Set objSettings		=	Nothing
+	Set objHelocEdit	=	Nothing
+	Set objData			=	Nothing
+	Set objMainView 	=	Nothing
+	
+End Function
+
+
+
+'This function is used to Delete MI Table Scenario Data
+'@code
+'    BIZ_TablesAndFees_DeleteMITableData(strScenario)
+'@endcode
+'@param strScenario - Scenario to be deleted from MI Table
+
+Function BIZ_TablesAndFees_DeleteMITableRecord(strScenario)
+	
+	FRM_Logger_ReportInfoEvent "BIZ_TablesAndFees_DeleteMITableRecord","BIZ_TablesAndFees_DeleteMITableRecord using RowId '"&strRowID&"' in Settings_TablesFees datasheet", null
+	
+	Dim objSettings,intRowNum
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objMainView= objSettings.SwfObject("swfname:=listViewMI")
+	Wait g_TinyWaitMedium 'Explicit Wait Added Due Sync Issue
+	GUI_List_SelectItem objMainView, strScenario, "Scenario"
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnDelete")
+	
+	If GUI_Object_IsExist (objSettings.Dialog("regexpwndtitle:=Encompass")) Then
+		GUI_WinButton_Click objSettings.Dialog("regexpwndtitle:=Encompass").WinButton("regexpwndtitle:=&Yes")
+	Else
+		FRM_Logger_ReportFailEvent "Check if confirmation Dialog Populated after clicking delete button", "confirmation Dialog Populated successfully after clicking delete button", Null
+	End If
+	
+	Wait g_TinyWaitLarge ' Explicit wait added Due to Sync
+	boolScenario = GUI_List_ClickRow(objMainView, Null, "Scenario", strScenario, True, False, False, "Single") 
+ 	FRM_VerifyFalse boolScenario, "MI Table Record Delete", "MI Table Record is  Deleted  "&strScenario
+ 			
+	Set objSettings = Nothing
+    Set objMainView = Nothing
+End Function
+
+'@}

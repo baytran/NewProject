@@ -1,0 +1,509 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: Framework_Datasheet Framework_Datasheet
+' 
+' List of functions here
+' @code
+'
+'   Function FRM_DS_GetTestDataFromFile(strTestDataFile, strSheetName, strRowID)
+'   Function FRM_DS_GetTestData(strDataFileName, strSheetName, strRowID)
+'   Function FRM_DS_GetGlobalTestData(strSheetName, strRowID)
+'	Function FRM_DS_TestDataRowExists(strTestDataFile, strSheetName, strRowID)
+'	Function FRM_DS_GetTestDataRowIndex(strTestDataFile, strSheetName, strRowID)
+'	Function FRM_DS_GetTestDataRowIndexByColumnValue(strTestDataFile, strSheetName, strColTitle, strColumnValue)
+'	Function FRM_DS_TestDataColumnExists(objDict, strColTitle)
+'	Function FRM_DS_TestDataColumnExistsInSheet(strTestDataFile, strSheetName, strColTitle)
+'	Function FRM_DS_GetTestDataColumnIndex(strTestDataFile, strSheetName, strColTitle)
+'   Function FRM_DS_GetValue(objDict, strKey)
+'   Function FRM_DS_GetTestDataFromQTPDataSheetByRowNumber (strTestDataSheet,intRowNumber)
+'   Function FRM_DS_GetTestDataFromQTPDataSheet (strTestDataSheet,strRowID)
+'	Function FRM_DS_GetCellData(strTestDataFile, strSheetName, strRowNumOrIndex, strColumnNumOrIndex)
+'	Function FRM_DS_SetCellData(strDataFileName, strSheetName, strRowID, strColumnName, Value)
+'	Function FRM_DS_ChangeExcelReadonlyToReadandWrite(strFileName)
+'	Function FRM_DS_ChangeExcelReadandWriteToReadonly(strFileName)
+'	
+' @endcode
+'
+' @{
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+'Retrieve the test data
+'
+'@code
+'   FRM_DS_GetTestDataFromFile("C:\Automation\Main\Test Data\Global_Data.xlsx", "Borrower", "TESTCO-BLAIR-BRUNO")
+'@endcode
+'@param strTestDataFile - data file path
+'@param strSheetName - data sheet name
+'@param strRowID  - data row ID
+
+Function FRM_DS_GetTestDataFromFile(strTestDataFile, strSheetName, strRowID)
+
+	FRM_Logger_ReportDebugEvent "FRM_DS_GetTestDataFromFile", "Get data from " & strTestDataFile & ", row ID '"&strRowID&"' in data datasheet '" &strSheetName&"'", null
+	
+	Dim objExcel, objWorkbook, objWorksheet, intRowCount, intColumnCount, intTargetColumnNumber
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+	
+	FRM_Logger_ReportDebugEvent "FRM_DS_GetTestData", "Open data file "&strTestDataFile, null
+    Set objWorkbook = objExcel.Workbooks.Open( strTestDataFile )
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 
+	
+	intTargetColumnNumber = 1 'RowID should always be the first column in data sheet
+    'For n = 1 to intColumnCount    'find "target" column number
+	    'If  trim(objWorksheet.Cells(1, n).value) = trim("RowID")  Then
+		    'intTargetColumnNumber = n
+		    'Exit for
+	    'End If
+    'Next
+	
+	Dim dictTestData
+	boolDataRowFound = False
+	Set dictTestData = CreateObject("Scripting.Dictionary")
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count	
+    For n = 1 to intRowCount                       'get value from "target" column                                                        
+        If  trim(objWorksheet.Cells(n, intTargetColumnNumber).value) = strRowID Then
+			boolDataRowFound = True
+			For m = 1 to intColumnCount
+			    If objWorksheet.Cells(1, m).value = "" or isEmpty(objWorksheet.Cells(1, m).value) Then
+					dictTestData(cstr(m)) = objWorksheet.Cells(n, m).value
+                Else				   
+					dictTestData(objWorksheet.Cells(1, m).value) = objWorksheet.Cells(n, m).value
+				End If	
+			Next
+			Exit For
+		End If
+	Next	
+    objWorkbook.Close
+    objExcel.Quit
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+	
+	FRM_AssertTrue boolDataRowFound, "FRM_DS_GetTestDataFromFile", "Data file " & strTestDataFile&", datasheet '"&strSheetName&"', rowID="&strRowID 
+	Set FRM_DS_GetTestDataFromFile = dictTestData	
+
+End Function
+
+
+
+'@see FRM_DS_GetTestDataFromFile
+Function FRM_DS_GetGlobalTestData(strSheetName, strRowID)
+		
+	strTestDataFile = FRM_RT_DataDirPath() + "Global_Data.xlsx"
+	Set FRM_DS_GetGlobalTestData = FRM_DS_GetTestDataFromFile(strTestDataFile, strSheetName, strRowID)
+	
+End Function
+
+
+'@see FRM_DS_GetTestDataFromFile
+Function FRM_DS_GetTestData(strDataFileName, strSheetName, strRowID)	
+	
+	strTestDataFile = FRM_RT_DataDirPath + strDataFileName + ".xlsx"
+	Set FRM_DS_GetTestData = FRM_DS_GetTestDataFromFile(strTestDataFile, strSheetName, strRowID)
+	
+End Function
+
+
+
+'check if specified row ID exists in test data sheet
+'
+'@code
+'   FRM_DS_TestDataRowExists("C:\Automation\Main\Test Data\Global_Data.xlsx", "Borrower", "TESTCO-BLAIR-BRUNO")
+'@endcode
+'@param strTestDataFile - data file path
+'@param strSheetName - data sheet name
+'@param strRowID  - data row ID
+'@return true if row found; false if not found
+
+Function FRM_DS_TestDataRowExists(strTestDataFile, strSheetName, strRowID)
+
+	intRowIdx = FRM_DS_GetTestDataRowIndex(strTestDataFile, strSheetName, strRowID)
+	If intRowIdx = -1 Then
+		FRM_DS_TestDataRowExists = False
+	Else
+		FRM_DS_TestDataRowExists = True
+	End If
+
+End Function
+
+
+
+'Get the row index of the specified row ID
+'
+'@code
+'   FRM_DS_GetTestDataRowIndex("C:\Automation\Main\Test Data\Global_Data.xlsx", "Borrower", "TESTCO-BLAIR-BRUNO")
+'@endcode
+'@param strTestDataFile - data file path
+'@param strSheetName - data sheet name
+'@param strRowID  - data row ID
+'@return row index if found; -1 if not found
+
+Function FRM_DS_GetTestDataRowIndex(strTestDataFile, strSheetName, strRowID)
+
+	FRM_DS_GetTestDataRowIndex = -1
+	Dim objExcel, objWorkbook, objWorksheet, intRowCount
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+
+    Set objWorkbook = objExcel.Workbooks.Open( strTestDataFile )
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count	
+    For n = 1 to intRowCount                       'get value from "target" column                                                        
+        If  trim(objWorksheet.Cells(n, 1).value) = strRowID Then
+			FRM_DS_GetTestDataRowIndex = n
+			Exit For
+		End If
+	Next	
+    objWorkbook.Close
+    objExcel.Quit
+
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+	
+End Function
+
+'Get the row index of the specified column value
+'@code
+'   FRM_DS_GetTestDataRowIndexByColumnValue("C:\Automation\Main\Test Data\Global_Data.xlsx", "Borrower", "ColumnTitle", "TESTCO-BLAIR-BRUNO")
+'@endcode
+'@param strTestDataFile - data file path
+'@param strSheetName - data sheet name
+'@param strColTitle  - Column Name
+'@param strColumnValue - Column Value
+'@return row index if found; -1 if not found
+
+Function FRM_DS_GetTestDataRowIndexByColumnValue(strTestDataFile, strSheetName, strColTitle, strColumnValue)
+
+	FRM_DS_GetTestDataRowIndexByColumnValue = -1
+	Dim objExcel, objWorkbook, objWorksheet, intRowCount
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+
+    Set objWorkbook = objExcel.Workbooks.Open( strTestDataFile )
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 	
+    For n = 1 to intColumnCount    'find "target" column number
+	    If  trim(objWorksheet.Cells(1, n).value) = trim(strColTitle)  Then
+		    intColNumber = n
+		    Exit for
+	    End If
+    Next
+
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count
+    For n = 1 to intRowCount                       'get value from "target" column                                                        
+        If  trim(objWorksheet.Cells(n, intColNumber).value) = strColumnValue Then
+			FRM_DS_GetTestDataRowIndexByColumnValue = n
+		End If
+	Next	
+    objWorkbook.Close
+    objExcel.Quit
+
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+	
+End Function
+
+
+'check if specified column title exists in dictionary object
+'
+'@code
+'   FRM_DS_TestDataColumnExists(objDict, "FirstName")
+'@endcode
+'@param objDict - dictionary object
+'@param strKey  - key name
+'@return true if column found; false if not found
+
+Function FRM_DS_TestDataColumnExists(objDict, strKey)
+
+    strTypeName = typename(objDict) 
+    If strTypeName = "Dictionary" Then  
+		FRM_DS_TestDataColumnExists = UTIL_Dict_KeyExists(objDict, strKey) 
+	End If
+
+End Function
+
+
+
+'check if specified column title exists in test data sheet
+'
+'@code
+'   FRM_DS_TestDataColumnExistsInSheet("C:\Automation\Main\Test Data\Global_Data.xlsx", "Borrower", "FirstName")
+'@endcode
+'@param strTestDataFile - data file path
+'@param strSheetName - data sheet name
+'@param strColTitle  - column title
+'@return true if column found; false if not found
+
+Function FRM_DS_TestDataColumnExistsInSheet(strTestDataFile, strSheetName, strColTitle)
+
+	intColIdx = FRM_DS_GetTestDataColumnIndex(strTestDataFile, strSheetName, strColTitle)
+	If intColIdx = -1 Then
+		FRM_DS_TestDataColumnExistsInSheet = False
+	Else
+		FRM_DS_TestDataColumnExistsInSheet = True
+	End If
+
+End Function
+
+
+
+'Get the column index of the specified column title
+'
+'@code
+'   FRM_DS_GetTestDataColumnIndex("C:\Automation\Main\Test Data\Global_Data.xlsx", "Borrower", "FirstName")
+'@endcode
+'@param strTestDataFile - data file path
+'@param strSheetName - data sheet name
+'@param strColTitle  - column title
+'@return column index if found; -1 if not found
+
+Function FRM_DS_GetTestDataColumnIndex(strTestDataFile, strSheetName, strColTitle)
+
+	FRM_DS_GetTestDataColumnIndex = -1
+	Dim objExcel, objWorkbook, objWorksheet, intRowCount
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+
+    Set objWorkbook = objExcel.Workbooks.Open( strTestDataFile )
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+	
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 	
+    For n = 1 to intColumnCount    'find "target" column number
+	    If  trim(objWorksheet.Cells(1, n).value) = trim(strColTitle)  Then
+		    FRM_DS_GetTestDataColumnIndex = n
+		    Exit for
+	    End If
+    Next
+    objWorkbook.Close
+    objExcel.Quit
+
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+	
+End Function
+
+
+
+'get test value specified by the key
+'
+'@code
+'   FRM_DS_GetValue(objDict, "FirstName")
+'@endcode
+'@param objDict - dictionary object
+'@param strKey  - data key
+'@return test value specified by the key
+
+Function FRM_DS_GetValue(objDict, strKey) 
+
+    strTypeName = typename(objDict) 
+    If strTypeName = "Dictionary" Then  
+		FRM_DS_GetValue = objDict.Item(strKey) 
+	End If
+
+End Function
+
+
+
+
+'Retrieve the test data from datasheet by row number and put it to Dictionary object
+'
+'@code
+'   FRM_DS_GetTestDataFromQTPDataSheetByRowNumber "Global",1
+'   FRM_DS_GetTestDataFromQTPDataSheetByRowNumber "Localsheet",2 
+'   FRM_DS_GetTestDataFromQTPDataSheetByRowNumber "dtGlobalSheet",3
+'   FRM_DS_GetTestDataFromQTPDataSheetByRowNumber "Action2",3
+'   FRM_DS_GetTestDataFromQTPDataSheetByRowNumber "MainAction",4
+'@endcode
+'@param strTestDataSheet - datasheet name,string which describes datatable -"Global", "Local","Localsheet", etc 
+'@param intRowNumber - row number
+
+Function FRM_DS_GetTestDataFromQTPDataSheetByRowNumber(strTestDataSheet,intRowNumber)
+
+	FRM_Logger_ReportInfoEvent "FRM_DS_GetTestDataFromQTPDataSheetByRowNumber", "Get data from " & strTestDataSheet & " sheet, row # '"&intRowNumber&"'", null
+    intRowCount = 0
+    intRowNumber = cInt(intRowNumber)
+    On Error resume next
+    If InStr(UCASE(strTestDataSheet),"GLOBAL") Then
+       Set objTargetSheet = DataTable.GetSheet(dtGlobalSheet)	
+    ElseIf InStr(UCASE(strTestDataSheet),"LOCAL") Then 
+       Set objTargetSheet = DataTable.GetSheet(dtLocalSheet)
+    Else
+       Set objTargetSheet = DataTable.GetSheet(strTestDataSheet)
+    End If
+    If Err.Number = 0  Then	
+       intRowCount = objTargetSheet.GetRowCount 
+       FRM_Logger_ReportDebugEvent "FRM_DS_GetTestDataFromQTPDataSheetByRowNumber", "Datasheet NOT found " & strTestDataSheet, null 	   
+    End If
+   
+    if intRowCount >= intRowNumber then
+       objTargetSheet.SetCurrentrow(intRowNumber)
+       intColCount = objTargetSheet.GetParametercount
+       Set objDictTestData = CreateObject("Scripting.Dictionary")
+       For j = 1 To intColCount
+    	strColName = objTargetSheet.GetParameter(j).Name
+    	objDictTestData(strColName) = objTargetSheet.GetParameter(j).Value
+	   Next  
+       
+       Set FRM_DS_GetTestDataFromQTPDataSheetByRowNumber = objDictTestData 
+    Else
+       Set FRM_DS_GetTestDataFromQTPDataSheetByRowNumber = Nothing  
+       FRM_Logger_ReportDebugEvent "FRM_DS_GetTestDataFromQTPDataSheetByRowNumber", "Row NOT found " & strTestDataSheet & " sheet, row # '"&intRowNumber&"'", null	   
+    End if    
+    
+	Set objDictTestData = NOTHING
+	Set objTargetSheet = NOTHING
+End Function
+
+
+'Retrieve the test data from datasheet by rowid and put it to Dictionary object
+'@code
+'   FRM_DS_GetTestDataFromQTPDataSheet "Global","2456_Borr"
+'   FRM_DS_GetTestDataFromQTPDataSheet "MainAction","3456_Item"
+'@endcode
+'@param strTestDataSheet - datasheet name,string which describes datatable -"Global", "MainAction"
+'@param strRowID - any unique string
+
+Function FRM_DS_GetTestDataFromQTPDataSheet(strTestDataSheet,strRowID)
+
+  If FRM_QTP_EnvVariableExist("BatchTestCasePath") Then 
+     strPath = Environment.Value("BatchTestCasePath") & "\Default.xls"
+  Else
+     strPath = Environment.Value("TestDir") & "\Default.xls"  
+  End If 
+  Set FRM_DS_GetTestDataFromQTPDataSheet = FRM_DS_GetTestDataFromFile(strPath, strTestDataSheet, strRowID)
+  
+End Function
+
+'This function returns data from the file based on Row  and Column number
+'@code
+'   FRM_DS_GetCellData("C:\Automation\Main\Test Data\Global_Data.xlsx", "Borrower", 2,3)
+'@endcode
+'@param strTestDataFile - data file path
+'@param strSheetName - data sheet name
+'@param strRowNumOrIndex  - Row number or text
+'@param strColumnNumOrIndex  - Column number or text
+
+Function FRM_DS_GetCellData(strTestDataFile, strSheetName, strRowNumOrIndex, strColumnNumOrIndex)
+	
+	FRM_Logger_ReportDebugEvent "FRM_DS_GetDataFromFileByRowColumn", "Get data from " & strTestDataFile & ", row '"&strRowNumOrIndex&_
+	", Column '"& strColumnNumOrIndex &"' in data datasheet '" &strSheetName&"'", null
+	
+	FRM_DS_GetCellData = UTIL_Excel_GetCellData(strTestDataFile, strSheetName, strRowNumOrIndex, strColumnNumOrIndex)
+    
+End Function
+
+'Set the data in datasheet
+'
+'@code
+'	FRM_DS_SetCellData(strDataFileName, strSheetName, strRowID, strColumnName, Value)
+'@endcode
+'@param strDataFileName - data file name
+'@param strSheetName - data sheet name
+'@param strRowID  - data row ID
+'@param strColumnName - Column title
+'@param value - value to be set in the datasheet
+
+Function FRM_DS_SetCellData(strDataFileName, strSheetName, strRowID, strColumnName, Value)
+
+	FRM_Logger_ReportInfoEvent "FRM_DS_SetCellData", "Set Data in file " & strDataFileName & " datasheet " & strSheetName & _
+        " row " & strRowID & " Column " & strColumnName & " to value " & value, Null
+	
+	strTestDataFile = FRM_RT_DataDirPath() + strDataFileName + ".xlsx"
+	
+
+	
+	Dim objExcel, objWorkbook, objWorksheet
+	Set objExcel = CreateObject("Excel.Application")
+	objExcel.Visible = False
+	objExcel.DisplayAlerts = False
+    
+	Set objWorkbook = objExcel.Workbooks.Open( strTestDataFile )
+	Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+	intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count	
+	For n = 1 to intRowCount                       
+	        If  trim(objWorksheet.Cells(n, 1).value) = strRowID Then
+			rowIndex = n
+			Exit For
+		End If
+	Next	
+
+	intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 	
+	For n = 1 to intColumnCount    'find "target" column number
+		If  trim(objWorksheet.Cells(1, n).value) = trim(strColumnName)  Then
+			columnIndex = n
+			Exit for
+		End If
+	Next
+
+    
+	objWorksheet.Cells(rowIndex, columnIndex).value = Value
+
+	objWorkbook.Save
+	objWorkbook.Close
+	objExcel.Quit
+	
+	
+	Set objWorksheet = Nothing    
+	Set objWorkbook = Nothing    
+	Set objExcel = Nothing
+
+
+End Function
+
+
+'This Function Change all file in Test Data Folder in Frame work
+' to Read and write mode
+'@code
+'    FRM_DS_ChangeExcelReadonlyToReadandWrite(strFileName)
+'@endcode
+
+Function FRM_DS_ChangeExcelReadonlyToReadandWrite(strFileName)
+
+	Dim objFSO, strTestDataFile, objFile 
+
+	Set objFSO = CreateObject("Scripting.FileSystemObject") 
+	strTestDataFile = FRM_RT_DataDirPath() + strFileName + ".xlsx"	
+	Set objFile = objFSO.GetFile(strTestDataFile)
+	Const ReadOnly = 1	
+	If objFile.Attributes AND ReadOnly Then
+   		objFile.Attributes = objFile.Attributes XOR ReadOnly
+ 	End If      
+	
+	Set objFile =Nothing 
+	Set objFSO = Nothing
+End Function
+
+
+
+'This Function Change all file in Test Data Folder in Frame work
+' to Read only mode
+'@code
+'    FRM_DS_ChangeExcelReadandWriteToReadonly(strFileNameS)
+'@endcode
+
+Function FRM_DS_ChangeExcelReadandWriteToReadonly(strFileName)
+
+	Dim objFSO, strTestDataFile, objFile
+
+	Set objFSO = CreateObject("Scripting.FileSystemObject") 
+    strTestDataFile = FRM_RT_DataDirPath() + strFileName + ".xlsx"	
+	Set objFile = objFSO.GetFile(strTestDataFile)                
+    If objFile.Attributes AND 1 then   
+    Else
+        objFile.Attributes = objFile.Attributes + 1   
+    End If
+
+	Set objFile =Nothing 
+	Set objFSO = Nothing
+End Function
+'@}

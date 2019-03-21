@@ -1,0 +1,1092 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Settings_ChangedCircumstances BIZ_Settings_ChangedCircumstances
+'
+' List of functions here
+' @code
+'   Function BIZ_ChangedCircumstances_SelectChangedCircumstance(strRowID)
+'	Function BIZ_ChangedCircumstances_SetChangedCircumstanceDetails(strRowID)
+'	Function BIZ_Settings_ChangedCircumstance
+'	Function BIZ_UserGroup_AddCoCOptions
+'	Function BIZ_ChangedCircumstances_VerifySave(strRowID)
+'   Function BIZ_ChangedCircumstances_Delete(strRowID)
+'   Function BIZ_ChangedCircumstances_Add(strRowID)
+'	Function BIZ_CoC_FeeLevelDisclosures
+'	Function BIZ_CoC_ChangedCircumstance
+'	Function BIZ_CoC_ChangedCircumstanceFields
+'	Function BIZ_CoC_LE_DTReasons
+'	Function BIZ_CoC_DT_ChangedCircumstanceFields
+'	Function BIZ_CoC_CD_ChangedCircumstance
+'	Function BIZ_CoC_CD_ChangedCircumstanceFields
+'	Function BIZ_CoC_CD_DTReasons
+'	Function BIZ_CoC_FeeLvlLE_DTReasons
+'	Function BIZ_CoC_GFE_FeeDetails
+'	Function BIZ_CoC_FeeChangesValidation
+'	Function BIZ_CoC_FeeLvlCD_DTReasons
+'	Function BIZ_DT_LEorCD_IncludeExclude
+
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used for select a Changed Circumstance from the Changed Circumstances list table
+'@code
+'    BIZ_ChangedCircumstances_SelectChangedCircumstance(strRowID) 
+'@endcode
+'@param strRowID - The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ChangedCircumstances_SelectChangedCircumstance(strRowID)
+    FRM_Logger_ReportInfoEvent "Settings Changed Circumstance", "Select Changed Circumstance using Row Id '"&strRowID&"' in the Setttings_ChangedCircumstanceSetup datasheet", null
+    
+	Dim objChangedCircumstancesList,objScrollbar,objData
+    Set objData = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "SelectChangedCircumstance", strRowID)
+    Set objChangedCircumstancesList=SwfWindow("swfname:=Mainform").SwfWindow("swfname:=SetUpContainer").SwfObject("swfname:=listViewOptions")
+    Set objScrollbar=SwfWindow("swfname:=Mainform").SwfWindow("swfname:=SetUpContainer").SwfScrollBar("swfname:=vPanelScrollBar")
+    
+    GUI_List_ClickRow ObjChangedCircumstancesList,objScrollbar,"Code",FRM_DS_GetValue(objData, "Code"),True,False,False,"Select a Changed Circustance"
+
+	Set objChangedCircumstancesList=nothing
+	Set objScrollbar=nothing
+    Set objData=nothing
+End Function
+
+
+
+'This function is used for set the detail for Changed Circumstance 
+'@code
+'    BIZ_ChangedCircumstances_SetChangedCircumstanceDetails(strRowID) 
+'@endcode
+'@param strRowID - The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ChangedCircumstances_SetChangedCircumstanceDetails(strRowID)
+ 
+    FRM_Logger_ReportInfoEvent "Settings Changed Circumstance", "Set Changed Circumstance details using Row Id '"&strRowID&"' in the Setttings_ChangedCircumstanceSetup datasheet", null
+    
+	Dim objSettings, objData
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+    Set objData = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "SetChangedCircumstanceDetails", strRowID)
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Description")) Then
+		strDescription	=	FRM_DS_GetValue(objData, "Description")
+       GUI_SwfEditor_Type objSettings.SwfEditor("swfname:=txtDescription"), strDescription
+    End If
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Reason")) Then
+       GUI_SwfComboBox_Select objSettings.SwfComboBox("swfname:=cmbReason"),FRM_DS_GetValue(objData, "Reason")
+    End If
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Code")) Then
+	   If GUI_Object_GetPropertyValue(objSettings.SwfEdit("swfname:=txtCode"),"enabled") Then
+	       GUI_SwfEdit_Set objSettings.SwfEdit("swfname:=txtCode"),FRM_DS_GetValue(objData, "Code")
+	   End If
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Comments")) Then
+       GUI_SwfEditor_Type objSettings.SwfEditor("swfname:=txtComments"),FRM_DS_GetValue(objData, "Comments")
+    End If
+   
+    Set objSettings = Nothing
+    Set objData = Nothing
+    
+	BIZ_ChangedCircumstances_SetChangedCircumstanceDetails	=	strDescription
+End Function
+
+
+
+'This function is used for add a Changed Circumstance using the data in the data spreadsheet
+'@code
+'    BIZ_ChangedCircumstances_Add(strRowID) 
+'@endcode
+'@param strRowID - The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ChangedCircumstances_Add(strRowID)
+	BIZ_Settings_ClickAdd
+    BIZ_ChangedCircumstances_SetChangedCircumstanceDetails strRowID
+    BIZ_Settings_ClickSave		
+End Function
+
+
+
+'This function is used for set the detail for Changed Circumstance 
+'@code
+'    BIZ_ChangedCircumstances_EditChangedCircumstanceDetails(strDescription, strNewDescription, strNewReason, strNewCode, strComments) 
+'@endcode
+'@param strRowID - The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ChangedCircumstances_EditChangedCircumstanceDetails(strDescription, strNewDescription, strNewReason, strNewCode, strComments) 
+	
+	FRM_Logger_ReportInfoEvent "Modify Settings Changed Circumstance", "Change Circumstance details", Null
+    
+	Dim objSettings
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+       
+    GUI_Object_WaitTillVisibleX objSettings.SwfObject("swfname:=listViewOptions"), 480		'@ To handle sync Related Issues 
+	GUI_List_ClickRow objSettings.SwfObject("swfname:=listViewOptions"), Null, "Description", strDescription, True, False, False, "Double"
+	
+	GUI_Object_WaitTillEnabledX objSettings.SwfEditor("swfname:=txtDescription"), 45		'@ To handle sync Related Issues 
+    GUI_SwfEditor_Type objSettings.SwfEditor("swfname:=txtDescription"), strNewDescription
+	GUI_Object_WaitTillEnabledX objSettings.SwfComboBox("swfname:=cmbReason"), 45		'@ To handle sync Related Issues 
+	GUI_SwfComboBox_Select objSettings.SwfComboBox("swfname:=cmbReason"),strNewReason
+	
+	If GUI_Object_GetPropertyValue(objSettings.SwfEdit("swfname:=txtCode"),"enabled") Then
+		GUI_SwfEdit_Set objSettings.SwfEdit("swfname:=txtCode"),strNewCode
+		FRM_Logger_ReportFailEvent "Code Status", "code field is enabled", null
+	Else 
+		FRM_Logger_ReportPassEvent "Code Status", "code field is disabled", null
+	End If
+	
+	GUI_Object_WaitTillEnabledX objSettings.SwfEditor("swfname:=txtComments"), 45		'@ To handle sync Related Issues 
+	GUI_SwfEditor_Type objSettings.SwfEditor("swfname:=txtComments"), strComments
+   
+    Set objSettings = Nothing
+        
+	BIZ_ChangedCircumstances_EditChangedCircumstanceDetails	=	strNewDescription
+	
+End Function
+
+
+'This function is for SetupChanged Circumstance
+'@code
+'    BIZ_ChangedCircumstances_ChangedCircumstanceSetup
+'@endcode
+Function BIZ_ChangedCircumstances_ChangedCircumstanceSetup(strRowID)
+
+    Dim objSettings, objData
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+    Set objData = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "SetChangedCircumstanceDetails", strRowID)
+    
+    BIZ_Nav_OpenMenuItem "Encompass;Settings..."
+                BIZ_Nav_HierarchyTree "Loan Setup", "Changed Circumstances Setup"
+
+    strDescription                =             FRM_DS_GetValue(objData, "Description")
+    boolCoC = GUI_List_ClickRow(objSettings.SwfObject("swfname:=listViewOptions"), Null,"Description", strDescription, True, False, False, "Single")
+    
+    If Not(boolCoC) Then
+                FRM_Logger_ReportPassEvent "Setup Changed Circumstance", "Setup Changed Circumstance details using Row Id '"&strRowID&"' in the Setttings_ChangedCircumstanceSetup datasheet", null
+                
+                 '=====Click on New button=====
+                    GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfObject("swfname:=stdIconBtnNew")   
+                
+                    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Description")) Then
+                                                strDescription    =             FRM_DS_GetValue(objData, "Description")
+                       GUI_SwfEditor_Type objSettings.SwfEditor("swfname:=txtDescription"), strDescription
+                    End If
+                    
+                    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Reason")) Then
+                       GUI_SwfComboBox_Select objSettings.SwfComboBox("swfname:=cmbReason"),FRM_DS_GetValue(objData, "Reason")
+                    End If
+                    
+                    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Code")) Then
+                                   If GUI_Object_GetPropertyValue(objSettings.SwfEdit("swfname:=txtCode"),"enabled") Then
+                                       GUI_SwfEdit_Set objSettings.SwfEdit("swfname:=txtCode"),FRM_DS_GetValue(objData, "Code")
+                                   End If
+                    End If 
+                    
+                    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Comments")) Then
+                       GUI_SwfEditor_Type objSettings.SwfEditor("swfname:=txtComments"),FRM_DS_GetValue(objData, "Comments")
+                    End If                 
+                                ' ======Click on save button =======                  
+                                GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfObject("swfname:=stdIconBtnSave") 
+                Else
+                                FRM_Logger_ReportPassEvent "Setup Changed Circumstance", "Already Setup Changed Circumstance details using Row Id '"&strRowID&"' in the Setttings_ChangedCircumstanceSetup Datasheet", null                
+    End If
+   
+   '============= Close Settings Window =============
+                GUI_Window_Close objSettings  
+                
+    Set objSettings = Nothing
+    Set objData = Nothing               
+End Function
+
+
+'This function is for Changed Circumstance Settings_
+'@code
+'    BIZ_Settings_ChangedCircumstance
+'@endcode
+'@param boolFeeLvlCoC string that used to select checkbox 'Require fee level Changed Circumstances prior to disclosure'
+Function BIZ_Settings_ChangedCircumstance(boolFeeLvlCoC)
+                Dim objSettings                                
+    Set objSettings=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+    
+                If boolFeeLvlCoC Then
+                                FRM_Logger_ReportPassEvent "Check 'Require fee level Changed Circumstances prior to disclosure'", "Check 'Require fee level Changed Circumstances prior to disclosure' check box", Null
+                                GUI_SwfCheckbox_Set objSettings.SwfCheckBox("swfname:=chkCoCPriorDisclosure"), "ON"
+                Else
+                                FRM_Logger_ReportPassEvent "Uncheck 'Require fee level Changed Circumstances prior to disclosure'", "Uncheck 'Require fee level Changed Circumstances prior to disclosure' check box", Null
+                                GUI_SwfCheckbox_Set objSettings.SwfCheckBox("swfname:=chkCoCPriorDisclosure"), "OFF"
+                End If
+                
+                '========================= Save Settings =================
+                If GUI_Object_GetPropertyValue(objSettings.SwfObject("swfname:=stdIconBtnSave"), "enabled") Then
+                                GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnSave")
+                End If    
+                
+                '========================= Close Settings Window ======================
+                GUI_Window_Close objSettings  
+                Set objSettings = Nothing 
+End Function
+
+
+
+'======= Fee Level Disclosures  on LEPage1=======
+'This function is used for Fields in Changed Circumstance - Disclosure Tracking Reason Tab 
+'@code
+'    BIZ_CoC_FeeLevelDisclosures(strRowID) 
+'@endcode
+'@param 
+Function BIZ_CoC_FeeLevelDisclosures(boolCheck,boolEnable)		
+	FRM_Logger_ReportInfoEvent "'Fee Level Disclosures' Checkbox","Verify 'Fee Level Disclosures' Checkbox", Null
+	Set objLEPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")
+	
+	If boolCheck Then
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_4461_Ctrl"),"1","Fee Level Disclosures"
+	Else
+	   GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_4461_Ctrl"),"0","Fee Level Disclosures"	
+	End If
+	
+	If boolEnable Then
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_4461_Ctrl"),"Fee Level Disclosures"
+	Else
+		GUI_Object_ValidateDisabled objLEPage1.WebCheckBox("html id:=__cid_chk_4461_Ctrl"),"Fee Level Disclosures"
+	End If
+	Set objLEPage1=Nothing
+End Function
+
+
+
+'======= Changed Circumstance on LEPage1 =======
+'This function is used for Fields in Changed Circumstance - Disclosure Tracking Reason Tab 
+'@code
+'    BIZ_CoC_ChangedCircumstance(strRowID) 
+'@endcode
+'@param 
+Function BIZ_CoC_ChangedCircumstance(boolCheck,boolEnable)	
+	FRM_Logger_ReportInfoEvent "'Changed Circumstance' Checkbox","Verify 'Changed Circumstance' Checkbox", Null
+	Set objLEPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")
+	
+	If boolCheck Then
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_3168_Ctrl"),"1","Changed Circumstance" 
+	Else
+	   GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_3168_Ctrl"),"0","Changed Circumstance" 	
+	End If
+	
+	If boolEnable Then
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_3168_Ctrl"),"Changed Circumstance" 
+	Else
+		GUI_Object_ValidateDisabled objLEPage1.WebCheckBox("html id:=__cid_chk_3168_Ctrl"),"Changed Circumstance" 
+	End If
+	Set objLEPage1=Nothing
+End Function
+
+
+
+'======= Changed Circumstance on CDPage1=======
+'This function is used for Fields in Changed Circumstance - Disclosure Tracking Reason Tab 
+'@code
+'    BIZ_CoC_CD_ChangedCircumstance(strRowID) 
+'@endcode
+'@param 
+Function BIZ_CoC_CD_ChangedCircumstance(boolCheck,boolEnable)	
+	FRM_Logger_ReportInfoEvent "'Changed Circumstance' Checkbox","Verify 'Changed Circumstance' Checkbox", Null
+	Set objLEPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")
+	
+	If boolCheck Then
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_CD1X61_Ctrl"),"1","Changed Circumstance" 
+	Else
+	   GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_CD1X61_Ctrl"),"0","Changed Circumstance" 	
+	End If
+	
+	If boolEnable Then
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_CD1X61_Ctrl"),"Changed Circumstance" 
+	Else
+		GUI_Object_ValidateDisabled objLEPage1.WebCheckBox("html id:=__cid_chk_CD1X61_Ctrl"),"Changed Circumstance" 
+	End If
+	Set objLEPage1=Nothing
+End Function
+
+
+
+'============ Fields in Changed Circumstance - LEPage1 =============
+'This function is used for Fields in Changed Circumstance - Disclosure Tracking Reason Tab 
+'@code
+'    BIZ_CoC_ChangedCircumstanceFields(strRowID) 
+'@endcode
+'@param 
+Function BIZ_CoC_ChangedCircumstanceFields(boolEnable,boolEmpty,strRowID)
+	'======= Verifying fields are enabled or disabled======	
+	Set objLEPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	If boolEnable Then
+		FRM_Logger_ReportInfoEvent "Fields in Changed Circumstance","Fields in Changed Circumstance are Enabled", Null
+		'GUI_Object_ValidateEnabled objLEPage1.WebEdit("html id:=I_LE1X98"),"Date Fee Changed"
+		GUI_Object_ValidateEnabled objLEPage1.WebEdit("html id:=I_3165"),"Changes Received Date"  
+		GUI_Object_ValidateDisabled objLEPage1.WebEdit("html id:=I_3167"),"Revised LE Due Date"  
+		GUI_Object_ValidateEnabled objLEPage1.WebButton("html id:=stdbtn_3169"),"Changed Circumstance" 
+		GUI_Object_ValidateEnabled objLEPage1.WebEdit("html id:=I_LE1X86"),"Comments"
+	Else
+		FRM_Logger_ReportInfoEvent "Fields in Changed Circumstance","Fields in Changed Circumstance are Disabled", Null
+		'GUI_Object_ValidateDisabled objLEPage1.WebEdit("html id:=I_LE1X98"),"Date Fee Changed"
+		GUI_Object_ValidateDisabled objLEPage1.WebEdit("html id:=I_3165"),"Changes Received Date"  
+		GUI_Object_ValidateDisabled objLEPage1.WebEdit("html id:=I_3167"),"Revised LE Due Date"  
+		GUI_Object_ValidateDisabled objLEPage1.WebButton("html id:=stdbtn_3169"),"Changed Circumstance" 
+		GUI_Object_ValidateDisabled objLEPage1.WebEdit("html id:=I_LE1X86"),"Comments"
+	End If
+	
+	'======= Verifying fields are Empty or not ======	
+	If boolEmpty Then
+		Set objLEPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")
+		GUI_WebCheckbox_Set objLEPage1.WebCheckBox("html id:=__cid_chk_3168_Ctrl"),"OFF"
+
+		FRM_Logger_ReportInfoEvent "Fields in Changed Circumstance","Fields in Changed Circumstance are Blank", Null
+		'FRM_VerifyEqual GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_LE1X98"),"value"),"//","Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_3165"),"value"),"//","Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_3167"),"value"),"//","Revised LE Due Date","Revised LE Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_3169"),"value"),"","Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_LE1X86"),"value"),"","Comments","Comments"
+	Else
+		FRM_Logger_ReportInfoEvent "Fields in Changed Circumstance","Fields in Changed Circumstance are populated with values", Null
+		Set objData = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "SetChangedCircumstanceDetails", strRowID) 
+		strCircumstance=FRM_DS_GetValue(objData, "Description")
+		strComments=FRM_DS_GetValue(objData, "Comments")
+		dtRevisedLEDueDate=BIZ_DisclosureTracking_DateCalculation(Date,3,"CompanyCalender")
+		dtRevisedLEDueDate=UTIL_Date_FormatDateByPattern(dtRevisedLEDueDate,"mm/dd/yyyy")
+		strRecDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")	
+		'strChangedDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")	
+		
+		'FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_LE1X98"),"value")),cdate(strChangedDate),"Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_3165"),"value")),cdate(strRecDate),"Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_3167"),"value")),cdate(dtRevisedLEDueDate),"Revised LE Due Date","Revised LE Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_3169"),"value"),trim(strCircumstance),"Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objLEPage1.WebEdit("html id:=I_LE1X86"),"value"),strComments,"Comments","Comments"
+		Set objData=Nothing
+	End If
+	Set objLEPage1=Nothing
+End Function
+
+
+
+'============ Fields in Changed Circumstance  - CDPage1 =============
+'This function is used for Fields in Changed Circumstance - Disclosure Tracking Reason Tab 
+'@code
+'    BIZ_CoC_CD_ChangedCircumstanceFields(strRowID) 
+'@endcode
+'@param 
+Function BIZ_CoC_CD_ChangedCircumstanceFields(boolEnable,boolEmpty,strRowID)
+	'======= Verifying fields are enabled or disabled======		
+	Set objCDPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	If boolEnable Then
+		FRM_Logger_ReportInfoEvent "Fields in Changed Circumstance","Fields in Changed Circumstance are Enabled", Null
+		'GUI_Object_ValidateEnabled objCDPage1.WebEdit("html id:=I_CD1X75"),"Date Fee Changed"
+		GUI_Object_ValidateEnabled objCDPage1.WebEdit("html id:=I_CD1X62"),"Changes Received Date"  
+		GUI_Object_ValidateDisabled objCDPage1.WebEdit("html id:=I_CD1X63"),"Revised CD Due Date"  
+		GUI_Object_ValidateEnabled objCDPage1.WebButton("html id:=stdbtn_CD1X64"),"Changed Circumstance" 
+		GUI_Object_ValidateEnabled objCDPage1.WebEdit("html id:=I_CD1X65"),"Comments"
+	Else
+		FRM_Logger_ReportInfoEvent "Fields in Changed Circumstance","Fields in Changed Circumstance are Disabled", Null
+		'GUI_Object_ValidateDisabled objCDPage1.WebEdit("html id:=I_CD1X75"),"Date Fee Changed"
+		GUI_Object_ValidateDisabled objCDPage1.WebEdit("html id:=I_CD1X62"),"Changes Received Date"  
+		GUI_Object_ValidateDisabled objCDPage1.WebEdit("html id:=I_CD1X63"),"Revised CD Due Date"  
+		GUI_Object_ValidateDisabled objCDPage1.WebButton("html id:=stdbtn_CD1X64"),"Changed Circumstance" 
+		GUI_Object_ValidateDisabled objCDPage1.WebEdit("html id:=I_CD1X65"),"Comments"
+	End If
+	
+	'======= Verifying fields are Empty or not ======	
+	If boolEmpty Then
+		Set objCDPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")
+		GUI_WebCheckbox_Set objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X61_Ctrl"),"OFF"
+
+		FRM_Logger_ReportInfoEvent "Fields in Changed Circumstance","Fields in Changed Circumstance are Blank", Null
+		'FRM_VerifyEqual GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X75"),"value"),"//","Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X62"),"value"),"//","Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X63"),"value"),"//","Revised LE Due Date","Revised LE Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X64"),"value"),"","Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X65"),"value"),"","Comments","Comments"
+	Else
+		FRM_Logger_ReportInfoEvent "Fields in Changed Circumstance","Fields in Changed Circumstance are populated with values", Null
+		Set objData = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "SetChangedCircumstanceDetails", strRowID) 
+		strCircumstance=FRM_DS_GetValue(objData, "Description")
+		strComments=FRM_DS_GetValue(objData, "Comments")
+		dtRevisedCDDueDate=BIZ_DisclosureTracking_DateCalculation(Date,3,"CompanyCalender")
+		dtRevisedCDDueDate=UTIL_Date_FormatDateByPattern(dtRevisedCDDueDate,"mm/dd/yyyy")
+		strRecDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")
+		'strChangedDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")	
+		
+		'FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X75"),"value")),cdate(strChangedDate),"Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X62"),"value")),cdate(strRecDate),"Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X63"),"value")),cdate(dtRevisedCDDueDate),"Revised CD Due Date","Revised CD Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X64"),"value"),trim(strCircumstance),"Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objCDPage1.WebEdit("html id:=I_CD1X65"),"value"),strComments,"Comments","Comments"
+		Set objData=Nothing
+	End If
+	Set objCDPage1=Nothing
+End Function
+
+
+'This function is used for Fields in Changed Circumstance - Disclosure Tracking Reason Tab 
+'@code
+'    BIZ_CoC_DT_ChangedCircumstanceFields(strRowID) 
+'@endcode
+'@param 
+Function BIZ_CoC_DT_ChangedCircumstanceFields(boolEnable,boolEmpty,strRowID)
+	'======= Verifying fields are enabled or disabled======	
+	Set objReasonTab=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=DisclosureDetailsDialog2015")
+	If boolEnable Then
+		FRM_Logger_ReportInfoEvent "Disclosure Tracking Reason Tab","Fields in Changed Circumstance are Enabled", Null
+		'GUI_Object_ValidateEnabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpDateFeeChangedDate.*"),"Date Fee Changed"
+		GUI_Object_ValidateEnabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpChangesRecievedDate.*"),"Changes Received Date"  
+		GUI_Object_ValidateDisabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpRevisedDueDate.*"),"Revised LE Due Date"  
+		GUI_Object_ValidateEnabled objReasonTab.SwfObject("swfname:=btnSelect"),"Changed Circumstance"
+		GUI_Object_ValidateEnabled objReasonTab.SwfEditor("swfname:=txtCiCComment"),"Comments"
+	Else
+		FRM_Logger_ReportInfoEvent "Disclosure Tracking Reason Tab","Fields in Changed Circumstance are Disabled ", Null
+		'GUI_Object_ValidateDisabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpDateFeeChangedDate.*"),"Date Fee Changed"
+		GUI_Object_ValidateDisabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpChangesRecievedDate.*"),"Changes Received Date"  
+		GUI_Object_ValidateDisabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpRevisedDueDate.*"),"Revised LE Due Date"  
+		GUI_Object_ValidateDisabled objReasonTab.SwfObject("swfname:=btnSelect"),"Changed Circumstance" 
+		'GUI_Object_ValidateDisabled objReasonTab.SwfEditor("swfname:=txtCiCComment"),"Comments"
+	End If
+	
+	'======= Verifying fields are Empty or not ======	 
+	If boolEmpty Then
+		FRM_Logger_ReportInfoEvent "Disclosure Tracking Reason Tab","Fields in Changed Circumstance are Blank", Null
+		'FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpDateFeeChangedDate.*"),"value"),"","Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpChangesRecievedDate.*"),"value"),"","Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpRevisedDueDate.*"),"value"),"","Revised LE Due Date","Revised LE Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEditor("swfname:=txtChangedCircumstance"),"value"),trim(strCircumstance),"Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEditor("swfname:=txtCiCComment"),"value"),strComments,"Comments","Comments"
+	Else
+		FRM_Logger_ReportInfoEvent "Disclosure Tracking Reason Tab","Fields in Changed Circumstance are populated with values", Null
+		Set objData = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "SetChangedCircumstanceDetails", strRowID) 
+		strCircumstance=FRM_DS_GetValue(objData, "Description")
+		strComments=FRM_DS_GetValue(objData, "Comments")
+		dtRevisedLEDueDate=BIZ_DisclosureTracking_DateCalculation(Date,3,"CompanyCalender")
+		dtRevisedLEDueDate=UTIL_Date_FormatDateByPattern(dtRevisedLEDueDate,"mm/dd/yyyy")
+		strRecDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")
+		'strChangedDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")	
+		
+		'FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpDateFeeChangedDate.*"),"text")),cdate(strChangedDate),"Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpChangesRecievedDate.*"),"text")),cdate(strRecDate),"Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpRevisedDueDate.*"),"text")),cdate(dtRevisedLEDueDate),"Revised LE Due Date","Revised LE Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEditor("swfname:=txtChangedCircumstance"),"text"),trim(strCircumstance),"Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEditor("swfname:=txtCiCComment"),"text"),strComments,"Comments","Comments"
+		Set objData=Nothing
+	End If
+	Set objReasonTab=Nothing
+End Function
+
+
+
+
+'======= Disclosure Reasons for LE=======
+'This function is used for Disclosure Reasons for CD
+'@code
+'    BIZ_CoC_LE_DTReasons(strRowID) 
+'@endcode
+'@param 'strLEPage1_Reasons - Reasons LE Page1 OR Disclosure Details Window 
+Function BIZ_CoC_LE_DTReasons(strLEPage1_Reasons)	
+	If lcase(strLEPage1_Reasons)="lepage1" Then
+		FRM_Logger_ReportInfoEvent "'Reason' Checkboxes on LE Page1","'Reason' Checkboxes on LE Page1 are Unchecked and Editable", Null
+		Set objLEPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")
+	
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X78_Ctrl"),"0","Changed Circumstance - Settlement Charges"
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X78_Ctrl"),"Changed Circumstance - Settlement Charges"
+	
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X79_Ctrl"),"0","Changed Circumstance - Eligibility"
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X79_Ctrl"),"Changed Circumstance - Eligibility"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X80_Ctrl"),"0","Revisions requested by the Consumer"
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X80_Ctrl"),"Revisions requested by the Consumer"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X81_Ctrl"),"0","Interest Rate dependent charges (Rate Lock)"
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X81_Ctrl"),"Interest Rate dependent charges (Rate Lock)"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X82_Ctrl"),"0","Expiration (Intent to Proceed received after 10 business days)"
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X82_Ctrl"),"Expiration (Intent to Proceed received after 10 business days)"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X83_Ctrl"),"0","Delayed Settlement on Construction Loans"
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X83_Ctrl"),"Delayed Settlement on Construction Loans"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X84_Ctrl"),"0","Other"
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X84_Ctrl"),"Other"
+	Else
+		FRM_Logger_ReportInfoEvent "'Reason' Checkboxes on Disclosure Details Reason Tab","'Reason' Checkboxes on Disclosure Details Reason Tab are Unchecked and Editable", Null
+		Set objReasonTab=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=DisclosureDetailsDialog2015")
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason1"),"False","Changed Circumstance - Settlement Charges"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason1"),"Changed Circumstance - Settlement Charges"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason2"),"False","Changed Circumstance - Eligibility"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason2"),"Changed Circumstance - Eligibility"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason3"),"False","Revisions requested by the Consumer"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason3"),"Revisions requested by the Consumer"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason4"),"False","Interest Rate dependent charges (Rate Lock)"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason4"),"Interest Rate dependent charges (Rate Lock)"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason5"),"False","Expiration (Intent to Proceed received after 10 business days)"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason5"),"Expiration (Intent to Proceed received after 10 business days)"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason6"),"False","Delayed Settlement on Construction Loans"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason6"),"Delayed Settlement on Construction Loans"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReasonOther"),"False","Other"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReasonOther"),"Other"
+	End If
+	
+	Set objLEPage1=Nothing
+	Set objReasonTab=Nothing	
+End Function
+
+
+
+'======= Disclosure Reasons for CD=======
+'This function is used for Disclosure Reasons for CD
+'@code
+'    BIZ_CoC_CD_DTReasons(strRowID) 
+'@endcode
+'@param strRowID 
+Function BIZ_CoC_CD_DTReasons(strCDPage1_Reasons)	
+	If lcase(strCDPage1_Reasons)="cdpage1" Then
+		FRM_Logger_ReportInfoEvent "'Reason' Checkboxes on CD Page1","'Reason' Checkboxes on CD Page1 are Unchecked and Editable", Null
+		Set objCDPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")
+	
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X52_Ctrl"),"0","Change in APR"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X52_Ctrl"),"Change in APR"
+	
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X53_Ctrl"),"0","Change in Loan Product"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X53_Ctrl"),"Change in Loan Product"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X54_Ctrl"),"0","Prepayment Penalty Added"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X54_Ctrl"),"Prepayment Penalty Added"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X55_Ctrl"),"0","Change in Settlement Charges"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X55_Ctrl"),"Change in Settlement Charges"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X68_Ctrl"),"0","Changed Circumstance - Eligibility"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X68_Ctrl"),"Changed Circumstance - Eligibility"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X66_Ctrl"),"0","Revisions requested by the Consumer"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X66_Ctrl"),"Revisions requested by the Consumer"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X67_Ctrl"),"0","Interest Rate dependent charges (Rate Lock)"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X67_Ctrl"),"Interest Rate dependent charges (Rate Lock)"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X56_Ctrl"),"0","24-hour Advanced Preview"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X56_Ctrl"),"24-hour Advanced Preview"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X57_Ctrl"),"0","Tolerance Cure"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X57_Ctrl"),"Tolerance Cure"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X58_Ctrl"),"0","Clerical Error Correction"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X58_Ctrl"),"Clerical Error Correction"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X59_Ctrl"),"0","Other"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X59_Ctrl"),"Other"
+	Else
+		FRM_Logger_ReportInfoEvent "'Reason' Checkboxes on Disclosure Details Reason Tab","'Reason' Checkboxes on Disclosure Details Reason Tab are Unchecked and Editable", Null
+		Set objReasonTab=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=DisclosureDetailsDialog2015")
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason1"),"False","Change in APR"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason1"),"Change in APR"
+	
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason2"),"False","Change in Loan Product"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason2"),"Change in Loan Product"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason3"),"False","Prepayment Penalty Added"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason3"),"Prepayment Penalty Added"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason4"),"False","Change in Settlement Charges"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason4"),"Change in Settlement Charges"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason5"),"False","Changed Circumstance - Eligibility"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason5"),"Changed Circumstance - Eligibility"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason6"),"False","Revisions requested by the Consumer"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason6"),"Revisions requested by the Consumer"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason7"),"False","Interest Rate dependent charges (Rate Lock)"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason7"),"Interest Rate dependent charges (Rate Lock)"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason8"),"False","24-hour Advanced Preview"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason8"),"24-hour Advanced Preview"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason9"),"False","Tolerance Cure"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason9"),"Tolerance Cure"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason10"),"False","Clerical Error Correction"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason10"),"Clerical Error Correction"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReasonOther"),"False","Other"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReasonOther"),"Other"
+	End If
+	
+	Set objLEPage1=Nothing
+	Set objReasonTab=Nothing	
+End Function
+
+
+'This function is used for Validate Fee Changes Details
+'@code
+'    BIZ_CoC_FeeChangesValidation(strRowID) 
+'@endcode
+'@param strRowID 
+Function BIZ_CoC_FeeChangesValidation(strRowID)	
+	Set objData = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "FeeChanges", strRowID)	    
+	Set objFeeList= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=DisclosureDetailsDialog2015").SwfObject("swfname:=feeDetailsGV")	
+	
+	strLOAmount=FormatNumber(FRM_DS_GetValue(objData, "LO_NewAmount"),2)
+	strAFAmount=FormatNumber(FRM_DS_GetValue(objData, "AF_NewAmount"),2)
+	
+	FRM_Logger_ReportInfoEvent "Fee Changes details","Verify 'Loan Origination Fee Changes'", Null
+	FRM_VerifyEqual  Trim(GUI_List_GetCellData (objFeeList,0,"Fee Description")),Trim(FRM_DS_GetValue(objData, "LO_FeeDescription")),"Loan Origination Fee","Fee Description"
+	FRM_VerifyEqual  GUI_List_GetCellData (objFeeList,0,"New Amount $"),strLOAmount,"Loan Origination Fee","New Amount $" 
+	FRM_VerifyEqual  Trim(GUI_List_GetCellData (objFeeList,0,"Description")),Trim(FRM_DS_GetValue(objData, "Description")),"Loan Origination Fee","Description"
+	FRM_VerifyEqual  Trim(GUI_List_GetCellData (objFeeList,0,"Comments")),Trim(FRM_DS_GetValue(objData, "Comments")),"Loan Origination Fee","Comments" 
+	FRM_VerifyEqual  Trim(GUI_List_GetCellData (objFeeList,0,"Reason")),Trim(FRM_DS_GetValue(objData, "Reason")),"Loan Origination Fee","Reason"
+	
+	FRM_Logger_ReportInfoEvent "Fee Changes details","Verify 'Application Fee Changes'", Null
+	FRM_VerifyEqual  Trim(GUI_List_GetCellData (objFeeList,1,"Fee Description")),Trim(FRM_DS_GetValue(objData, "AF_FeeDescription")),"Application Fees","Fee Description"
+	FRM_VerifyEqual  GUI_List_GetCellData (objFeeList,1,"New Amount $"),strAFAmount,"Application Fees","New Amount $" 
+	FRM_VerifyEqual  Trim(GUI_List_GetCellData (objFeeList,1,"Description")),Trim(FRM_DS_GetValue(objData, "Description")),"Application Fees","Description"
+	FRM_VerifyEqual  Trim(GUI_List_GetCellData (objFeeList,1,"Comments")),Trim(FRM_DS_GetValue(objData, "Comments")),"Application Fees","Comments" 
+	FRM_VerifyEqual  Trim(GUI_List_GetCellData (objFeeList,1,"Reason")),Trim(FRM_DS_GetValue(objData, "Reason")),"Application Fees","Reason" 
+	
+	Set objFeeList=Nothing
+	Set objData=Nothing	
+End Function
+
+
+'This function is used for validate GFE detaisl
+'@code
+'    BIZ_CoC_GFE_FeeDetails(strRowID) 
+'@endcode
+'@param strRowID 
+Function BIZ_CoC_GFE_FeeDetails(strRowID,strRowID1)
+	Set objGFE = SwfWindow("swfname:=MainForm")
+	Set objScroll=objGFE.SwfScrollBar("swfname:=vPanelScrollBar","swfname path:=vPanelScrollBar;gvFields;grpFields;.*")
+	Set objData = FRM_DS_GetTestData("Forms_2015Itemization", "SetBasicData", strRowID) 
+	strFeeFields=FRM_DS_GetValue(objData, "FeeIncreased_Fields")
+	arrFields=Split(strFeeFields,"|")
+	intFields=ubound(arrFields)
+	
+	Set objData1 = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "SetChangedCircumstanceDetails", strRowID1)
+	strCircumstance=FRM_DS_GetValue(objData1, "Description")
+	strComments=FRM_DS_GetValue(objData1, "Comments")
+	strReason=FRM_DS_GetValue(objData1, "Reason")
+	strReason=Split(strReason,"[")(0)
+
+	For i = 0 To intFields
+		'Select Fee Description
+		FRM_Logger_ReportInfoEvent "Select Fee Changes","Select "&arrFields(i), Null
+		If objScroll.Exist(2) Then
+			GUI_List_ClickRow objGFE.SwfObject("swfname:=gvFields"),objScroll,"Description",arrFields(i),True,False,False,"Single"
+		Else
+			intRow=GUI_List_GetRowIndex(objGFE.SwfObject("swfname:=gvFields"),"Description",arrFields(i))
+			GUI_List_ActOnRow objGFE.SwfObject("swfname:=gvFields"),intRow,True,False,False,"Single"		
+		End If 
+		'=======select Changed Circumstance =====
+		'GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtDate","swfname path:=txtDate;dateFeeChanged.*"),Date
+		Set objCCList= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ChangeCircumstanceSelector").SwfObject("swfname:=listViewOptions")
+		GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSelect")
+		GUI_List_ClickRow objCCList,objCCList.SwfScrollBar("swfname:=vPanelScrollBar"),"Changed Circumstance",strCircumstance,True,False,False,"Signle"
+		GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ChangeCircumstanceSelector").SwfButton("swfname:=btnOK")
+		
+		'======= Fields in Changed Circumstance - GFE =======	
+		FRM_Logger_ReportInfoEvent "Good Faith Fee Variance Voilated","Fields in Changed Circumstance are populated with values on GFE alert", Null
+		dtRevisedLEDueDate=BIZ_DisclosureTracking_DateCalculation(Date,3,"CompanyCalender")
+		dtRevisedLEDueDate=UTIL_Date_FormatDateByPattern(dtRevisedLEDueDate,"mm/dd/yyyy")
+		strRecDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")
+		strChangedDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")	
+		
+		'FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objGFE.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dateFeeChanged.*"),"text")),cdate(strChangedDate),"Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objGFE.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dateChangedCircumstance.*"),"text")),cdate(strRecDate),"Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objGFE.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dateRevisedDate.*"),"text")),cdate(dtRevisedLEDueDate),"Revised LE Due Date","Revised LE Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objGFE.SwfEditor("swfname:=txtDescription"),"text"),trim(strCircumstance),"Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objGFE.SwfComboBox("swfname:=cboReason"),"text"),trim(strReason),"Reason","Reason"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objGFE.SwfEditor("swfname:=txtComments"),"text"),trim(strComments),"Comments","Comments" 
+		Set objData=Nothing
+	Next
+	Set objData=Nothing
+	Set objGFEFeeList=Nothing
+End Function
+
+
+'This function is used for select CoC Reasons
+'@code
+'    BIZ_CoC_FeeLvlLE_DTReasons(strCDPage1_Reasons) 
+'@endcode
+'@param strCDPage1_Reasons -Reasons LE Page1 OR Disclosure Details Window
+Function BIZ_CoC_FeeLvlLE_DTReasons(strLEPage1_Reasons)	
+	If lcase(strLEPage1_Reasons)="lepage1" Then
+		FRM_Logger_ReportInfoEvent "'Reason' Checkboxes on LE Page1","'Reason' Checkboxes on LE Page1 are unchecked and locked", Null
+		Set objLEPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")
+	
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X78_Ctrl"),"0","Changed Circumstance - Settlement Charges"
+		GUI_Object_ValidateDisabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X78_Ctrl"),"Changed Circumstance - Settlement Charges"
+	
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X79_Ctrl"),"0","Changed Circumstance - Eligibility"
+		GUI_Object_ValidateDisabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X79_Ctrl"),"Changed Circumstance - Eligibility"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X80_Ctrl"),"0","Revisions requested by the Consumer"
+		GUI_Object_ValidateDisabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X80_Ctrl"),"Revisions requested by the Consumer"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X81_Ctrl"),"0","Interest Rate dependent charges (Rate Lock)"
+		GUI_Object_ValidateDisabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X81_Ctrl"),"Interest Rate dependent charges (Rate Lock)"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X82_Ctrl"),"0","Expiration (Intent to Proceed received after 10 business days)"
+		GUI_Object_ValidateDisabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X82_Ctrl"),"Expiration (Intent to Proceed received after 10 business days)"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X83_Ctrl"),"0","Delayed Settlement on Construction Loans"
+		GUI_Object_ValidateDisabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X83_Ctrl"),"Delayed Settlement on Construction Loans"
+		
+		GUI_Object_ValidateChecked objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X84_Ctrl"),"0","Other"
+		GUI_Object_ValidateEnabled objLEPage1.WebCheckBox("html id:=__cid_chk_LE1X84_Ctrl"),"Other"
+	Else
+		FRM_Logger_ReportInfoEvent "'Reason' Checkboxes on Disclosure Details Reason Tab","'Reason' Checkboxes on Disclosure Details Reason Tab are unchecked and locked", Null
+		Set objReasonTab=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=DisclosureDetailsDialog2015")
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason1"),"False","Changed Circumstance - Settlement Charges"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason1"),"Changed Circumstance - Settlement Charges"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason2"),"False","Changed Circumstance - Eligibility"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason2"),"Changed Circumstance - Eligibility"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason3"),"False","Revisions requested by the Consumer"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason3"),"Revisions requested by the Consumer"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason4"),"False","Interest Rate dependent charges (Rate Lock)"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason4"),"Interest Rate dependent charges (Rate Lock)"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason5"),"False","Expiration (Intent to Proceed received after 10 business days)"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason5"),"Expiration (Intent to Proceed received after 10 business days)"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason6"),"False","Delayed Settlement on Construction Loans"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason6"),"Delayed Settlement on Construction Loans"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReasonOther"),"False","Other"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReasonOther"),"Other"
+	End If
+	
+	Set objLEPage1=Nothing
+	Set objReasonTab=Nothing	
+End Function
+
+
+'This function is used for select CoC Reasons
+'@code
+'    BIZ_CoC_FeeLvlCD_DTReasons(strCDPage1_Reasons) 
+'@endcode
+'@param strCDPage1_Reasons -Reasons LE Page1 OR Disclosure Details Window
+Function BIZ_CoC_FeeLvlCD_DTReasons(strCDPage1_Reasons)	
+	If lcase(strCDPage1_Reasons)="cdpage1" Then
+		FRM_Logger_ReportInfoEvent "'Reason' Checkboxes on CD Page1","'Reason' Checkboxes on CD Page1 are Unchecked and Editable", Null
+		Set objCDPage1 = SwfWindow("swfname:=MainForm").Page("index:=0")
+	
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X52_Ctrl"),"0","Change in APR"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X52_Ctrl"),"Change in APR"
+	
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X53_Ctrl"),"0","Change in Loan Product"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X53_Ctrl"),"Change in Loan Product"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X54_Ctrl"),"0","Prepayment Penalty Added"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X54_Ctrl"),"Prepayment Penalty Added"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X55_Ctrl"),"0","Change in Settlement Charges"
+		GUI_Object_ValidateDisabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X55_Ctrl"),"Change in Settlement Charges"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X68_Ctrl"),"0","Changed Circumstance - Eligibility"
+		GUI_Object_ValidateDisabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X68_Ctrl"),"Changed Circumstance - Eligibility"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X66_Ctrl"),"0","Revisions requested by the Consumer"
+		GUI_Object_ValidateDisabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X66_Ctrl"),"Revisions requested by the Consumer"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X67_Ctrl"),"0","Interest Rate dependent charges (Rate Lock)"
+		GUI_Object_ValidateDisabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X67_Ctrl"),"Interest Rate dependent charges (Rate Lock)"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X56_Ctrl"),"0","24-hour Advanced Preview"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X56_Ctrl"),"24-hour Advanced Preview"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X57_Ctrl"),"0","Tolerance Cure"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X57_Ctrl"),"Tolerance Cure"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X58_Ctrl"),"0","Clerical Error Correction"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X58_Ctrl"),"Clerical Error Correction"
+		
+		GUI_Object_ValidateChecked objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X59_Ctrl"),"0","Other"
+		GUI_Object_ValidateEnabled objCDPage1.WebCheckBox("html id:=__cid_chk_CD1X59_Ctrl"),"Other"
+	Else
+		FRM_Logger_ReportInfoEvent "'Reason' Checkboxes on Disclosure Details Reason Tab","'Reason' Checkboxes on Disclosure Details Reason Tab are Unchecked and Editable", Null
+		Set objReasonTab=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=DisclosureDetailsDialog2015")
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason1"),"False","Change in APR"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason1"),"Change in APR"
+	
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason2"),"False","Change in Loan Product"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason2"),"Change in Loan Product"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason3"),"False","Prepayment Penalty Added"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason3"),"Prepayment Penalty Added"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason4"),"False","Change in Settlement Charges"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason4"),"Change in Settlement Charges"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason5"),"False","Changed Circumstance - Eligibility"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason5"),"Changed Circumstance - Eligibility"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason6"),"False","Revisions requested by the Consumer"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason6"),"Revisions requested by the Consumer"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason7"),"False","Interest Rate dependent charges (Rate Lock)"
+		GUI_Object_ValidateDisabled objReasonTab.SwfCheckBox("swfname:=chkReason7"),"Interest Rate dependent charges (Rate Lock)"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason8"),"False","24-hour Advanced Preview"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason8"),"24-hour Advanced Preview"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason9"),"False","Tolerance Cure"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason9"),"Tolerance Cure"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReason10"),"False","Clerical Error Correction"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReason10"),"Clerical Error Correction"
+		
+		GUI_Object_ValidateChecked objReasonTab.SwfCheckBox("swfname:=chkReasonOther"),"False","Other"
+		GUI_Object_ValidateEnabled objReasonTab.SwfCheckBox("swfname:=chkReasonOther"),"Other"
+	End If
+	
+	Set objLEPage1=Nothing
+	Set objReasonTab=Nothing	
+End Function
+
+
+'
+'This function is used for To Include or Exclude DT records from Timeline'
+'@code
+'    BIZ_DT_LEorCD_IncludeExclude(strRowID) 
+'@endcode
+'@param strRowID - The numeric or string unique ID that used to find the line in the data spreadsheet
+Function BIZ_DT_LEorCD_IncludeExclude(strType,strLEorCD,boolExclude)
+	FRM_Logger_ReportInfoEvent "Include/Exclude DT Records from Timeline","Include/Exclude DT Records from Timeline", Null
+	BIZ_Tools_Open "Disclosure Tracking"
+	Set objMainForm    =    SwfWindow("swfname:=MainForm") 
+	intInitialCDRow	=	BIZ_GetRowOfDisclosureType (strType,"Yes",strLEorCD)
+	GUI_List_ActOnRow objMainForm.SwfObject("swfname:=gvHistory"), intInitialCDRow, True, False, False, "Single"
+	If boolExclude Then
+		FRM_Logger_ReportPassEvent "Exclude DT Records from Timeline", "Exclude DT Records from Timeline", null 					
+		GUI_SwfButton_Click objMainForm.SwfButton("swfname:=btnMarkInvalid")
+	Else
+		FRM_Logger_ReportPassEvent "Include DT Records from Timeline", "Include DT Records from Timeline", null 
+		GUI_SwfButton_Click objMainForm.SwfButton("swfname:=btnMarkValid")
+	End If	
+End Function
+
+
+
+'This function is used for Adding CoC options to User Group
+'@code
+'    BIZ_UserGroup_AddCoCOptions(strRowID) 
+'@endcode
+'@param strRowID - The numeric or string unique ID that used to find the line in the data spreadsheet
+Function BIZ_UserGroup_AddCoCOptions(strRowID)
+	'==== Adding New User Group========
+	FRM_Logger_ReportInfoEvent "Create a New User Group","Creating a New User Group", Null
+	    
+	Set objSettings  = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")		
+	Set objTreeView 	  = objSettings.SwfWindow("swfname:=ResourceSetViewer").SwfTreeView("swfname:=treeViewer")
+	Set objGroupList = objSettings.SwfListView("swfname:=lvGroup")
+	 	
+	Set objData    = FRM_DS_GetTestData("CompanyUserSetup_Roles_Groups", "Groups", strRowID)	
+	strGroupName= trim(FRM_DS_GetValue(objData, "GroupName"))
+	strActualMember=trim(FRM_DS_GetValue(objData, "Member"))
+	strCoCOptions= trim(FRM_DS_GetValue(objData, "CoC_Options"))
+	
+	'==========Verify User Group Exist or Not and add If not ===========
+	GUI_Object_WaitTillExistX objGroupList, 300
+	Wait g_LongWaitMedium				
+	intGetNewRowIndex = GUI_List_GetRowIndex(objGroupList, 0,strGroupName)	
+	If(intGetNewRowIndex > -1) then 
+		BIZ_UserGroups_SelectExistingGroup strGroupName	
+		FRM_Logger_ReportPassEvent "Create a User group","Already created User Group with naem of "&strGroupName,""
+	Else
+	 BIZ_UserGroups_CreateNew strRowID
+	End If 
+
+	'==========Verify Member (User) Exist or Not and add If not ===========
+	If UTIL_String_IsNotEmpty(strActualMember) Then
+	    FRM_Logger_ReportInfoEvent "Add a user to User Group","Adding a user to User Group", Null
+		'=======Select User Group=====    
+		BIZ_UserGroups_SelectExistingGroup strGroupName
+		GUI_SwfTab_Click objSettings.SwfTab("swfname:=tabControl1"),"Members"	
+
+		'========== adding member to user group=======
+	    intIndex=GUI_List_GetRowIndex(objSettings.SwfListView("swfname:=lvGroupMember"),"Name",strActualMember)	
+		If(intIndex > -1) then 	
+		    objSettings.SwfListView("swfname:=lvGroupMember").Select strActualMember
+		   FRM_Logger_ReportPassEvent "Add a member to User Group","Already member added to User Group",""
+		Else
+			GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnConfigGroup")
+		    GUI_Object_WaitTillExistX objTreeView,50
+		    objTreeView.Expand("Administration")
+		    Wait g_LongWaitMedium  				' Explicit wait used to handle sync issues
+		    GUI_SwfTreeView_Select objTreeView,"Administration;"&strActualMember
+		    GUI_SwfObject_Click objSettings.SwfWindow("swfname:=ResourceSetViewer").SwfObject("swfname:=btnAddToGroup")
+			GUI_Object_WaitTillExistX objSettings.SwfWindow("swfname:=ResourceSetViewer").SwfButton("swfname:=btnOK"),300
+			GUI_SwfButton_Click objSettings.SwfWindow("swfname:=ResourceSetViewer").SwfButton("swfname:=btnOK")
+			Wait g_LongWaitMedium  				' Explicit wait used to handle sync issues
+			BIZ_Settings_ClickSave
+		End If
+	End If	
+	
+	'=======Adding CoC options to User Group =======
+	'BIZ_UserGroup_ChangedCircumstances_AddOptions(strRowID)	
+	
+	'=== Navigate to Resources tab ======
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	GUI_SwfTab_Click objSettings.SwfTab("swfname:=tabControl1"), "Resources"
+	Wait(2)
+	'========== to move down====
+	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfObject("swfname:=listView1","swfname path:=listView1;gcTemplate;ResourceBasePanel;pnlExRow3Right;pnlExRow3;.*").Click
+	UTIL_Win_SendKey "{TAB}"
+	UTIL_Win_SendKey "{TAB}"
+	UTIL_Win_SendKey "{TAB}"
+	UTIL_Win_SendKey "{TAB}"
+	UTIL_Win_SendKey "{TAB}"
+	
+	'=====Select CoC options and added to user group======
+	arrCoC = Split(strCoCOptions,"|")
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfObject("swfname:=stdIconBtnAdd","swfname path:=stdIconBtnAdd;gcTemplate;ResourceBasePanel;pnlExRow6Right;panelExRow6;.*")
+	Set objAllCoCoptions=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfWindow("swfname:=ChangeOfCircumstanceSelectionPage").SwfObject("swfname:=gcAll")
+	For i = 0 To ubound(arrCoC)     
+		If cint(GUI_List_GetRowIndex(objAllCoCoptions,"Description",arrCoC(i)))>0 Then
+			FRM_Logger_ReportInfoEvent "Add CoC to User Group", "Adding CoC "&arrCoC(i)&" to User Group", null
+			GUI_List_ClickRow objAllCoCoptions,objAllCoCoptions.SwfScrollBar("swfname:=vPanelScrollBar"),"Description",arrCoC(i),True,False,False,"Single"
+			GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfWindow("swfname:=ChangeOfCircumstanceSelectionPage").SwfButton("swfname:=btnAdd")
+		Else
+			FRM_Logger_ReportInfoEvent "Add CoC to User Group", "Already added CoC "&arrCoC(i)&" to User Group", null
+		End If
+	Next
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfWindow("swfname:=ChangeOfCircumstanceSelectionPage").SwfButton("swfname:=btnOK") 
+	
+	 '========================= Save Settings =================
+    If GUI_Object_GetPropertyValue(objSettings.SwfObject("swfname:=stdIconBtnSave"), "enabled") Then
+         GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnSave")
+    End If 
+
+	'============= Close Settings Window =============
+	GUI_Window_Close objSettings 	
+	
+	Set objSettings  = Nothing	
+	Set objTreeView 	  = Nothing
+	Set objGroupList = Nothing	 	
+	Set objData    = Nothing
+End Function
+ 
+ 
+'This function is used for validate GFE detaisl
+'@code
+'    BIZ_CoC_GFE_ValidateFeeDetails(strRowID) 
+'@endcode
+'@param strRowID 
+Function BIZ_CoC_GFE_ValidateFeeDetails(strRowID,strRowID1)
+	Set objGFE = SwfWindow("swfname:=MainForm")
+	Set objScroll=objGFE.SwfScrollBar("swfname:=vPanelScrollBar","swfname path:=vPanelScrollBar;gvFields;grpFields;.*")
+	Set objData = FRM_DS_GetTestData("Forms_2015Itemization", "SetBasicData", strRowID) 
+	strFeeFields=FRM_DS_GetValue(objData, "FeeIncreased_Fields")
+	arrFields=Split(strFeeFields,"|")
+	intFields=ubound(arrFields)
+	
+	Set objData1 = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "SetChangedCircumstanceDetails", strRowID1)
+	strCircumstance=FRM_DS_GetValue(objData1, "Description")
+	strComments=FRM_DS_GetValue(objData1, "Comments")
+	strReason=FRM_DS_GetValue(objData1, "Reason")
+	strReason=Split(strReason,"[")(0)
+
+	For i = 0 To intFields
+		'Select Fee Description
+		FRM_Logger_ReportInfoEvent "Select Fee Changes","Select "&arrFields(i), Null
+		If objScroll.Exist(2) Then
+			GUI_List_ClickRow objGFE.SwfObject("swfname:=gvFields"),objScroll,"Description",arrFields(i),True,False,False,"Single"
+		Else
+			intRow=GUI_List_GetRowIndex(objGFE.SwfObject("swfname:=gvFields"),"Description",arrFields(i))
+			GUI_List_ActOnRow objGFE.SwfObject("swfname:=gvFields"),intRow,True,False,False,"Single"		
+		End If 
+'		'=======select Changed Circumstance =====
+'		'GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtDate","swfname path:=txtDate;dateFeeChanged.*"),Date
+'		Set objCCList= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ChangeCircumstanceSelector").SwfObject("swfname:=listViewOptions")
+'		GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSelect")
+'		GUI_List_ClickRow objCCList,objCCList.SwfScrollBar("swfname:=vPanelScrollBar"),"Changed Circumstance",strCircumstance,True,False,False,"Signle"
+'		GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ChangeCircumstanceSelector").SwfButton("swfname:=btnOK")
+		
+		'======= Fields in Changed Circumstance - GFE =======	
+		FRM_Logger_ReportInfoEvent "Good Faith Fee Variance Voilated","Fields in Changed Circumstance are populated with values on GFE alert", Null
+		dtRevisedLEDueDate=BIZ_DisclosureTracking_DateCalculation(Date,3,"CompanyCalender")
+		dtRevisedLEDueDate=UTIL_Date_FormatDateByPattern(dtRevisedLEDueDate,"mm/dd/yyyy")
+		strRecDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")
+		strChangedDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")	
+		
+		'FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objGFE.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dateFeeChanged.*"),"text")),cdate(strChangedDate),"Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objGFE.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dateChangedCircumstance.*"),"text")),cdate(strRecDate),"Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objGFE.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dateRevisedDate.*"),"text")),cdate(dtRevisedLEDueDate),"Revised LE Due Date","Revised LE Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objGFE.SwfEditor("swfname:=txtDescription"),"text"),trim(strCircumstance),"Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objGFE.SwfComboBox("swfname:=cboReason"),"text"),trim(strReason),"Reason","Reason"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objGFE.SwfEditor("swfname:=txtComments"),"text"),trim(strComments),"Comments","Comments" 
+		Set objData=Nothing
+	Next
+	Set objData=Nothing
+	Set objGFEFeeList=Nothing
+End Function
+
+
+
+'This function is used for Fields in Changed Circumstance - Disclosure Tracking Reason Tab for loan level scenarios
+'@code
+'    BIZ_CoC_LoanLvlDT_ChangedCircumstanceFields(strRowID) 
+'@endcode
+'@param 
+Function BIZ_CoC_LoanLvlDT_ChangedCircumstanceFields(boolEnable,boolEmpty,strRowID)
+	'======= Verifying fields are enabled or disabled======	
+	Set objReasonTab=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=DisclosureDetailsDialog2015")
+	If boolEnable Then
+		FRM_Logger_ReportInfoEvent "Disclosure Tracking Reason Tab","Fields in Changed Circumstance are Enabled", Null
+		'GUI_Object_ValidateEnabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpDateFeeChangedDate.*"),"Date Fee Changed"
+		GUI_Object_ValidateEnabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpChangesRecievedDate.*"),"Changes Received Date"  
+		GUI_Object_ValidateEnabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpRevisedDueDate.*"),"Revised LE Due Date"  
+		GUI_Object_ValidateEnabled objReasonTab.SwfObject("swfname:=btnSelect"),"Changed Circumstance"
+		GUI_Object_ValidateEnabled objReasonTab.SwfEditor("swfname:=txtCiCComment"),"Comments"
+	Else
+		FRM_Logger_ReportInfoEvent "Disclosure Tracking Reason Tab","Fields in Changed Circumstance are Disabled ", Null
+		'GUI_Object_ValidateDisabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpDateFeeChangedDate.*"),"Date Fee Changed"
+		GUI_Object_ValidateDisabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpChangesRecievedDate.*"),"Changes Received Date"  
+		GUI_Object_ValidateDisabled objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpRevisedDueDate.*"),"Revised LE Due Date"  
+		GUI_Object_ValidateDisabled objReasonTab.SwfObject("swfname:=btnSelect"),"Changed Circumstance" 
+		'GUI_Object_ValidateDisabled objReasonTab.SwfEditor("swfname:=txtCiCComment"),"Comments"
+	End If
+	
+	'======= Verifying fields are Empty or not ======	 
+	If boolEmpty Then
+		FRM_Logger_ReportInfoEvent "Disclosure Tracking Reason Tab","Fields in Changed Circumstance are Blank", Null
+		'FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpDateFeeChangedDate.*"),"value"),"","Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpChangesRecievedDate.*"),"value"),"","Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpRevisedDueDate.*"),"value"),"","Revised LE Due Date","Revised LE Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEditor("swfname:=txtChangedCircumstance"),"value"),trim(strCircumstance),"Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEditor("swfname:=txtCiCComment"),"value"),strComments,"Comments","Comments"
+	Else
+		FRM_Logger_ReportInfoEvent "Disclosure Tracking Reason Tab","Fields in Changed Circumstance are populated with values", Null
+		Set objData = FRM_DS_GetTestData("Settings_ChangedCircumstanceSetup", "SetChangedCircumstanceDetails", strRowID) 
+		strCircumstance=FRM_DS_GetValue(objData, "Description")
+		strComments=FRM_DS_GetValue(objData, "Comments")
+		dtRevisedLEDueDate=BIZ_DisclosureTracking_DateCalculation(Date,3,"CompanyCalender")
+		dtRevisedLEDueDate=UTIL_Date_FormatDateByPattern(dtRevisedLEDueDate,"mm/dd/yyyy")
+		strRecDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")
+		'strChangedDate=UTIL_Date_FormatDateByPattern(Date,"mm/dd/yyyy")	
+		
+		'FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpDateFeeChangedDate.*"),"text")),cdate(strChangedDate),"Date Fee Changed","Date Fee Changed"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpChangesRecievedDate.*"),"text")),cdate(strRecDate),"Changes Received Date","Changes Received Date"
+		FRM_VerifyEqual cdate(GUI_Object_GetPropertyValue(objReasonTab.SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpRevisedDueDate.*"),"text")),cdate(dtRevisedLEDueDate),"Revised LE Due Date","Revised LE Due Date"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEditor("swfname:=txtChangedCircumstance"),"text"),trim(strCircumstance),"Changed Circumstance","Changed Circumstance"
+		FRM_VerifyEqual GUI_Object_GetPropertyValue(objReasonTab.SwfEditor("swfname:=txtCiCComment"),"text"),strComments,"Comments","Comments"
+		Set objData=Nothing
+	End If
+	Set objReasonTab=Nothing
+End Function
+
+
+  
+'@}

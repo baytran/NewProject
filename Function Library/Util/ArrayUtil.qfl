@@ -1,0 +1,576 @@
+''''''''''''''''''''''''''''''''''''''''''
+'@defgroup: ArrayUtil UTIL_ArrayUtil
+' This is the function group for arrays
+' 
+' List of functions here
+'@code
+'   Function UTIL_Array_Contains(ByRef arrStrSource, strLookFor, blnCaseSensitive)
+'   Function UTIL_Array_ArrayContains(arrStrSource,arrStrSub,blnCaseSensitive)
+'   Function UTIL_Array_AppendArray(ByRef arrSource, ByVal arrToAppend)
+'   Function UTIL_Array_InsertAt(ByRef arr, ByVal pos, ByVal val)
+'   Function UTIL_Array_InsertAtEnd(ByRef arr, ByVal val)
+'   Function UTIL_Array_RemoveAt(ByRef arr, ByVal pos)
+'   Function UTIL_Array_RemoveAtEnd(ByRef arr)
+'   Function UTIL_Array_RemoveVal(ByRef arr, ByVal val)
+'   Function UTIL_Array_Search(ByRef arr, ByVal val)
+'   Function UTIL_Array_SearchAll(arr, val)
+'   Function UTIL_Array_SearchFirstMatch(arr,strPattern)
+'   Function UTIL_Array_SearchFirstMatchValue(arr, strPattern)
+'   Function UTIL_Array_RemoveDuplicate(ByRef arr)
+'   Function UTIL_Array_Reverse(ByRef arr)
+'   Function UTIL_Array_Sort(ByRef arr)
+'   Function UTIL_Array_IsDim(ByVal arr)
+'   Function UTIL_Array_FindSameItem(arrBasic,arrFind)
+'   Function UTIL_Array_ConvertToTwoDimension(arrSource,intDimensionSize)
+'   Function UTIL_Array_ToString(arrSource)
+'
+'@endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+
+'Checks to see if an array contains a string
+'@code
+'   arr = Array("test", "impact")
+'   UTIL_Array_Contains(arr, "Impact", true)    ' returns false
+'   UTIL_Array_Contains(arr, "Impact", false)   ' returns true
+'@endcode
+'@param arrStrSource - the source array 
+'@param strLookFor - the string to look for
+'@param blnCaseSensitive - indicates if search is case sensitive or not
+'@     
+'@return True if the string is found in the array
+'@return False if not found
+
+Function UTIL_Array_Contains(arrStrSource, strLookFor, blnCaseSensitive)
+    UTIL_AssertTrue IsArray(arrStrSource),"UTIL_Array_Contains", "Type of arrStrSource must be array."
+    UTIL_AssertFalse IsObject(strLookFor), "UTIL_Array_RemoveVal", "Type of strLookFor should not be Object."
+    
+    UTIL_Array_Contains = False
+    blnContains = False
+    If IsArray(arrStrSource) Then
+        For Each strItem in arrStrSource
+            If blnCaseSensitive Then
+                If (strItem = strLookFor) Then 
+                    blnContains = True
+                End If    
+            Else
+                If (LCase(strItem) = LCase(strLookFor)) Then 
+                    blnContains = True
+                End If    
+            End If
+        Next
+    End If
+    UTIL_Array_Contains = blnContains
+End Function
+
+
+'@see UTIL_Array_Contains
+
+Function UTIL_Array_ArrayContains(arrStrSource,arrStrSub,blnCaseSensitive)
+    isContains = true
+    For each ele in arrStrSub
+        isSubContains = UTIL_Array_Contains(arrStrSource,ele,blnCaseSensitive)
+        If Not isSubContains Then
+            isContains = false
+            Exit for
+        End If
+    Next
+    
+    UTIL_Array_ArrayContains = isContains
+End Function
+
+
+
+'Append an array to another array
+'@code
+'   arr1 = Array("1", "2")
+'   arr2 = Array("3", "4")
+'   arrNew = UTIL_Array_AppendArray(arr1, arr2)  'now arr1 has "1", "2", "3", "4"
+'   arrNew = UTIL_Array_AppendArray(arr2, arr1)  'now arr2 has "3", "4", "1", "2", "3", "4"
+'@endcode
+'@param arrSource - the source array 
+'@param arrToAppend - the array to be appended to source array
+
+Function UTIL_Array_AppendArray(arrSource, arrToAppend)
+    UTIL_AssertTrue IsArray(arrSource),"UTIL_Array_AppendArray", "Type of arrSource must be array."
+    UTIL_AssertTrue IsArray(arrToAppend),"UTIL_Array_AppendArray", "Type of arrToAppend must be array."
+    
+    retAry = arrSource
+    For each ele in arrToAppend
+        retAry = UTIL_Array_InsertAtEnd(retAry, ele)
+    Next 
+    
+    UTIL_Array_AppendArray = retAry
+End Function
+ 
+ 
+ 
+'Insert a new element at a given position in an array <br>
+'   if the provided position is greater than current size of array, the element is added at the end <br>
+'   if the provided position is 0, the element is added at the beginning
+'@code
+'   arr = Array("value1", "value2")
+'   arrNew = UTIL_Array_InsertAt(arr, 0, "first")
+'   arrNew = UTIL_Array_InsertAt(arr, 5, "last")
+'   arrNew = UTIL_Array_InsertAt(arr, 2, "third")  'now arr has "first", "value1", "third", "value2", "last"
+'@endcode
+'@param arr - the array 
+'@param intPos - the position to insert an element, begins at 0
+'@param val - the element to be inserted
+
+Function UTIL_Array_InsertAt(arr,intPos,val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_InsertAt", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)   
+    UTIL_AssertTrue  intPos <= (intAryLen+1), "UTIL_Array_InsertAt", "intPos must be <= (length of arr + 1)"
+    UTIL_AssertTrue  intPos >= 0, "UTIL_Array_InsertAt", "intPos must be >=0"
+    
+    retAry = arr
+    ReDim Preserve retAry(intAryLen + 1)
+    For i = UBound(retAry) to (intPos + 1) Step -1
+        If IsObject(retAry(i-1)) Then
+            Set retAry(i) = retAry(i-1)
+        Else 
+            retAry(i) = retAry(i-1)
+        End If
+    Next 
+    
+    If IsObject(val) Then
+        Set retAry(intPos) = val
+    Else
+        retAry(intPos) = val
+    End If 
+    
+    UTIL_Array_InsertAt = retAry
+End Function
+
+
+'Add an element to the end of an array
+'@code
+'   arr = Array("val1", "val2")
+'   arrNew = UTIL_Array_InsertAtEnd(arr, "val3")    'arr has elements "val1", "val2", "val3"
+'@endcode
+'@param arr - the source array 
+'@param val - the element to be added
+
+Function UTIL_Array_InsertAtEnd(arr, val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_InsertAtEnd", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)     
+    UTIL_Array_InsertAtEnd = UTIL_Array_InsertAt(arr,(intAryLen+1),val)
+End Function
+
+
+'Remove an element at a given position in an array <br>
+'   if the provided position is greater than current size of array or less than 0, nothing is changed
+'@code
+'   arr = Array("1", "2", "3", "4", "5")
+'   arrNew = UTIL_Array_RemoveAt(arr, -1)   'arr unchanged
+'   arrNew = UTIL_Array_RemoveAt(arr, 10)   'arr unchanged
+'   arrNew = UTIL_Array_RemoveAt(arr, 3)    'Removes the fourth element in the array, arr is "1", "2", "3", "5"
+'@endcode
+'@param arr - the array 
+'@param intPos - the position of the element to be removed, begins at 0
+
+Function UTIL_Array_RemoveAt(arr,intPos)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_RemoveAt", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)
+    UTIL_AssertTrue  intPos <= intAryLen, "UTIL_Array_RemoveAt", "intPos must be <= length of arr "
+    UTIL_AssertTrue  intPos >= 0, "UTIL_Array_RemoveAt", "intPos must be >= 0."
+    
+    retAry = arr
+    For i = intPos to (intAryLen - 1)
+        If IsObject(retAry(i+1)) Then
+            Set retAry(i) = retAry(i+1)
+        Else
+            retAry(i) = retAry(i+1)
+        End If
+    Next
+
+    ReDim Preserve retAry(intAryLen - 1)
+    UTIL_Array_RemoveAt = retAry
+End Function
+
+
+
+'Remove an element at the end an array
+'@code
+'   arr = Array("1", "2", "3", "4", "5")
+'   arrNew = UTIL_Array_RemoveAtEnd(arr)  'arr now has "1", "2", "3", "4"
+'@endcode
+'@param arr - the array 
+
+Function UTIL_Array_RemoveAtEnd(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_RemoveAtEnd", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)
+    UTIL_Array_RemoveAtEnd = UTIL_Array_RemoveAt(arr,intAryLen)
+End Function
+
+
+
+'Remove all instances of a value from an array
+'@code
+'   arr = Array("abc", "def", "xyz", "def", "ghi", "def13")
+'   arrNew = UTIL_Array_RemoveVal(arr, "def")  'arr now has "abc", "xyz", "ghi", "def13"
+'@endcode
+'@param arr - the array 
+'@param val - value to be removed
+
+Function UTIL_Array_RemoveVal(arr, val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_RemoveVal", "Type of arr must be array."
+    UTIL_AssertFalse IsObject(val), "UTIL_Array_RemoveVal", "Type of val should not be Object."
+    
+    intAryLen = Ubound(arr)
+    ReDim retAry(intAryLen)
+    
+    newAryPos = -1
+    For i = 0 To intAryLen
+        If arr(i) <> val Then
+            newAryPos = newAryPos + 1
+            retAry(newAryPos) = arr(i)
+        End If
+    Next
+    
+    ReDim Preserve retAry(newAryPos)
+    UTIL_Array_RemoveVal = retAry
+End Function
+
+
+
+'Find the first occurance of a value in an array
+'@code
+'   arr = Array("1", "2", "3", "2", "4", "5")
+'   a = UTIL_Array_Search(arr, "100")    'returns -1
+'   b = UTIL_Array_Search(arr, "2")    'returns 1
+'   c = UTIL_Array_Search(arr, "5")    'returns 5
+'@endcode
+'@param arr - the array 
+'@param val - value to be search
+'@return if found, return the position of the value
+'@return if not found, return -1
+
+Function UTIL_Array_Search(arr, val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_Search", "Type of arr must be array."
+    UTIL_AssertFalse IsObject(val), "UTIL_Array_Search", "Type of val should not be Object."
+    
+    intPos = -1
+    For i = 0 To UBound(arr)
+        If arr(i) = val Then
+            intPos = i
+            Exit For
+        End If
+    Next
+    
+    UTIL_Array_Search = intPos
+End Function
+
+
+
+'Find the all occurance of a value in an array
+'@code
+'   arr = Array("1", "2", "3", "2", "4", "5")
+'   a = UTIL_Array_Search(arr, "100")    'returns Array()
+'   b = UTIL_Array_Search(arr, "2")    'returns Array(1,3)
+'   c = UTIL_Array_Search(arr, "5")    'returns Array(5)
+'@endcode
+'@param arr - the array 
+'@param val - value to be search
+'@return position array if found, or return Array()
+
+Function UTIL_Array_SearchAll(arr, val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_Search", "Type of arr must be array."
+    UTIL_AssertFalse IsObject(val), "UTIL_Array_Search", "Type of val should not be Object."
+    
+    aryPos = Array()
+    For i = 0 To UBound(arr)
+        If arr(i) = val Then aryPos = UTIL_Array_InsertAtEnd(aryPos,i)
+    Next
+    
+    UTIL_Array_SearchAll = aryPos
+End Function
+
+
+
+'Find the first occurance of a value that match pattern in an array
+'@code
+'   arr = Array("abc", "ghj", "nmg", "ghj")
+'   a = UTIL_Array_SearchFirstMatch(arr, "dd")    'returns -1
+'   b = UTIL_Array_SearchFirstMatch(arr, "gh")    'returns 1
+'   c = UTIL_Array_SearchFirstMatch(arr, "nmg")    'returns 2
+'@endcode
+'@param arr - the array 
+'@param strPattern - value to be search
+'@return if found, return the position of the value
+'@return if not found, return -1
+
+Function UTIL_Array_SearchFirstMatch(arr, strPattern)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_SearchFirstMatch", "Type of arr must be array."
+    UTIL_AssertFalse IsObject(strPattern), "UTIL_Array_SearchFirstMatch", "Type of strPattern should not be Object."
+    
+    intPos = -1
+    For i = 0 To UBound(arr)
+        If instr(arr(i),strPattern)>0 Then
+            intPos = i
+            Exit For
+        End If
+    Next
+    
+    UTIL_Array_SearchFirstMatch = intPos
+End Function
+
+
+
+
+'Find the first occurance of a value that match pattern in an array
+'@code
+'   arr = Array("abc", "ghj", "nmg", "ghj")
+'   a = UTIL_Array_SearchFirstMatch(arr, "dd")    'returns empty
+'   b = UTIL_Array_SearchFirstMatch(arr, "gh")    'returns "ghj"
+'   c = UTIL_Array_SearchFirstMatch(arr, "nmg")    'returns "nmg"
+'@endcode
+'@param arr - the array 
+'@param strPattern - value to be search
+'@return if found, return the value
+'@return if not found, return empty
+'@see UTIL_Array_SearchFirstMatch
+
+Function UTIL_Array_SearchFirstMatchValue(arr, strPattern)
+    intPos = UTIL_Array_SearchFirstMatch(arr,strPattern)
+    
+    Dim strMatchVal 
+    If intPos > -1 Then strMatchVal = arr(intPos)
+    UTIL_Array_SearchFirstMatchValue = strMatchVal
+End Function
+
+
+
+'Remove duplicate items from an array
+'@code
+'   arr1 = Array("1", "2", "3", "2", "4", "5")
+'   arrNew = UTIL_Array_RemoveDuplicate(arr1)    ''arr1 now has "1", "2", "3", "4", "5"
+'   arr2 = Array("11", "12", "13", "14", "15")
+'   arrNew = UTIL_Array_RemoveDuplicate(arr2)    'arr2 is unchanged
+'@endcode
+'@param arr - the array 
+
+Function UTIL_Array_RemoveDuplicate(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_RemoveDuplicate", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)
+    newAryLen = -1
+    ReDim retAry(newAryLen)
+    
+    For i = 0 to intAryLen
+        'if not include, add it
+        If Not(UTIL_Array_Contains(retAry,arr(i),True)) Then
+            newAryLen = newAryLen + 1
+            ReDim Preserve retAry(newAryLen)
+            retAry(newAryLen) = arr(i)
+        End If
+    Next
+
+    ReDim Preserve retAry(newAryLen)
+    UTIL_Array_RemoveDuplicate = retAry
+End Function
+
+
+
+'Reverse the order of the elements in an array
+'@code
+'   arr = Array("farm", "hello", "goodbye", "dog", "zoo")
+'   arrNew = UTIL_Array_Reverse(arr)    'arr now has "zoo", "dog", "goodbye", "hello", "farm"
+'@endcode
+'@param arr - the array 
+
+Function UTIL_Array_Reverse(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_Reverse", "Type of arr must be array."
+    
+    intAryLen = UBound(arr)
+    ReDim retAry(intAryLen)
+    For i = 0 to intAryLen
+        If IsObject(arr(i)) Then
+            Set retAry(intAryLen - i) = arr(i)
+        Else
+            retAry(intAryLen - i) = arr(i)
+        End If
+    Next
+    
+    UTIL_Array_Reverse = retAry
+End Function
+ 
+ 
+ 
+'Sort the elements in an array
+'@code
+'   arr = Array("element", "hello", "goodbye", "dog", "zoo")
+'   arrNew = UTIL_Array_Sort(arr)  'arr now has "dog", "element", "goodbye", "hello", "zoo"
+'@endcode
+'@param arr - the array 
+
+Function UTIL_Array_Sort(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_Sort", "Type of arr must be array."
+     
+    retAry = arr
+    For i = 0 to Ubound(retAry)-1
+        For j = 0 to Ubound(retAry)-1-i
+            If retAry(j)>retAry(j+1) Then
+                temp = retAry(j)
+                retAry(j) = retAry(j+1)
+                retAry(j+1) = temp
+            End If
+        Next
+    Next
+
+    UTIL_Array_Sort = retAry
+End Function
+ 
+'Checks that an array has been "dimmed"
+'@code
+'   arr1 = Array()
+'   Dim arr2 
+'   Dim arr3(0)
+'   Dim arr4(5,4)
+'   Dim arr5()
+'   v1 = UTIL_Array_IsDim(arr1)     'True
+'   v2 = UTIL_Array_IsDim(arr2)     'False
+'   v3 = UTIL_Array_IsDim(arr3)     'True
+'   v4 = UTIL_Array_IsDim(arr4)     'True
+'   v5 = UTIL_Array_IsDim(arr5)     'False
+'@endcode
+'@param arr - the array 
+'@return If array is dimmed, return True
+'@return Otherwise, return False
+
+Function UTIL_Array_IsDim(ByVal arr)
+    UTIL_Array_IsDim = False
+    If IsArray(arr) Then
+        On Error Resume Next
+        intSize = UBound(arr)
+        If Err.Number = 0 Then 
+            UTIL_Array_IsDim = True
+        Else
+            Err.Clear
+       End If     
+    End If
+End Function
+
+
+
+'Returns the dimension of an array.
+'@code
+'   Dim arr0(6)
+'   Dim arr1(5,4)
+'   Dim arr2(3,2,1)
+'   Dim arr3()
+'   UTIL_Array_GetDimension(arr0) 'returns 1
+'   UTIL_Array_GetDimension(arr1) 'returns 2
+'   UTIL_Array_GetDimension(arr2) 'returns 3
+'   UTIL_Array_GetDimension(arr3) 'returns 0
+'@endcode
+'@param arr - Name of the array variable.
+'@return The dimension of the array if successful
+
+Function UTIL_Array_GetDimension(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_GetDimension", "Type of arr must be array."
+    Dim i
+    For i = 1 To 60
+        On Error Resume Next
+        UBound arr, i
+        If Err.Number <> 0 Then
+            UTIL_Array_GetDimension = i-1
+            Exit Function
+        End If
+    Next
+    UTIL_Array_GetDimension = i
+     
+End Function
+
+
+
+'This function is to find out the same item in two arrays.
+'@code
+'   UTIL_Array_FindSameItem Array("1", "2", "3",), Array("3", "2", "4", "5")  'returns Array("3","2")
+'   UTIL_Array_FindSameItem Array("1", "2", "3",), Array("4", "5")  'returns Array()
+'@endcode
+'@param arrBasic Any array
+'@param arrFind Any array
+'@return if the two arrays have same item the return array for store the same items, otherwise return an empty array.
+Function UTIL_Array_FindSameItem(arrBasic,arrFind)
+    UTIL_AssertTrue IsArray(arrBasic),"UTIL_Array_FindSameItem", "Type of arrBasic must be array."
+    UTIL_AssertTrue IsArray(arrFind),"UTIL_Array_FindSameItem", "Type of arrFind must be array."
+
+    arrNew = Array()
+    For each ele in arrFind
+        If UTIL_Array_Contains(arrBasic,ele,True) Then
+            arrNew=UTIL_Array_InsertAtEnd(arrNew,ele)
+        End If
+    Next
+    UTIL_Array_FindSameItem = UTIL_Array_RemoveDuplicate(arrNew)
+End Function 
+
+
+'This function is to covert an array to a two-dimension array based on provided dimension
+'If the source array's size is the same or less than the provided dimension, the result will 
+'be one row of an array of the original size; 
+'If the source array's size if more than the provided dimension, the result will be multi-row 
+'two dimension array.  Each row contains an array with no more than intDimensionSize number of elements
+'@param arrSource source array
+'@param intDimensionSize 2nd dimension size
+'@return a two-dimension arry
+
+Function UTIL_Array_ConvertToTwoDimension(arrSource,intDimensionSize)
+
+	intRow = (UBound(arrSource) + 1)\intDimensionSize  
+	If (UBound(arrSource) + 1) Mod intDimensionSize <> 0 Then
+		intRow = intRow + 1     
+	End If
+	
+	'Create 2-dimentional array with intDimensionSize test cases in each row****			
+	ReDim arrNew(intRow - 1,intDimensionSize - 1) 
+	m = 0
+	For i = 0 To UBound(arrNew,1)       'Ubound of first dimension
+		For j = 0 To UBound(arrNew,2)   'Ubound of Second dimension
+			If m > UBound(arrSource) Then 
+				Exit For
+			End If 
+			arrNew(i,j) = arrSource(m)
+			m = m + 1
+		Next
+	Next  
+    UTIL_Array_ConvertToTwoDimension = arrNew
+    
+End Function 
+
+'Returns a string representation of an array. 
+'Supports one dimension and two dimension arrays
+'@param arrSource source array
+'@return a string
+
+Function UTIL_Array_ToString(arrSource)
+    intDim = UTIL_Array_GetDimension(arrSource)
+    If intDim = 1 Then 
+        UTIL_Array_ToString = "[" & join(arrSource, ",") &"]"
+    Elseif intDim = 2 Then 
+        strM = "["
+        For i = 0 To UBound(arrSource,1)        'Ubound of first dimension
+            strM = strM & "["
+            For j = 0 To UBound(arrSource,2)    'Ubound of Second dimension
+                strM = strM & arrSource(i,j) & ","
+            Next
+            strM = Left(strM, Len(strM)-1)
+            strM = strM & "]," 
+        Next
+        strM = Left(strM, Len(strM)-1)
+        strM = strM & "]"    
+    End If
+    UTIL_Array_ToString = strM
+End Function 
+
+
+
+'@}

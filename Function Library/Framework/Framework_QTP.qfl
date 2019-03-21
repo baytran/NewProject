@@ -1,0 +1,266 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: Framework_QTP Framework_QTP
+' This is the function group for QTP 
+' 
+' List of functions here
+' @code
+'
+'	Function FRM_QTP_Init(strBaseFolder)
+'	Function FRM_QTP_NewInstance(boolVisible)
+'	Function FRM_QTP_AddFolder(objQTPApp, strPath)
+'	Function FRM_QTP_SetRecoveryScenarios(objQTPApp, strBaseFolder, strPath)
+'	Function FRM_QTP_AddLibraries(objQTPApp, strLibFolder)
+'	Function FRM_QTP_AddLocalLibraries(objQTPApp, strTestScriptBaseFolder, arrTestCaseFolders)
+' 	Function FRM_QTP_DataSheetParamExists(objDataTable, strParamName)
+' 	Function FRM_QTP_GlobalParamExist(strParamName)
+' 	Function FRM_QTP_LocalParamExist(strParamName)
+'   Function FRM_QTP_EnvVariableExist(strVarName)
+'   Function FRM_QTP_Executable()
+'
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Initialize QTP Session
+'@code
+'   FRM_QTP_Init(strBaseFolder)
+'@endcode
+'@param strBaseFolder - Base folder for the session
+
+Function FRM_QTP_Init(strBaseFolder)
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+    strRecoveryDestFile = "C:\" + g_RecoveryScenarioHandlerFile
+	objFSO.CopyFile FRM_Batch_RecoveryScenarioDirPath + g_RecoveryScenarioHandlerFile, strRecoveryDestFile
+	objFSO.GetFile(strRecoveryDestFile).Attributes = 0 'set file attribute to normal
+	Set objFSO = Nothing
+	
+	Set objQTPApp = FRM_QTP_NewInstance(True)
+	FRM_QTP_AddFolder objQTPApp, strBaseFolder + "\"
+	FRM_QTP_SetRecoveryScenarios objQTPApp, strBaseFolder, "Recovery Scenario\RS_LogAndExitEncompass.qrs"
+	FRM_QTP_AddLibraries objQTPApp, strBaseFolder, "Function Library"
+	Set FRM_QTP_Init = objQTPApp
+End Function
+
+
+'Creates a new instance of QTP application
+'@code
+'   FRM_QTP_NewInstance(boolVisible)
+'@endcode
+'@param boolVisible - sets instance to be visible or not
+'@return the new instance
+
+Function FRM_QTP_NewInstance(boolVisible)
+
+	Set objQTPApp = CreateObject( "QuickTest.Application" )
+	objQTPApp.Launch
+	objQTPApp.Visible = boolVisible
+	objQTPApp.New
+	
+	Set FRM_QTP_NewInstance = objQTPApp
+
+End Function
+
+
+	
+'Add a folder that QTP uses to find files
+'@code
+'   FRM_QTP_AddFolder(objQTPApp, strPath)
+'@endcode
+'@param objQTPApp - QTP application instance
+'@param strPath - folder path
+	
+Function FRM_QTP_AddFolder(objQTPApp, strPath)
+
+    ''FRM_Logger_ReportInfoEvent  "FRM_QTP_AddFolder", strPath, Null
+	objQTPApp.Folders.RemoveAll
+	objQTPApp.Folders.Add strPath
+	
+End Function
+
+	
+'Set recovery scenario of QTP instance
+'@code
+'   FRM_QTP_SetRecoveryScenarios(objQTPApp, strPath)
+'@endcode
+'@param objQTPApp - QTP application instance
+'@param strBaseFolder - path to base folder
+'@param strRSPath - relative path to recovery scenario file
+'	
+Function FRM_QTP_SetRecoveryScenarios(objQTPApp, strBaseFolder, strRSPath)
+
+    UTIL_File_Copy strBaseFolder + "\" + strRSPath, "C:\RS_LogAndExitEncompass.qrs", True
+    
+   '' FRM_Logger_ReportInfoEvent  "SetRecoveryScenarios", strRSPath, Null
+	Set qtpTestRecovery = objQTPApp.Test.Settings.Recovery
+	If qtpTestRecovery.Count > 0 Then
+		qtpTestRecovery.RemoveAll
+	End If
+
+	objQTPApp.Test.Settings.Recovery.Add strRSPath, "ExitAndRunNextAction", 1
+
+	For intIndex = 1 to qtpTestRecovery.Count
+		qtpTestRecovery.Item(intIndex).Enabled = True
+    Next
+	qtpTestRecovery.Enabled = True
+	qtpTestRecovery.SetActivationMode "OnError"
+
+End Function 	
+
+
+
+'Add function libraries to the action
+'@code
+'	FRM_QTP_AddLibraries(objQTPApp, strProjectPath, "Function Library")
+'@endcode
+'@param objQTPApp - QTP application instance
+'@param strBaseFolder - path to base folder
+'@param strLibFolderName - library folder name
+
+Function FRM_QTP_AddLibraries(objQTPApp, strBaseFolder, strLibFolderName)
+
+	strLibFolder = strBaseFolder & "\" & strLibFolderName & "\"
+	Set qtpLibraries = objQTPApp.Test.Settings.Resources.Libraries
+	'Do not remove existing libraries cause actions might have local function libraries associated
+	'qtpLibraries.RemoveAll
+	arrLibraries = UTIL_File_GetFilesUnderDir(strLibFolder, "qfl$")
+	For i = LBound(arrLibraries) To UBound(arrLibraries)
+		qtpLibraries.Add strLibFolderName&"\" + arrLibraries(i), 1
+        'FRM_Logger_ReportInfoEvent  "FRM_QTP_AddLibraries", strLibFolderName&"\" + arrLibraries(i), Null
+	Next 
+	
+End Function
+
+
+
+'Add local library file to the action.  It searches the *.qfl under the provided folders
+'If found, add it to the library
+'@code
+'	FRM_QTP_AddLocalLibraries(objQTPApp, "C:\Automation\QTP\Encompass\Main\Core2\Test Script", Array("RESPATILA\RESPATILA_ENC_17879_IntentToProceedCheckboxEnabled"))
+'@endcode
+'@param objQTPApp - QTP application instance
+'@param strTestScriptBaseFolder - path to test script base folder
+'@param arrTestCaseFolders - array of test case folders
+
+Function FRM_QTP_AddLocalLibraries(objQTPApp, strTestScriptBaseFolder, arrTestCaseFolders)
+
+	Set qtpLibraries = objQTPApp.Test.Settings.Resources.Libraries
+	For i = LBound(arrTestCaseFolders) To UBound(arrTestCaseFolders)
+	
+		strTestScriptFolder = strTestScriptBaseFolder & "\" & arrTestCaseFolders(i) & "\"
+		arrLibraries = UTIL_File_GetFilesUnderDir(strTestScriptFolder, "qfl$")
+
+		For j = LBound(arrLibraries) To UBound(arrLibraries)
+			qtpLibraries.Add strTestScriptFolder&"\" + arrLibraries(j), 1
+			'FRM_Logger_ReportInfoEvent  "FRM_QTP_AddLibraries", strTestScriptFolder&"\" + arrLibraries(j), Null
+		Next 
+	
+	Next 
+	
+End Function
+
+
+	
+'Checks if a QTP datasheet param exists
+'@code
+'	FRM_QTP_DataSheetParamExists(objDataSheet, strParamName)
+'@endcode
+'@param objDataSheet - datasheet object
+'@param strParamName - parameter name
+'@return True if the datasheet param exists; false if not
+
+Function FRM_QTP_DataSheetParamExists(objDataSheet, strParamName)
+
+    FRM_QTP_DataSheetParamExists = True 
+    On Error Resume Next
+    Err.Clear
+    Dim oParam
+    strParamValue = objDataSheet.GetParameter(strParamName)
+    If Err.Number Then 
+		FRM_QTP_DataSheetParamExists = False
+	End If	
+    On Error Goto 0
+End Function
+
+
+ 
+'Checks if a QTP Global datatable param exists
+'@code
+'	FRM_QTP_GlobalParamExist(strParamName)
+'@endcode
+'@param strParamName - string global parameter name
+'@see FRM_QTP_DataSheetParamExists
+ 
+Function FRM_QTP_GlobalParamExist(strParamName)
+    FRM_QTP_GlobalParamExist = FRM_QTP_DataSheetParamExists(DataTable.GlobalSheet,strParamName)
+End Function
+
+
+ 
+'Checks if a QTP Local datatable param exists
+'@code
+'	FRM_QTP_LocalParamExist(strParamName)
+'@endcode
+'@param strParamName - string local parameter name
+'@see FRM_QTP_DataSheetParamExists
+ 
+Function FRM_QTP_LocalParamExist(strParamName)
+    FRM_QTP_LocalParamExist = FRM_QTP_DataSheetParamExists(DataTable.LocalSheet,strParamName)
+End Function
+
+
+'Check to see if QTP Environment variable is defined
+'@param strVarName environment variable name
+'@return True if exists; False if doesn't
+
+Function FRM_QTP_EnvVariableExist(strVarName)
+
+    On Error Resume Next
+    Err.Clear()
+    strValue = Environment(strVarName)
+    If Err.Number <> 0 Then
+        FRM_QTP_EnvVariableExist = False
+    Else
+        FRM_QTP_EnvVariableExist = True
+    End If
+
+    On Error GoTo 0
+End Function
+
+
+
+'Get the name of QTP executable installed
+'@return the name of QTP executable installed - UFT.exe or QTPro.exe
+
+Function FRM_QTP_Executable()
+	Dim sFileName,oShell,objFSO
+	strFileName = "UFT.exe"
+	Set oShell = WScript.CreateObject("WScript.Shell")
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	'****This will find the file that will be actually run from command line when typed without qualified path****
+	Set oExec = oShell.Exec("cmd /c for %G in (""" & strFileName & """) do @echo.%~$PATH:G")
+	Do
+		strLine = oExec.StdOut.ReadLine()
+		If Not objFSO.FileExists(strLine)<> 0 Then
+			strFileName = "QTPro.exe"
+		End If
+	Loop While Not oExec.Stdout.AtEndOfStream
+	Set oShell = Nothing
+	Set objFSO = Nothing
+    FRM_QTP_Version = strFileName	
+    
+End Function
+
+
+'Checks to see if QTP process is running
+'@return True if it is; False if not
+
+Function FRM_QTP_IsProcessRunning()
+
+    FRM_QTP_IsProcessRunning = UTIL_Win_IsProcessRunning(FRM_QTP_Executable())
+    
+End Function
+
+
+'@}

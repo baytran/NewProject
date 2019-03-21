@@ -1,0 +1,91 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup: BIZ_Tools_ComplainceReview BIZ_Tools_ComplainceReview
+'
+' List of functions here
+'@code
+'	Function BIZ_ComplianceReview_OrderNReview(strOrderOrPreview)
+'	Function BIZ_ComplianceReview_ValidateComplianceReviewStatus()
+'@endcode
+'
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is performing Order N Review in the Compliance REview Screen
+'@code
+'    BIZ_ComplianceReview_OrderNReview(strOrderOrPreview)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ComplianceReview_OrderNReview(strOrderOrPreview)
+
+	FRM_Logger_ReportInfoEvent "Compliance Review", strOrderOrPreview & " Compliance Service", Null	
+	'Open Compliance review in Tools 
+	BIZ_Tools_ShowInOrder()
+	
+	'Go to Tools->Compliance Review 
+	BIZ_Tools_Open "Compliance Review"
+    
+	If (strOrderOrPreview = "Order") Then 
+	 	'Order compliance review 
+		GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=LoanPage").SwfButton("swfname:=btnOrder")
+		Wait g_LongWaitLarge
+		If(GUI_Object_IsExist(SwfWindow("swfname:=ReportAuditDialog").SwfObject("swfname:=gvAuditItems"))) Then
+ 			Set objAuditItems = SwfWindow("swfname:=ReportAuditDialog").SwfObject("swfname:=gvAuditItems")
+			intNumberOfAuditItems = GUI_List_GetNumberofRows(objAuditItems)
+			strAuditList = ""
+			For intAuditItem = 0 To intNumberOfAuditItems-1 Step 1
+				If(intAuditItem = 0) Then 
+					strAuditList = GUI_List_GetCellData(objAuditItems, intAuditItem, 1)
+				Else
+					strAuditList = strAuditList + "   " + GUI_List_GetCellData(objAuditItems, intAuditItem, 1)
+				End If
+			Next
+			FRM_Logger_ReportFailEvent "Compliance Review - Audit List Items", strAuditList, Null
+			GUI_SwfButton_Click SwfWindow("swfname:=ReportAuditDialog").SwfButton("swfname:=btnClose")
+			BIZ_ComplianceReview_OrderNReview  = 0
+		ElseIf (GUI_Object_IsExistX(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SubmitDialog").SwfWindow("swfname:=ExceptionDialog"), 80))Then 
+			FRM_Logger_ReportFailEvent "Compliance Review - Exception", "Exception Dialog is displayed", Null
+			GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SubmitDialog").SwfWindow("swfname:=ExceptionDialog").SwfButton("Swfname:=btnClose")
+			BIZ_ComplianceReview_OrderNReview = 0
+		ElseIf (GUI_Object_IsExistX(Dialog("text:=Application Error"), 10))Then
+			FRM_Logger_ReportFailEvent "Compliance Review", "Application Error is displayed", Null
+			Dialog("text:=Application Error").WinButton("text:=&Ignore").Click
+		Else
+			wait g_TinyWaitMedium
+			BIZ_ComplianceReview_OrderNReview = BIZ_ComplianceReview_ValidateComplianceReviewStatus()
+		End If
+	End If
+End Function
+
+
+
+'This function is performing Order N Review in the Compliance REview Screen
+'@code
+'    BIZ_ComplianceReview_ValidateComplianceReviewStatus()
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ComplianceReview_ValidateComplianceReviewStatus()
+    
+    Dim ReportStatus
+	intCount = 0
+	While (Not GUI_Object_IsExist(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfLabel("swfname:=lblReportStatus")) and i <= 4) 
+		wait g_TinyWaitMedium
+		i = i + 1
+	Wend 
+	
+	ReportStatus = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfLabel("swfname:=lblReportStatus").GetROProperty("text")
+	If (InStr(ReportStatus, "Did Not Pass") > 0) Then
+		FRM_Logger_ReportFailEvent "Compliance Review", "Compliance Review - Did not Pass", Null
+		BIZ_ComplianceReview_ValidateComplianceReviewStatus = 0
+	ElseIf (InStr(ReportStatus, "Warning") > 0) Then 
+		    FRM_Logger_ReportPassEvent "Compliance Review", "Compliance Review displayed a warning message", Null
+		    BIZ_ComplianceReview_ValidateComplianceReviewStatus = 0
+	Else
+		FRM_Logger_ReportPassEvent "Compliance Review", "Compliance Review is Pass", Null
+		BIZ_ComplianceReview_ValidateComplianceReviewStatus = 1
+	End If
+    
+End Function
+
+'@}

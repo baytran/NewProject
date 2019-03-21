@@ -1,0 +1,50 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_1098MortgageInterest BIZ_Forms_1098MortgageInterest
+'List of functions here
+'@code
+'
+'   Function BIZ_1098MortgageInterest_SetMortgageInterest(strRowID)
+'   Function BIZ_Common_1098MortgageInterest_SetMortgageInterest(objPArent, strRowID)
+'
+'@endcode
+'@{
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for set Mortgage Interest information on 1098 Mortgage Interest Page
+'@code
+'    BIZ_1098MortgageInterest_SetMortgageInterest(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_1098MortgageInterest_SetMortgageInterest(strRowID)
+
+    FRM_Logger_ReportInfoEvent "1098 Mortgage Interest", "Set data using Row Id '"&strRowID&"' in the SetMortgageInterest datasheet", null
+	
+	BIZ_Forms_Open "1098 Mortgage Interest"
+	BIZ_Common_1098MortgageInterest_SetMortgageInterest SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0"),strRowID
+End Function
+
+
+
+'This function is common function for set Mortgage Interest information on 1098 Mortgage Interest Page
+'@code
+'    BIZ_Common_1098MortgageInterest_SetMortgageInterest(objPArent, strRowID)
+'@endcode
+'@param objParent object for the page
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_1098MortgageInterest_SetMortgageInterest(objParent, strRowID)
+
+    Set objData = FRM_DS_GetTestData("Forms_1098MortgageInterest", "SetMortgageInterest", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2553_MortgageOriginationDate")) Then	
+	GUI_WebEdit_Set objParent.WebEdit("html id:=I_2553","index:=0"), FRM_DS_GetValue(objData, "2553_MortgageOriginationDate") 	
+End If	
+	
+	Set objData = Nothing	
+	
+End Function
+
+
+
+'@}

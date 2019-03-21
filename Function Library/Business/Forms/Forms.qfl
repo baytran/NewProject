@@ -1,0 +1,66 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms BIZ_Forms
+'
+' List of functions here
+' @code
+'	Function BIZ_Forms_ShowAll()
+'	Function BIZ_Forms_GetFormTitle()
+'	Function BIZ_Forms_Open(strFormName)
+
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for select Forms tab and show all forms in order
+'@code
+'    BIZ_Forms_ShowAll()
+'@endcode
+
+Function BIZ_Forms_ShowAll()
+	GUI_list_Select SwfWindow("swfname:=MainForm").SwfTab("swfname:=toolsFormsTabControl"), "Forms"
+	If(GUI_Object_IsExistX(SwfWindow("swfname:=MainForm").SwfCheckBox("swfname:=chkAlphaForms"), 10))Then
+		GUI_SwfCheckbox_Set SwfWindow("swfname:=MainForm").SwfCheckBox("swfname:=chkAlphaForms"), "ON"
+		GUI_SwfCheckbox_Set SwfWindow("swfname:=MainForm").SwfCheckBox("swfname:=allFormBox"), "ON"
+	End If
+End Function
+
+
+
+'This function is for get Title of Form
+'@code
+'    BIZ_Forms_GetFormTitle()
+'@endcode
+
+Function BIZ_Forms_GetFormTitle()
+	Set objLabel = SwfWindow("swfname:=MainForm").SwfLabel("swfname:=titleLbl|labelTitle")
+	If objLabel.Exist(10) Then
+		BIZ_Forms_GetFormTitle = objLabel.GetROProperty("text")
+	Else
+		BIZ_Forms_GetFormTitle = ""
+	End If
+    set objLabel = Nothing
+End Function
+
+
+
+'This function is for set Borrower Information 
+'@code
+'    BIZ_Forms_Open(strFormName)
+'@endcode
+'@param strFormName string Title of the Form to open
+
+Function BIZ_Forms_Open(strFormName)
+
+    FRM_Logger_ReportInfoEvent "Open Form", "Form to open is  '"&strFormName&"'", null
+    
+    GUI_list_Select SwfWindow("swfname:=MainForm").SwfTab("swfname:=toolsFormsTabControl"), "Forms"
+    BIZ_Forms_ShowAll
+	Wait g_TinyWaitSmall
+    If(InStr(BIZ_Forms_GetFormTitle(), strFormName) = 0) Then
+        GUI_List_Select SwfWindow("swfname:=MainForm").SwfList("swfname:=emFormMenuBox"), strFormName
+	End If	
+	
+End Function
+
+
+'@}

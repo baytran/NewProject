@@ -1,0 +1,410 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: Framework_Assert Framework_Assert
+' This is the function group for assertions and checkpoints
+' 
+' List of functions here
+' @code
+'   Function FRM_AssertFailure(strEvent,strDetails)
+'   Function FRM_AssertTrue(boolExpression, strEvent, strDetails)
+'   Function FRM_AssertFalse(boolExpression, strEvent, strDetails)
+'   Function FRM_AssertNull(theVal, strEvent, strDetails)
+'   Function FRM_AssertNotNull(ByRef theVal, strEvent, strDetails)
+'   Function FRM_AssertNothing(ByRef objVal, strEvent, strDetails)
+'   Function FRM_AssertNotNothing(ByRef objVal, strEvent, strDetails)
+'   Function FRM_AssertEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'   Function FRM_AssertNotEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'   Function FRM_AssertEmpty(ByRef objVal, strEvent, strDetails)
+'   Function FRM_AssertNotEmpty(ByRef objVal, strEvent, strDetails)
+'
+'   Function FRM_VerifyTrue(boolExpression, strEvent, strDetails)
+'   Function FRM_VerifyFalse(boolExpression, strEvent, strDetails)
+'   Function FRM_VerifyNull(ByRef theVal, strEvent, strDetails)
+'   Function FRM_VerifyNotNull(ByRef theVal, strEvent, strDetails)
+'   Function FRM_VerifyNothing(ByRef objVal, strEvent, strDetails)
+'   Function FRM_VerifyNotNothing(ByRef objVal, strEvent, strDetails)
+'   Function FRM_VerifyEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'   Function FRM_VerifyNotEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'   Function FRM_VerifyEmpty(ByRef objVal, strEvent, strDetails)
+'   Function FRM_VerifyNotEmpty(ByRef objVal, strEvent, strDetails)
+'   Private Function FRM_ValidateCondition(boolExpression,strEvent,strDetails,strSource)
+'
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+'Assertion result is failure
+'@code
+'    FRM_AssertFailure(strEvent,strDetails)
+'@endcode
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported 
+'@see FRM_ValidateCondition
+
+Function FRM_AssertFailure(strEvent,strDetails)
+    FRM_ValidateCondition false, strEvent, strDetails, "FRM_AssertFailure"
+End Function 
+
+
+
+'Assertion to see if specified expression evaluates to true
+'@code
+'    FRM_AssertTrue(boolExpression, strEvent, strDetails)
+'@endcode
+'@param boolExpression - expression to be checked
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported 
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertTrue(boolExpression, strEvent, strDetails)
+    FRM_AssertTrue = FRM_ValidateCondition(boolExpression, strEvent, strDetails, "FRM_AssertTrue")
+End Function
+
+
+
+'Assertion to see if specified expression evaluates to false
+'@code
+'    FRM_AssertFalse(boolExpression, strEvent, strDetails)
+'@endcode
+'@param boolExpression - expression to be checked
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported 
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertFalse(boolExpression, strEvent, strDetails)
+    FRM_AssertFalse = FRM_ValidateCondition((not boolExpression), strEvent, strDetails, "FRM_AssertFalse")
+End Function
+
+
+
+'Assertion to see if specified variant is null
+'@code
+'    FRM_AssertNull(theVal, strEvent, strDetails
+'@endcode
+'@param theVal - variant to be checked
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported 
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertNull(theVal, strEvent, strDetails)
+    FRM_AssertNull = FRM_ValidateCondition(IsNull(theVal), strEvent, strDetails, "FRM_AssertNull")
+End Function
+
+
+
+'Assertion to see if specified variant is not null
+'@code
+'    FRM_AssertNotNull(ByRef theVal, strEvent, strDetails)
+'@endcode
+'@param theVal - variant to be checked
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported 
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertNotNull(ByRef theVal, strEvent, strDetails)
+    FRM_AssertNotNull = FRM_ValidateCondition((Not IsNull(theVal)), strEvent, strDetails, "FRM_AssertNotNull")
+End Function
+
+
+
+'Assertion to see if variable refers to nothing
+'@code
+'    FRM_AssertNothing(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported 
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertNothing(ByRef objVal, strEvent, strDetails)
+    FRM_AssertNothing = FRM_ValidateCondition(objVal Is Nothing, strEvent, strDetails, "FRM_AssertNothing")
+End Function
+
+
+
+'Assertion to see if variable is initialized or has a reference
+'@code
+'    FRM_AssertNotNothing(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertNotNothing(ByRef objVal, strEvent, strDetails)
+    FRM_AssertNotNothing = FRM_ValidateCondition(Not objVal Is Nothing, strEvent, strDetails, "FRM_AssertNotNothing")
+End Function
+
+
+
+'Assertion to see if two variables hold the same value
+'@code
+'    FRM_AssertEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'@endcode
+'@param val1 - variant to be compared
+'@param val2 - variant to be compared
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported 
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+    FRM_AssertEqual = FRM_ValidateCondition(val1=val2, strEvent, strDetails, "FRM_AssertEqual")
+End Function
+
+
+
+'Assertion to see if two variables hold different values
+'@code
+'    FRM_AssertNotEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'@endcode
+'@param val1 - variant to be compared
+'@param val2 - variant to be compared
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported 
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertNotEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+    FRM_AssertNotEqual = FRM_ValidateCondition((Not val1=val2), strEvent, strDetails, "FRM_AssertNotEqual")
+End Function
+
+
+
+'Assertion to see if a variable is uninitialized
+'@code
+'    FRM_AssertEmpty(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported 
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertEmpty(ByRef objVal, strEvent, strDetails)
+   FRM_AssertEmpty = FRM_ValidateCondition(IsEmpty(objVal), strEvent, strDetails, "FRM_AssertEmpty")
+End Function
+
+
+
+'Assertion to see if a variable is initialized
+'@code
+'    FRM_AssertNotEmpty(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_AssertNotEmpty(ByRef objVal, strEvent, strDetails)
+   FRM_AssertNotEmpty = FRM_ValidateCondition(Not IsEmpty(objVal), strEvent, strDetails, "FRM_AssertNotEmpty")
+End Function
+
+
+
+'Checkpoint to see if specified expression evaluates to true
+'@code
+'    FRM_VerifyTrue(boolExpression, strEvent, strDetails)
+'@endcode
+'@param boolExpression - expression to be checked
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyTrue(boolExpression, strEvent, strDetails)
+    FRM_VerifyTrue = FRM_ValidateCondition(boolExpression, strEvent, strDetails, "FRM_VerifyTrue")
+End Function
+	
+	
+    
+'Checkpoint to see if specified expression evaluates to false
+'@code
+'    FRM_VerifyFalse(boolExpression, strEvent, strDetails)
+'@endcode
+'@param boolExpression - expression to be checked
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyFalse(boolExpression, strEvent, strDetails)
+    FRM_VerifyFalse = FRM_ValidateCondition(not boolExpression, strEvent, strDetails, "FRM_VerifyFalse")
+End Function
+
+
+
+'Checkpoint to see if specified variant is null
+'@code
+'    FRM_VerifyNull(ByRef theVal, strEvent, strDetails)
+'@endcode
+'@param theVal - variant to be checked
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyNull(ByRef theVal, strEvent, strDetails)
+    FRM_VerifyNull = FRM_ValidateCondition(IsNull(theVal), strEvent, strDetails, "FRM_VerifyNull")
+End Function
+
+
+
+'Checkpoint to see if specified variant is not null
+'@code
+'    FRM_VerifyNotNull(ByRef theVal, strEvent, strDetails)
+'@endcode
+'@param theVal - variant to be checked
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyNotNull(ByRef theVal, strEvent, strDetails)
+    FRM_VerifyNotNull = FRM_ValidateCondition((Not IsNull(theVal)), strEvent, strDetails, "FRM_VerifyNotNull")
+End Function
+
+
+
+'Checkpoint to see if variable refers to nothing
+'@code
+'    FRM_VerifyNothing(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyNothing(ByRef objVal, strEvent, strDetails)
+    FRM_VerifyNothing = FRM_ValidateCondition(objVal Is Nothing, strEvent, strDetails, "FRM_VerifyNothing")
+End Function
+
+
+
+'Checkpoint to see if variable is initialized or has a reference
+'@code
+'    FRM_VerifyNotNothing(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyNotNothing(ByRef objVal, strEvent, strDetails)
+    FRM_VerifyNotNothing = FRM_ValidateCondition(Not objVal Is Nothing, strEvent, strDetails, "FRM_VerifyNotNothing")
+End Function
+
+
+
+'Checkpoint to see if two variables hold the same value
+'@code
+'    FRM_VerifyEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'@endcode
+'@param val1 - variant to be compared
+'@param val2 - variant to be compared
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+    FRM_VerifyEqual = FRM_ValidateCondition(val1=val2, "Verify "&strEvent, strDetails&", ActualValue="&val1&", ExpectedValue="&val2, "FRM_VerifyEqual")
+End Function
+
+
+
+'Checkpoint to see if two variables hold different values
+'@code
+'    FRM_VerifyNotEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'@endcode
+'@param val1 - variant to be compared
+'@param val2 - variant to be compared
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyNotEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+    FRM_VerifyNotEqual = FRM_ValidateCondition(Not val1=val2, "Verify "&strEvent, strDetails&", ActualValue="&val1&", ExpectedValue="&val2, "FRM_VerifyNotEqual")
+End Function
+
+
+
+'Checkpoint to see if a variable is uninitialized
+'@code
+'    FRM_VerifyEmpty(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyEmpty(ByRef objVal, strEvent, strDetails)
+   FRM_VerifyEmpty = FRM_ValidateCondition(IsEmpty(objVal), strEvent, strDetails, "FRM_VerifyEmpty")
+End Function
+
+
+
+'Checkpoint to see if  a variable is initialized
+'@code
+'    FRM_VerifyNotEmpty(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@return if validation passes, return True; if validation fails, return False
+'@see FRM_ValidateCondition
+
+Function FRM_VerifyNotEmpty(ByRef objVal, strEvent, strDetails)
+   FRM_VerifyNotEmpty = FRM_ValidateCondition((Not IsEmpty(objVal)), strEvent, strDetails, "FRM_VerifyNotEmpty")
+End Function
+
+
+
+'Validation to see if the specificed expression is true <br>
+'@code
+'    FRM_ValidateCondition(boolExpression,strEvent,strDetails,strSource)
+'@endcode
+'If strSource is a checkpoint, a runtime error will be raised
+'@param boolExpression - expression to be evaluated
+'@param strEvent - event description to be reported
+'@param strDetails - detail message to be reported
+'@param strSource - description of caller method
+'@return if validation passes, return True; if validation fails, return False
+
+Private Function FRM_ValidateCondition(boolExpression,strEvent,strDetails,strSource)
+	
+	If boolExpression Then
+        If instr(strSource,"Verify")>0 Then
+            FRM_Logger_ReportPassEvent strEvent, strDetails, null    
+        Elseif instr(strSource,"Assert")>0 Then
+            FRM_Logger_ReportDebugEvent strEvent, strDetails, null 
+        End If
+	Else
+		FRM_Logger_ReportFailEvent strEvent, strDetails, null
+
+        boolRaiseError = FRM_RT_GetPropValue(g_FRM_Prop_RaiseError, False)
+        If LCase(boolRaiseError) <> "true" Then boolRaiseError = False
+        
+		'raise error if assert function or boolRaiseError is true and is Check function
+		If instr(strSource,"Assert")>0 or (instr(strSource,"Verify")>0 and boolRaiseError) Then
+			Err.raise vbObjectError+100, strSource, "["&strSource&"] "& strEvent&" - " & strDetails
+		End If
+    End If  
+    
+    FRM_ValidateCondition = boolExpression
+End Function
+
+
+
+'@}

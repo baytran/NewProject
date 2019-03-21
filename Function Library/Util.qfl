@@ -1,0 +1,4380 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ArrayUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+'@defgroup: ArrayUtil UTIL_ArrayUtil
+' This is the function group for arrays
+' 
+' List of functions here
+'@code
+'   Function UTIL_Array_Contains(ByRef arrStrSource, strLookFor, blnCaseSensitive)
+'   Function UTIL_Array_ArrayContains(arrStrSource,arrStrSub,blnCaseSensitive)
+'   Function UTIL_Array_AppendArray(ByRef arrSource, ByVal arrToAppend)
+'   Function UTIL_Array_InsertAt(ByRef arr, ByVal pos, ByVal val)
+'   Function UTIL_Array_InsertAtEnd(ByRef arr, ByVal val)
+'   Function UTIL_Array_RemoveAt(ByRef arr, ByVal pos)
+'   Function UTIL_Array_RemoveAtEnd(ByRef arr)
+'   Function UTIL_Array_RemoveVal(ByRef arr, ByVal val)
+'   Function UTIL_Array_Search(ByRef arr, ByVal val)
+'   Function UTIL_Array_SearchAll(arr, val)
+'   Function UTIL_Array_SearchFirstMatch(arr,strPattern)
+'   Function UTIL_Array_SearchFirstMatchValue(arr, strPattern)
+'   Function UTIL_Array_RemoveDuplicate(ByRef arr)
+'   Function UTIL_Array_Reverse(ByRef arr)
+'   Function UTIL_Array_Sort(ByRef arr)
+'   Function UTIL_Array_IsDim(ByVal arr)
+'   Function UTIL_Array_FindSameItem(arrBasic,arrFind)
+'   Function UTIL_Array_ConvertToTwoDimension(arrSource,intDimensionSize)
+'   Function UTIL_Array_ToString(arrSource)
+'
+'@endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+
+'Checks to see if an array contains a string
+'@code
+'   arr = Array("test", "impact")
+'   UTIL_Array_Contains(arr, "Impact", true)    ' returns false
+'   UTIL_Array_Contains(arr, "Impact", false)   ' returns true
+'@endcode
+'@param arrStrSource - the source array 
+'@param strLookFor - the string to look for
+'@param blnCaseSensitive - indicates if search is case sensitive or not
+'@     
+'@return True if the string is found in the array
+'@return False if not found
+
+Function UTIL_Array_Contains(arrStrSource, strLookFor, blnCaseSensitive)
+    UTIL_AssertTrue IsArray(arrStrSource),"UTIL_Array_Contains", "Type of arrStrSource must be array."
+    UTIL_AssertFalse IsObject(strLookFor), "UTIL_Array_RemoveVal", "Type of strLookFor should not be Object."
+    
+    UTIL_Array_Contains = False
+    blnContains = False
+    If IsArray(arrStrSource) Then
+        For Each strItem in arrStrSource
+            If blnCaseSensitive Then
+                If (strItem = strLookFor) Then 
+                    blnContains = True
+                End If    
+            Else
+                If (LCase(strItem) = LCase(strLookFor)) Then 
+                    blnContains = True
+                End If    
+            End If
+        Next
+    End If
+    UTIL_Array_Contains = blnContains
+End Function
+
+
+'@see UTIL_Array_Contains
+
+Function UTIL_Array_ArrayContains(arrStrSource,arrStrSub,blnCaseSensitive)
+    isContains = true
+    For each ele in arrStrSub
+        isSubContains = UTIL_Array_Contains(arrStrSource,ele,blnCaseSensitive)
+        If Not isSubContains Then
+            isContains = false
+            Exit for
+        End If
+    Next
+    
+    UTIL_Array_ArrayContains = isContains
+End Function
+
+
+
+'Append an array to another array
+'@code
+'   arr1 = Array("1", "2")
+'   arr2 = Array("3", "4")
+'   arrNew = UTIL_Array_AppendArray(arr1, arr2)  'now arr1 has "1", "2", "3", "4"
+'   arrNew = UTIL_Array_AppendArray(arr2, arr1)  'now arr2 has "3", "4", "1", "2", "3", "4"
+'@endcode
+'@param arrSource - the source array 
+'@param arrToAppend - the array to be appended to source array
+
+Function UTIL_Array_AppendArray(arrSource, arrToAppend)
+    UTIL_AssertTrue IsArray(arrSource),"UTIL_Array_AppendArray", "Type of arrSource must be array."
+    UTIL_AssertTrue IsArray(arrToAppend),"UTIL_Array_AppendArray", "Type of arrToAppend must be array."
+    
+    retAry = arrSource
+    For each ele in arrToAppend
+        retAry = UTIL_Array_InsertAtEnd(retAry, ele)
+    Next 
+    
+    UTIL_Array_AppendArray = retAry
+End Function
+ 
+ 
+ 
+'Insert a new element at a given position in an array <br>
+'   if the provided position is greater than current size of array, the element is added at the end <br>
+'   if the provided position is 0, the element is added at the beginning
+'@code
+'   arr = Array("value1", "value2")
+'   arrNew = UTIL_Array_InsertAt(arr, 0, "first")
+'   arrNew = UTIL_Array_InsertAt(arr, 5, "last")
+'   arrNew = UTIL_Array_InsertAt(arr, 2, "third")  'now arr has "first", "value1", "third", "value2", "last"
+'@endcode
+'@param arr - the array 
+'@param intPos - the position to insert an element, begins at 0
+'@param val - the element to be inserted
+
+Function UTIL_Array_InsertAt(arr,intPos,val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_InsertAt", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)   
+    UTIL_AssertTrue  intPos <= (intAryLen+1), "UTIL_Array_InsertAt", "intPos must be <= (length of arr + 1)"
+    UTIL_AssertTrue  intPos >= 0, "UTIL_Array_InsertAt", "intPos must be >=0"
+    
+    retAry = arr
+    ReDim Preserve retAry(intAryLen + 1)
+    For i = UBound(retAry) to (intPos + 1) Step -1
+        If IsObject(retAry(i-1)) Then
+            Set retAry(i) = retAry(i-1)
+        Else 
+            retAry(i) = retAry(i-1)
+        End If
+    Next 
+    
+    If IsObject(val) Then
+        Set retAry(intPos) = val
+    Else
+        retAry(intPos) = val
+    End If 
+    
+    UTIL_Array_InsertAt = retAry
+End Function
+
+
+'Add an element to the end of an array
+'@code
+'   arr = Array("val1", "val2")
+'   arrNew = UTIL_Array_InsertAtEnd(arr, "val3")    'arr has elements "val1", "val2", "val3"
+'@endcode
+'@param arr - the source array 
+'@param val - the element to be added
+
+Function UTIL_Array_InsertAtEnd(arr, val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_InsertAtEnd", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)     
+    UTIL_Array_InsertAtEnd = UTIL_Array_InsertAt(arr,(intAryLen+1),val)
+End Function
+
+
+'Remove an element at a given position in an array <br>
+'   if the provided position is greater than current size of array or less than 0, nothing is changed
+'@code
+'   arr = Array("1", "2", "3", "4", "5")
+'   arrNew = UTIL_Array_RemoveAt(arr, -1)   'arr unchanged
+'   arrNew = UTIL_Array_RemoveAt(arr, 10)   'arr unchanged
+'   arrNew = UTIL_Array_RemoveAt(arr, 3)    'Removes the fourth element in the array, arr is "1", "2", "3", "5"
+'@endcode
+'@param arr - the array 
+'@param intPos - the position of the element to be removed, begins at 0
+
+Function UTIL_Array_RemoveAt(arr,intPos)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_RemoveAt", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)
+    UTIL_AssertTrue  intPos <= intAryLen, "UTIL_Array_RemoveAt", "intPos must be <= length of arr "
+    UTIL_AssertTrue  intPos >= 0, "UTIL_Array_RemoveAt", "intPos must be >= 0."
+    
+    retAry = arr
+    For i = intPos to (intAryLen - 1)
+        If IsObject(retAry(i+1)) Then
+            Set retAry(i) = retAry(i+1)
+        Else
+            retAry(i) = retAry(i+1)
+        End If
+    Next
+
+    ReDim Preserve retAry(intAryLen - 1)
+    UTIL_Array_RemoveAt = retAry
+End Function
+
+
+
+'Remove an element at the end an array
+'@code
+'   arr = Array("1", "2", "3", "4", "5")
+'   arrNew = UTIL_Array_RemoveAtEnd(arr)  'arr now has "1", "2", "3", "4"
+'@endcode
+'@param arr - the array 
+
+Function UTIL_Array_RemoveAtEnd(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_RemoveAtEnd", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)
+    UTIL_Array_RemoveAtEnd = UTIL_Array_RemoveAt(arr,intAryLen)
+End Function
+
+
+
+'Remove all instances of a value from an array
+'@code
+'   arr = Array("abc", "def", "xyz", "def", "ghi", "def13")
+'   arrNew = UTIL_Array_RemoveVal(arr, "def")  'arr now has "abc", "xyz", "ghi", "def13"
+'@endcode
+'@param arr - the array 
+'@param val - value to be removed
+
+Function UTIL_Array_RemoveVal(arr, val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_RemoveVal", "Type of arr must be array."
+    UTIL_AssertFalse IsObject(val), "UTIL_Array_RemoveVal", "Type of val should not be Object."
+    
+    intAryLen = Ubound(arr)
+    ReDim retAry(intAryLen)
+    
+    newAryPos = -1
+    For i = 0 To intAryLen
+        If arr(i) <> val Then
+            newAryPos = newAryPos + 1
+            retAry(newAryPos) = arr(i)
+        End If
+    Next
+    
+    ReDim Preserve retAry(newAryPos)
+    UTIL_Array_RemoveVal = retAry
+End Function
+
+
+
+'Find the first occurance of a value in an array
+'@code
+'   arr = Array("1", "2", "3", "2", "4", "5")
+'   a = UTIL_Array_Search(arr, "100")    'returns -1
+'   b = UTIL_Array_Search(arr, "2")    'returns 1
+'   c = UTIL_Array_Search(arr, "5")    'returns 5
+'@endcode
+'@param arr - the array 
+'@param val - value to be search
+'@return if found, return the position of the value
+'@return if not found, return -1
+
+Function UTIL_Array_Search(arr, val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_Search", "Type of arr must be array."
+    UTIL_AssertFalse IsObject(val), "UTIL_Array_Search", "Type of val should not be Object."
+    
+    intPos = -1
+    For i = 0 To UBound(arr)
+        If arr(i) = val Then
+            intPos = i
+            Exit For
+        End If
+    Next
+    
+    UTIL_Array_Search = intPos
+End Function
+
+
+
+'Find the all occurance of a value in an array
+'@code
+'   arr = Array("1", "2", "3", "2", "4", "5")
+'   a = UTIL_Array_Search(arr, "100")    'returns Array()
+'   b = UTIL_Array_Search(arr, "2")    'returns Array(1,3)
+'   c = UTIL_Array_Search(arr, "5")    'returns Array(5)
+'@endcode
+'@param arr - the array 
+'@param val - value to be search
+'@return position array if found, or return Array()
+
+Function UTIL_Array_SearchAll(arr, val)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_Search", "Type of arr must be array."
+    UTIL_AssertFalse IsObject(val), "UTIL_Array_Search", "Type of val should not be Object."
+    
+    aryPos = Array()
+    For i = 0 To UBound(arr)
+        If arr(i) = val Then aryPos = UTIL_Array_InsertAtEnd(aryPos,i)
+    Next
+    
+    UTIL_Array_SearchAll = aryPos
+End Function
+
+
+
+'Find the first occurance of a value that match pattern in an array
+'@code
+'   arr = Array("abc", "ghj", "nmg", "ghj")
+'   a = UTIL_Array_SearchFirstMatch(arr, "dd")    'returns -1
+'   b = UTIL_Array_SearchFirstMatch(arr, "gh")    'returns 1
+'   c = UTIL_Array_SearchFirstMatch(arr, "nmg")    'returns 2
+'@endcode
+'@param arr - the array 
+'@param strPattern - value to be search
+'@return if found, return the position of the value
+'@return if not found, return -1
+
+Function UTIL_Array_SearchFirstMatch(arr, strPattern)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_SearchFirstMatch", "Type of arr must be array."
+    UTIL_AssertFalse IsObject(strPattern), "UTIL_Array_SearchFirstMatch", "Type of strPattern should not be Object."
+    
+    intPos = -1
+    For i = 0 To UBound(arr)
+        If instr(arr(i),strPattern)>0 Then
+            intPos = i
+            Exit For
+        End If
+    Next
+    
+    UTIL_Array_SearchFirstMatch = intPos
+End Function
+
+
+
+
+'Find the first occurance of a value that match pattern in an array
+'@code
+'   arr = Array("abc", "ghj", "nmg", "ghj")
+'   a = UTIL_Array_SearchFirstMatch(arr, "dd")    'returns empty
+'   b = UTIL_Array_SearchFirstMatch(arr, "gh")    'returns "ghj"
+'   c = UTIL_Array_SearchFirstMatch(arr, "nmg")    'returns "nmg"
+'@endcode
+'@param arr - the array 
+'@param strPattern - value to be search
+'@return if found, return the value
+'@return if not found, return empty
+'@see UTIL_Array_SearchFirstMatch
+
+Function UTIL_Array_SearchFirstMatchValue(arr, strPattern)
+    intPos = UTIL_Array_SearchFirstMatch(arr,strPattern)
+    
+    Dim strMatchVal 
+    If intPos > -1 Then strMatchVal = arr(intPos)
+    UTIL_Array_SearchFirstMatchValue = strMatchVal
+End Function
+
+
+
+'Remove duplicate items from an array
+'@code
+'   arr1 = Array("1", "2", "3", "2", "4", "5")
+'   arrNew = UTIL_Array_RemoveDuplicate(arr1)    ''arr1 now has "1", "2", "3", "4", "5"
+'   arr2 = Array("11", "12", "13", "14", "15")
+'   arrNew = UTIL_Array_RemoveDuplicate(arr2)    'arr2 is unchanged
+'@endcode
+'@param arr - the array 
+
+Function UTIL_Array_RemoveDuplicate(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_RemoveDuplicate", "Type of arr must be array."
+    
+    intAryLen = Ubound(arr)
+    newAryLen = -1
+    ReDim retAry(newAryLen)
+    
+    For i = 0 to intAryLen
+        'if not include, add it
+        If Not(UTIL_Array_Contains(retAry,arr(i),True)) Then
+            newAryLen = newAryLen + 1
+            ReDim Preserve retAry(newAryLen)
+            retAry(newAryLen) = arr(i)
+        End If
+    Next
+
+    ReDim Preserve retAry(newAryLen)
+    UTIL_Array_RemoveDuplicate = retAry
+End Function
+
+
+
+'Reverse the order of the elements in an array
+'@code
+'   arr = Array("farm", "hello", "goodbye", "dog", "zoo")
+'   arrNew = UTIL_Array_Reverse(arr)    'arr now has "zoo", "dog", "goodbye", "hello", "farm"
+'@endcode
+'@param arr - the array 
+
+Function UTIL_Array_Reverse(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_Reverse", "Type of arr must be array."
+    
+    intAryLen = UBound(arr)
+    ReDim retAry(intAryLen)
+    For i = 0 to intAryLen
+        If IsObject(arr(i)) Then
+            Set retAry(intAryLen - i) = arr(i)
+        Else
+            retAry(intAryLen - i) = arr(i)
+        End If
+    Next
+    
+    UTIL_Array_Reverse = retAry
+End Function
+ 
+ 
+ 
+'Sort the elements in an array
+'@code
+'   arr = Array("element", "hello", "goodbye", "dog", "zoo")
+'   arrNew = UTIL_Array_Sort(arr)  'arr now has "dog", "element", "goodbye", "hello", "zoo"
+'@endcode
+'@param arr - the array 
+
+Function UTIL_Array_Sort(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_Sort", "Type of arr must be array."
+     
+    retAry = arr
+    For i = 0 to Ubound(retAry)-1
+        For j = 0 to Ubound(retAry)-1-i
+            If retAry(j)>retAry(j+1) Then
+                temp = retAry(j)
+                retAry(j) = retAry(j+1)
+                retAry(j+1) = temp
+            End If
+        Next
+    Next
+
+    UTIL_Array_Sort = retAry
+End Function
+ 
+'Checks that an array has been "dimmed"
+'@code
+'   arr1 = Array()
+'   Dim arr2 
+'   Dim arr3(0)
+'   Dim arr4(5,4)
+'   Dim arr5()
+'   v1 = UTIL_Array_IsDim(arr1)     'True
+'   v2 = UTIL_Array_IsDim(arr2)     'False
+'   v3 = UTIL_Array_IsDim(arr3)     'True
+'   v4 = UTIL_Array_IsDim(arr4)     'True
+'   v5 = UTIL_Array_IsDim(arr5)     'False
+'@endcode
+'@param arr - the array 
+'@return If array is dimmed, return True
+'@return Otherwise, return False
+
+Function UTIL_Array_IsDim(ByVal arr)
+    UTIL_Array_IsDim = False
+    If IsArray(arr) Then
+        On Error Resume Next
+        intSize = UBound(arr)
+        If Err.Number = 0 Then 
+            UTIL_Array_IsDim = True
+        Else
+            Err.Clear
+       End If     
+    End If
+End Function
+
+
+
+'Returns the dimension of an array.
+'@code
+'   Dim arr0(6)
+'   Dim arr1(5,4)
+'   Dim arr2(3,2,1)
+'   Dim arr3()
+'   UTIL_Array_GetDimension(arr0) 'returns 1
+'   UTIL_Array_GetDimension(arr1) 'returns 2
+'   UTIL_Array_GetDimension(arr2) 'returns 3
+'   UTIL_Array_GetDimension(arr3) 'returns 0
+'@endcode
+'@param arr - Name of the array variable.
+'@return The dimension of the array if successful
+
+Function UTIL_Array_GetDimension(arr)
+    UTIL_AssertTrue IsArray(arr),"UTIL_Array_GetDimension", "Type of arr must be array."
+    Dim i
+    For i = 1 To 60
+        On Error Resume Next
+        UBound arr, i
+        If Err.Number <> 0 Then
+            UTIL_Array_GetDimension = i-1
+            Exit Function
+        End If
+    Next
+    UTIL_Array_GetDimension = i
+     
+End Function
+
+
+
+'This function is to find out the same item in two arrays.
+'@code
+'   UTIL_Array_FindSameItem Array("1", "2", "3",), Array("3", "2", "4", "5")  'returns Array("3","2")
+'   UTIL_Array_FindSameItem Array("1", "2", "3",), Array("4", "5")  'returns Array()
+'@endcode
+'@param arrBasic Any array
+'@param arrFind Any array
+'@return if the two arrays have same item the return array for store the same items, otherwise return an empty array.
+Function UTIL_Array_FindSameItem(arrBasic,arrFind)
+    UTIL_AssertTrue IsArray(arrBasic),"UTIL_Array_FindSameItem", "Type of arrBasic must be array."
+    UTIL_AssertTrue IsArray(arrFind),"UTIL_Array_FindSameItem", "Type of arrFind must be array."
+
+    arrNew = Array()
+    For each ele in arrFind
+        If UTIL_Array_Contains(arrBasic,ele,True) Then
+            arrNew=UTIL_Array_InsertAtEnd(arrNew,ele)
+        End If
+    Next
+    UTIL_Array_FindSameItem = UTIL_Array_RemoveDuplicate(arrNew)
+End Function 
+
+
+'This function is to covert an array to a two-dimension array based on provided dimension
+'If the source array's size is the same or less than the provided dimension, the result will 
+'be one row of an array of the original size; 
+'If the source array's size if more than the provided dimension, the result will be multi-row 
+'two dimension array.  Each row contains an array with no more than intDimensionSize number of elements
+'@param arrSource source array
+'@param intDimensionSize 2nd dimension size
+'@return a two-dimension arry
+
+Function UTIL_Array_ConvertToTwoDimension(arrSource,intDimensionSize)
+
+	intRow = (UBound(arrSource) + 1)\intDimensionSize  
+	If (UBound(arrSource) + 1) Mod intDimensionSize <> 0 Then
+		intRow = intRow + 1     
+	End If
+	
+	'Create 2-dimentional array with intDimensionSize test cases in each row****			
+	ReDim arrNew(intRow - 1,intDimensionSize - 1) 
+	m = 0
+	For i = 0 To UBound(arrNew,1)       'Ubound of first dimension
+		For j = 0 To UBound(arrNew,2)   'Ubound of Second dimension
+			If m > UBound(arrSource) Then 
+				Exit For
+			End If 
+			arrNew(i,j) = arrSource(m)
+			m = m + 1
+		Next
+	Next  
+    UTIL_Array_ConvertToTwoDimension = arrNew
+    
+End Function 
+
+'Returns a string representation of an array. 
+'Supports one dimension and two dimension arrays
+'@param arrSource source array
+'@return a string
+
+Function UTIL_Array_ToString(arrSource)
+    intDim = UTIL_Array_GetDimension(arrSource)
+    If intDim = 1 Then 
+        UTIL_Array_ToString = "[" & join(arrSource, ",") &"]"
+    Elseif intDim = 2 Then 
+        strM = "["
+        For i = 0 To UBound(arrSource,1)        'Ubound of first dimension
+            strM = strM & "["
+            For j = 0 To UBound(arrSource,2)    'Ubound of Second dimension
+                strM = strM & arrSource(i,j) & ","
+            Next
+            strM = Left(strM, Len(strM)-1)
+            strM = strM & "]," 
+        Next
+        strM = Left(strM, Len(strM)-1)
+        strM = strM & "]"    
+    End If
+    UTIL_Array_ToString = strM
+End Function 
+
+
+
+'@}
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ArrayUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\AssertUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: AssertUtil UTIL_AssertUtil
+' This is the function group for assertions and checkpoints
+' 
+' List of functions here
+' Test for Build 9 change
+' @code
+'   Function UTIL_AssertTrue(boolExpression, strEvent, strDetails)
+'   Function UTIL_AssertFalse(boolExpression, strEvent, strDetails)
+'   Function UTIL_AssertNull(theVal, strEvent, strDetails)
+'   Function UTIL_AssertNotNull(ByRef theVal, strEvent, strDetails)
+'   Function UTIL_AssertNothing(ByRef objVal, strEvent, strDetails)
+'   Function UTIL_AssertNotNothing(ByRef objVal, strEvent, strDetails)
+'   Function UTIL_AssertEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'   Function UTIL_AssertNotEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'   Function UTIL_AssertEmpty(ByRef objVal, strEvent, strDetails)
+'   Function UTIL_AssertNotEmpty(ByRef objVal, strEvent, strDetails)
+'   Private Function UTIL_ValidateTrue(boolExpression,strEvent,strDetails,strSource)
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+
+'Assertion to see if specified expression evaluates to true
+'@code
+'   UTIL_AssertTrue 11=2, "error source", "The validation has failed"
+'   UTIL_AssertTrue False, "", ""
+'@endcode
+'@param boolExpression - expression to be checked
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertTrue(boolExpression, strEvent, strDetails)
+    UTIL_AssertTrue = UTIL_ValidateTrue(boolExpression, strEvent, strDetails, "UTIL_AssertTrue")
+End Function
+	
+    
+    
+'Assertion to see if specified expression evaluates to false
+'@code
+'    UTIL_AssertFalse(boolExpression, strEvent, strDetails)
+'@endcode
+'@param boolExpression - expression to be checked
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertFalse(boolExpression, strEvent, strDetails)
+    UTIL_AssertFalse = UTIL_ValidateTrue((not boolExpression), strEvent, strDetails, "UTIL_AssertFalse")
+End Function
+
+
+
+'Assertion to see if specified variant is null
+'@code
+'    UTIL_AssertNull(theVal, strEvent, strDetails)
+'@endcode
+'@param theVal - variant to be checked
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertNull(theVal, strEvent, strDetails)
+    UTIL_AssertNull = UTIL_ValidateTrue(IsNull(theVal), strEvent, strDetails, "UTIL_AssertNull")
+End Function
+
+
+
+'Assertion to see if specified variant is not null
+'@code
+'    UTIL_AssertNotNull(ByRef theVal, strEvent, strDetails)
+'@endcode
+'@param theVal - variant to be checked
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertNotNull(ByRef theVal, strEvent, strDetails)
+    UTIL_AssertNotNull = UTIL_ValidateTrue((Not IsNull(theVal)), strEvent, strDetails, "UTIL_AssertNotNull")
+End Function
+
+
+
+'Assertion to see if variable refers to nothing
+'@code
+'    UTIL_AssertNothing(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertNothing(ByRef objVal, strEvent, strDetails)
+    UTIL_AssertNothing = UTIL_ValidateTrue(objVal Is Nothing, strEvent, strDetails, "UTIL_AssertNothing")
+End Function
+
+
+
+'Assertion to see if variable is initialized or has a reference
+'@code
+'    UTIL_AssertNotNothing(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertNotNothing(ByRef objVal, strEvent, strDetails)
+    UTIL_AssertNotNothing = UTIL_ValidateTrue(Not objVal Is Nothing, strEvent, strDetails, "UTIL_AssertNotNothing")
+End Function
+
+
+
+'Assertion to see if two variables hold the same value
+'@code
+'    UTIL_AssertEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'@endcode
+'@param val1 - variant to be compared
+'@param val2 - variant to be compared
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+    UTIL_AssertEqual = UTIL_ValidateTrue(val1=val2, strEvent, strDetails, "UTIL_AssertEqual")
+End Function
+
+
+
+'Assertion to see if two variables hold different values
+'@code
+'    UTIL_AssertNotEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+'@endcode
+'@param val1 - variant to be compared
+'@param val2 - variant to be compared
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertNotEqual(ByRef val1, ByRef val2, strEvent, strDetails)
+    UTIL_AssertNotEqual = UTIL_ValidateTrue((Not val1=val2), strEvent, strDetails, "UTIL_AssertNotEqual")
+End Function
+
+
+
+'Assertion to see if a variable is uninitialized
+'@code
+'    UTIL_AssertEmpty(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertEmpty(ByRef objVal, strEvent, strDetails)
+   UTIL_AssertEmpty = UTIL_ValidateTrue(IsEmpty(objVal), strEvent, strDetails, "UTIL_AssertEmpty")
+End Function
+
+
+
+'Assertion to see if a variable is initialized
+'@code
+'    UTIL_AssertNotEmpty(ByRef objVal, strEvent, strDetails)
+'@endcode
+'@param objVal - object to be checked
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@return if validation passes, return True; if validation fails, return False
+'@see UTIL_ValidateTrue
+
+Function UTIL_AssertNotEmpty(ByRef objVal, strEvent, strDetails)
+   UTIL_AssertNotEmpty = UTIL_ValidateTrue(Not IsEmpty(objVal), strEvent, strDetails, "UTIL_AssertNotEmpty")
+End Function
+
+
+
+'Validation to see if the specificed expression is true <br>
+'@code
+'    UTIL_ValidateTrue(boolExpression,strEvent,strDetails,strSource)
+'@endcode
+'If strSource is a checkpoint, a runtime error will be raised
+'@param boolExpression - expression to be evaluated
+'@param strEvent - event description to be reported if check returns false
+'@param strDetails - detail message to be reported if check returns false
+'@param strSource - description of caller method
+'@return if validation passes, return True; if validation fails, return False
+
+Private Function UTIL_ValidateTrue(boolExpression,strEvent,strDetails,strSource)
+	UTIL_ValidateTrue = boolExpression
+	If Not(boolExpression) Then Err.raise vbObjectError+100, strSource, "["&strSource&"] "& strEvent&" - " & strDetails
+End Function
+
+'@}''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\AssertUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\DatabaseUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: DatabaseUtil UTIL_DatabaseUtil
+' This is the function group for loading, reading and updating Xml.
+'
+' List of functions here
+' @code
+'   Function UTIL_DB_Select_Oracle(strHost,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+'   Function UTIL_DB_SelectSingle_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+'   Function UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, intNumRows)
+'   Function UTIL_DB_ExecuteQuery(strHost ,strPort,strSID,strUser,strPassword,strSQL)
+'	Function UTIL_Excel_ExecuteUpdateQuery(tstDataFile,strSQL)
+' @endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+
+'This function is to retrieve data from the Oracle Database.
+'@code
+'    UTIL_DB_Select_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+'@endcode
+'@param strHost the host URL
+'@param strPort the port number
+'@param strSID the SID 
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+'@param arrFieldsToRetrieve the array of fields to be retrieved. Can be array or NULL, if null, <br>
+'                           uses columns specified in the select query
+'@return an array of Dictionary objects, each Dictionary object's key is the column name, value is column value  
+'@see UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, intFirstNumRows)
+
+Function UTIL_DB_Select_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+    UTIL_DB_Select_Oracle = UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, -1)
+End Function
+
+
+
+'This function is to retrieve data from the Oracle Database.
+'@code
+'    UTIL_DB_SelectSingle_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+'@endcode
+'@param strHost the host URL
+'@param strPort the port number
+'@param strSID the SID 
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+'@param arrFieldsToRetrieve the array of fields to be retrieved. Can be array or NULL, if null, <br>
+'                           uses columns specified in the select query
+'@return a Dictionary objects, each Dictionary object's key is the column name, value is column value  
+'@see UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, intFirstNumRows)
+
+Function UTIL_DB_SelectSingle_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve)
+    UTIL_DB_SelectSingle_Oracle = UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, 1)
+End Function
+
+
+
+'This function is to retrieve data from the Oracle Database.
+'@code
+'	strHost = "lbpsrt4172vm01.bto.ibm.com"
+'   strPort = "1521"
+'   strSID = "IMPACTCORE"
+'   strUser = "VPORTLD2"
+'   strPassword = "password"
+'   fld1 = "BIZ_Loan_NO"
+'   fld2 = "REGZ_APL_DT"
+'   fld3 = "RESPA_VER"
+'   strLoanNbr  ="990662593"  
+'   SQL Example #1 strSQL= "select " &  fld1 & "," & fld2 & "  from loans where BIZ_Loan_NO = " &  "'" & strLoanNbr & "'"
+'   SQL Example #2 strSQL= "select * from loans where BIZ_Loan_NO = " &  "'" & strLoanNbr & "'"
+'   SQL Example #3 strSQL= "select BIZ_Loan_NO,REGZ_APL_DT,RESPA_VER from loans where BIZ_Loan_NO = " &  "'" & strLoanNbr & "'"
+'   
+'   Call Example #1 OutTable = UTIL_DB_Select_Oracle(strHost,strPort,strSID,strUser,strPassword,strSQL,Array(fld1,fld2,fld3))
+'   Call Example #2 OutTable = UTIL_DB_Select_Oracle(strHost,strPort,strSID,strUser,strPassword,strSQL,NULL)
+'
+'   Display Example #1 msgbox OutTable(0).Item("BIZ_Loan_NO")
+'
+'   Display Example #2 for i = 0  to ubound(OutTable) - 1
+'                          msgbox  OutTable(i).Item("BIZ_Loan_NO") & "  "  & OutTable(i).Item("REGZ_APL_DT")
+'                      next
+'@endcode
+'@param strHost the host URL
+'@param strPort the port number
+'@param strSID the SID 
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+'@param arrFieldsToRetrieve the array of fields to be retrieved. Can be array or NULL, if null, <br>
+'                           uses columns specified in the select query
+'@param intNumRows number of rows to retrieve, if -1, all rows are returned
+'@return an array of Dictionary objects, each Dictionary object's key is the column name, value is column value  
+
+Function UTIL_DB_SelectRows_Oracle(strHost ,strPort,strSID,strUser,strPassword,strSQL,arrFieldsToRetrieve, intNumRows)
+      
+    strConnectionString ="Provider=OraOLEDB.Oracle; Data Source=" & _
+                      "(DESCRIPTION=(CID=GTU_APP)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="&strHost&")"  & _ 
+					  "(PORT="&strPort&")))(CONNECT_DATA=(SID="&strSID&")(SERVER=DEDICATED)));" & _
+                      "User Id="&strUser&";Password="&strPassword&";"
+
+    If  isArray(arrFieldsToRetrieve) Then
+        arrMyFields = arrFieldsToRetrieve
+    Else
+        strFieldsList = Trim(Replace(Replace(UTIL_String_FirstMatch (UCase(strSQL),"SELECT.*FROM"),"SELECT",""),"FROM",""))
+        arrMyFields = Split(strFieldsList,",")
+    End If
+
+	Set objConnection = CreateObject("ADODB.Connection")     
+	objConnection.Open strConnectionString 
+    Set objRows = objConnection.Execute(strSQL)	
+    
+    arrDictionRowTemp = Array(0)
+    intRow = 0    
+    Do While ( Not objRows.EOF And (intNumRows = -1 Or intRow<intNumRows) ) 
+
+		ReDim Preserve arrResultHolder(intRow)
+        Set arrDictionRowTemp(0) = CreateObject("Scripting.Dictionary")
+                
+	    For intLoop = 0 To Ubound(arrMyFields) 		
+            strKey = trim(arrMyFields(intLoop))
+            strValue = objRows.Fields(strKey).Value
+            arrDictionRowTemp(0).Add strKey, strValue
+        Next 
+		Set arrResultHolder(intRow) = arrDictionRowTemp(0)     
+        Set arrDictionRowTemp(0) = Nothing
+        
+        objRows.MoveNext 
+		intRow =  intRow + 1
+    Loop	
+
+    UTIL_DB_SelectRows_Oracle = arrResultHolder
+End Function
+
+
+
+'This function is to execute the qry that sent as a parameter string
+'@code
+'    UTIL_DB_ExecuteQuery(strHost ,strPort,strSID,strUser,strPassword,strSQL)
+'@endcode
+'@param strHost the host URL
+'@param strPort the port number
+'@param strSID the SID 
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+
+Function UTIL_DB_ExecuteQuery(strHost ,strPort,strSID,strUser,strPassword,strSQL)
+
+    strConnectionString ="Provider=OraOLEDB.Oracle; Data Source=" & _
+    "(DESCRIPTION=(CID=GTU_APP)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="&strHost&")"  & _ 
+    "(PORT="&strPort&")))(CONNECT_DATA=(SID="&strSID&")(SERVER=DEDICATED)));" & _
+    "User Id="&strUser&";Password="&strPassword&";"    
+    
+    Set objConnection = CreateObject("ADODB.Connection")     
+    objConnection.Open strConnectionString 
+    Set res = objConnection.Execute(strSQL)
+    
+    objConnection.close
+    Set objConnection=Nothing
+    
+    Set UTIL_DB_ExecuteQuery = res
+End Function 
+
+'This function is to execute the update qry that sent as a parameter string
+'@code
+'    UTIL_DB_ExecuteQuery(tstDataFile,strSQL)
+'@endcode
+'@param tstDataFile Test data File that should be considered as database
+'@param strUser the User ID for DB
+'@param strPassword the password for DB
+'@param strSQL the SQL string
+
+Function UTIL_Excel_ExecuteUpdateQuery(tstDataFile,strSQL)
+
+	strConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;" & "Data Source=" & tstDataFile & ";" & " Extended Properties=""Excel 12.0 xml;Persist Security Info=False;HDR=Yes"";"	
+    
+    Set objConnection = CreateObject("ADODB.Connection")       
+    objConnection.Open strConnectionString 
+    Set res = CreateObject("ADODB.Recordset")
+	 
+		
+	If (objConnection.State=1) Then
+		objConnection.BeginTrans
+		Set res = CreateObject("ADODB.Recordset")
+	
+		With res
+		'.StayInSync=False
+		.Open strSQL, objConnection, 0, 3
+		'.Save
+    	
+		End With
+	Else
+		FRM_Logger_ReportFailEvent "Excel Connection Settings", "Unable to connect to test data file: "& tstDataFile, null
+	End If
+    objConnection.CommitTrans
+    objConnection.close
+    Set objConnection=Nothing
+    Set res=Nothing
+
+End Function 
+
+
+'@}
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\DatabaseUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\DateUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: DateUtil UTIL_DateUtil
+' This is the function group for date format convert .
+' 
+' List Of functions here
+' @code
+'   Function UTIL_Date_Now_mmddyyyy_HHnnss()
+'	Function UTIL_Date_LastDayOfMonth(strMonth, strYear)
+'   Function UTIL_Date_CalcBusinessDays(dtmStart, dtmDue)
+'   Function UTIL_Date_AddBusinessDay(dtmStart, intDays)
+'   Function UTIL_Date_FormatDateByPattern(dtmVal, strPattern)
+'   Function UTIL_Date_GetWeekendDays(ByVal dtmStart, ByVal dtmDue)
+'   Function UTIL_Date_AddMinutesToNow(intMin)
+'	Function UTIL_Date_IsHoliday(dtmDate)
+'	Function UTIL_Date_GetCurrentTimeinPST()
+'	Function UTIL_Date_AddBusinessDays_RegZCalendar(dtStart, intDays)
+'	Function UTIL_Date_IsHoliday_RegZCalendar(dtmDate)
+'	Function UTIL_Date_GetDayHourAndMinute(strDate)
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Returns current timestamp in format of mmddyyyy_HHnnss
+Function UTIL_Date_Now_mmddyyyy_HHnnss()
+	UTIL_Date_Now_mmddyyyy_HHnnss = UTIL_Date_FormatDateByPattern(Now(), "mmddyyyy_HHnnss")
+End Function
+
+
+'This function is to return the last day of the Month and Year provided
+'@param strMonth month
+'@param strYear year
+'@return the last day of the Month and Year provided
+
+Function UTIL_Date_LastDayOfMonth(strMonth, strYear)
+
+	dim tmpMonth, tmpYear
+	tmpMonth = strMonth
+	tmpYear = strYear
+
+	UTIL_Date_LastDayOfMonth = DateAdd("d", -1, DateAdd("m", 1, tmpMonth & "/1/" & tmpYear))
+	
+End Function
+
+'This function is to calculate business day between start date and due date. 
+'@code
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("2015/02/11", "2015/02/09")	intBusinessDays value is -2
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("2015/02/11", "2015/02/15")	02/14 and 02/15 are weekend . intBusinessDays value is 2
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("02/11/2015", "02/15/2015")	02/14 and 02/15 are weekend . intBusinessDays value is 2
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("2015/02/11", "2015/02/18")	02/11 and 02/18 not the same week . intBusinessDays value is 5
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("2015/02/14", "2015/02/15")	02/14 is Saturday , 02/15 is Sunday . intBusinessDays value is 0.
+'@endcode
+'@param dtmStart start date of a task 
+'@param dtmDue due date of a task.
+'@return the value of the business day difference between start date and due date.  
+
+Function UTIL_Date_CalcBusinessDays(ByVal dtmStart, ByVal dtmDue)
+
+	If Not (IsDate(dtmStart) and IsDate(dtmDue)) Then		'Check whether the parameters are date type .
+		UTIL_AssertTrue False, "UTIL_Date_CalcBusinessDays", "Check start date and end date is valid.  Start date=" _
+			& dtmStart & ", End date=" & dtmDue
+	Else
+		dtmStart = CDate(dtmStart)
+		dtmDue = CDate(dtmDue)
+	End If
+
+    'remove days off beginning or end, in case an argument is a weekend
+    Select Case datepart("w", dtmStart)
+		Case 1
+			dtmStart = DateAdd("d",-2,dtmStart)
+		Case 7
+			dtmStart = DateAdd("d",-1,dtmStart)
+	End Select
+
+	Select Case datepart("w", dtmDue)
+		Case 1
+			dtmDue = DateAdd("d",-2,dtmDue)
+		Case 7
+			dtmDue = DateAdd("d",-1,dtmDue)
+	End Select
+
+	intDateDiff = DateDiff("d", dtmStart, dtmDue)
+	intWeekendDays = DateDiff("ww", dtmStart, dtmDue) * 2
+	UTIL_Date_CalcBusinessDays = intDateDiff - intWeekendDays
+ 
+End Function
+
+
+
+'This function is to calculate the business date of start date plus some days . 
+'@code
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 2)	dtmResultDate value is 2015/02/20
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 3)	02/21 and 02/22 are weekend . dtmResultDate value is 2015/02/23
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 8)	02/21 02/22 02/28 and 03/01 not are weekend . dtmResultDate value is 2015/03/02 .
+'@endcode
+'@param dtmStart Start date . 
+'@param intDays The days be used to add with Start date .
+'@return the business date after start date plus days .  
+
+Function UTIL_Date_AddBusinessDay(dtmStart, intDays)
+
+    intWeeks = Fix(intDays/5)		'5 business days for a week . 
+    intDaysMod = intDays Mod 5		
+    intDay = DatePart("w", dtmStart)
+	
+    If (intDay = 7) And intDaysMod > -1 Then	'When dtmStart is Saturday . And intDaysMod is greater than -1 .
+        If intDaysMod = 0 Then					'When intDaysMod is 0 . intDays is a multiple of 5 .
+            intDaysMod = intDaysMod - 2
+            intDay = intDay + 2
+        End If
+        intDaysMod = intDaysMod + 1
+        intDay = intDay - 7
+    End If
+	
+    If intDay = 1 And intDaysMod < 1 Then		'When dtmStart is Sunday . 
+        If intDaysMod = 0 Then
+			intDaysMod = intDaysMod + 2
+			intDay = intDay - 2
+		End If
+		intDaysMod = intDaysMod - 1
+		intDay = intDay + 6
+    End If
+	
+    If intDay + intDaysMod > 6 Then 			'When intDay plus intdaysMod greater than 6. The day will be Saturday . So the day is next Monday .
+		intDaysMod = intDaysMod + 2
+	End If
+	
+    If intDay + intDaysMod < 2 Then 			'When intDay plus intDaysMod less than 2. The day will be Sunday . 
+		intDaysMod = intDaysMod - 2
+	End If
+	
+	'Caculate the date after dtmStart plus intDays .
+    UTIL_Date_AddBusinessDay = DateAdd("d", (intWeeks * 7 + intDaysMod), dtmStart)
+End Function
+
+
+
+'This function is to convert date format to which you want . 
+'@code
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "yymmdd")  			    now is 2015/02/22 11:19:43 .  dtmConvert is 150222
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "yyyy-mm-dd")		    dtmConvert is 2015-02-22
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "yymmdd HH:nn")		    dtmConvert is 150222 11:19	
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "mmddyyyy HH:nn:ss")    dtmConvert is 02222015 11:19:43
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "mm/dd/yyyy")		    dtmConvert is 02/22/2015
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "HH:nn:ss")			    dtmConvert is 11:19:43
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "mmdyyyyHHnnss")	    dtmConvert is 02222015111943
+'@endcode
+'@param dtmVal A date format param which need to be converted .
+'@param strPattern The data format which you want to convert.
+'@return The date of  the format same as param strPattern. 
+
+Function UTIL_Date_FormatDateByPattern(dtmVal, strPattern)
+ 
+    If( Not IsDate(dtmVal) ) Then 
+        dtmVal = CDate(dtmVal) 
+    End If  
+    
+    UTIL_Date_FormatDateByPattern = strPattern
+	
+    dtmYear = Year(dtmVal)    
+    If( InStr(strPattern, "yyyy") > 0 ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "yyyy", dtmYear)
+    ElseIf( InStr(strPattern, "yy") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "yy", Mid(dtmYear,3,2))
+    End If 
+    
+    dtmMonth = Month(dtmVal)
+    If( InStr(strPattern, "mm") > 0  ) Then
+        If dtmMonth < 10 Then
+            dtmMonth = "0" & dtmMonth 
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "mm", dtmMonth)
+    ElseIf( InStr(strPattern, "m") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "m", dtmMonth)
+    End If 
+    
+    dtmDay = Day(dtmVal)
+    If( InStr(strPattern, "dd") > 0  ) Then
+        If dtmDay < 10 Then
+            dtmDay = "0" & dtmDay 
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "dd", dtmDay)
+    ElseIf( InStr(strPattern, "d") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "d", dtmDay)
+    End If
+    
+    dtmHour = Hour(dtmVal)
+    If( InStr(strPattern, "HH") > 0  ) Then
+        If dtmHour < 10 Then
+            dtmHour = "0" & dtmHour
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "HH", dtmHour)
+    ElseIf( InStr(strPattern, "H") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "H", dtmHour)
+    End If  
+
+    dtmMinute = Minute(dtmVal)
+    If( InStr(strPattern, "nn") > 0  ) Then
+        If dtmMinute < 10 Then
+            dtmMinute = "0" & dtmMinute
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "nn", dtmMinute)
+    ElseIf( InStr(strPattern, "n") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "n", dtmMinute)
+    End If      
+
+    dtmSecond = Second(dtmVal)
+    If( InStr(strPattern, "ss") > 0  ) Then
+        If dtmSecond < 10 Then
+            dtmSecond = "0" & dtmSecond
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "ss", dtmSecond)
+    ElseIf( InStr(strPattern, "s") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "s", dtmSecond)
+    End If      
+	
+End Function  
+
+
+'This function is to calculate weekend days between start date and due date . 
+'@code
+'   intWeekendDays = UTIL_Date_GetWeekendDays("2015/07/07", "2015/07/10")	return value is 0
+'   intWeekendDays = UTIL_Date_GetWeekendDays("2015/07/07", "2015/07/11")	return value is 1
+'   intWeekendDays = UTIL_Date_GetWeekendDays("2015/07/07", "2015/07/12")	return value is 2
+'@endcode
+'@param dtmStart start date of a task 
+'@param dtmDue due date of a task.
+'@return the value of the Weekend day difference between start date and due date .  
+
+Function UTIL_Date_GetWeekendDays(ByVal dtmStart, ByVal dtmDue)
+    If Not (IsDate(dtmStart) and IsDate(dtmDue)) Then
+        UTIL_AssertTrue False, "UTIL_Date_CalcBusinessDays", "Check start date and end date is valid.  Start date=" & dtmStart & ", End date=" & dtmDue
+    Else
+        dtmStart = CDate(dtmStart)
+        dtmDue = CDate(dtmDue)
+    End If
+    intWeekendDays=DateDiff("ww",dtmStart,dtmDue) + DateDiff("ww",dtmStart,dtmDue,7)
+    UTIL_Date_GetWeekendDays=intWeekendDays
+End Function
+
+
+
+'Returns a date to which a specified time interval has been added. (Format: 04/07/2015 12:23 PM)
+'@code
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 2)	dtmResultDate value is 2015/02/20
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 3)	02/21 and 02/22 are weekend . dtmResultDate value is 2015/02/23
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 8)	02/21 02/22 02/28 and 03/01 not are weekend . dtmResultDate value is 2015/03/02 .
+'@endcode
+'@param intMin - the amout of added time should be in minutes (one day = 1440 min)
+ 
+Function UTIL_Date_AddMinutesToNow(intMin)
+
+	'=====Add minuts to the current time=====
+	objDate = DateAdd("n", intMin, Now)
+	UTIL_Date_AddMinutesToNow = UTIL_Date_FormatDateByPattern("mm/dd/yyyy HH:nn") & " " & Right(objDate, 2)
+End Function
+	
+
+'Checks if a date is a holiday
+'@param dtmDate - date object
+'@return True if it is holiday, False if not
+	
+Function UTIL_Date_IsHoliday(dtmDate)
+	'Checks to see if passed date is a holiday
+	Dim iDay, iTmpDay, i
+
+	UTIL_Date_IsHoliday = 0
+	iDay = Day(dtmDate)
+
+	'Check if valid date first
+	If IsDate(dtmDate) Then
+		Select Case Month(dtmDate)
+
+			Case 1  'Jan
+				If iDay = 1 Then  'New Years
+					UTIL_Date_IsHoliday = 1
+				Else
+			 If iDay = 2 Then  'Make sure new years doesn't fall on sunday. 
+							   'If so, today is a holiday.
+							if Weekday(DateAdd("d", -1, dtmDate)) = 1 then
+					UTIL_Date_IsHoliday = 1
+				end if
+				 Else
+				For i = 0 To 30     'Martin Luther King B-Day
+					If Weekday(DateAdd("d", i, CDate("1/1/" & Year(dtmDate)))) _
+								  = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", i + 14, _
+							  CDate("1/1/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday = 1
+						End If
+						Exit For  'PG 1/28
+					End If
+				Next 
+			End If
+				End If
+
+			Case 2  'Feb
+			For i = 0 To 27     'President's Day
+			   If Weekday(DateAdd("d", i, CDate("2/1/" & Year(dtmDate)))) = 2 _
+						Then
+				If CDate(dtmDate) = CDate(DateAdd("d", i + 14, _
+						CDate("2/1/" & Year(dtmDate)))) Then
+				   UTIL_Date_IsHoliday = 1
+				End If
+				Exit For 
+			 End If
+		  Next 
+
+			Case 3  'Mar
+			Case 4  'Apr
+
+			Case 5  'May
+				For i = 1 To 7  'Memorial Day
+					If Weekday(DateAdd("d", "-" & i, _
+						 CDate("5/31/" & Year(dtmDate)))) = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", "-" & i, _
+						  CDate("5/31/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday = 1
+						End If
+						Exit For
+					End If
+				Next 
+
+			Case 6  'Jun
+
+			Case 7  'Jul
+		If iDay = 4 Then  'Independence Day
+			UTIL_Date_IsHoliday = 1
+		Else
+			If iDay = 3 Then  'Make sure Independence Day doesn't 
+						 'fall on saturday. If so, Friday is a holiday.
+						  if Weekday(DateAdd("d", 1, dtmDate)) = 7 then
+					UTIL_Date_IsHoliday = 1
+				end if
+			Else    
+				If iDay = 5 Then  'Make sure Independence 
+						'Day doesn't fall on sunday. If so, Monday is a holiday.
+					if Weekday(DateAdd("d", -1, dtmDate)) = 1 then
+						UTIL_Date_IsHoliday = 1
+					end if
+				End If
+			End If
+		End If
+
+			Case 8 'Aug
+
+			Case 9 'Sep
+				For i = 0 To 13  'Labor Day
+					If Weekday(DateAdd("d", i, CDate("9/1/" & _
+							Year(dtmDate)))) = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", i, _
+							   CDate("9/1/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday = 1
+						End If
+						Exit For
+					End If
+				Next 
+
+			Case 10 'Oct
+		For i = 0 To 13  'Columbus Day
+		   If Weekday(DateAdd("d", i, CDate("10/1/" & _
+						  Year(dtmDate)))) = 2 Then
+			  If CDate(dtmDate) = CDate(DateAdd("d", i + 7, CDate("10/1/" & _
+					  Year(dtmDate)))) Then
+				 UTIL_Date_IsHoliday = 1
+			  End If
+				Exit For
+		   End If
+		Next 
+
+			Case 11 'Nov
+		If iDay = 11 Then  'Veteran's Day
+		   UTIL_Date_IsHoliday = 1
+		Else
+		   If iDay = 10 Then  'Make sure Veterans Day doesn't fall 
+					   'on saturday. If so, Friday is a holiday.
+			  if Weekday(DateAdd("d", 1, dtmDate)) = 7 then
+				 UTIL_Date_IsHoliday = 1
+			  end if
+		   Else    
+			  If iDay = 12 Then  'Make sure Veterans Day doesn't 
+					   'fall on sunday. If so, Monday is a holiday.
+				 if Weekday(DateAdd("d", -1, dtmDate)) = 1 then
+					UTIL_Date_IsHoliday = 1
+				 end if
+			  Else
+				 For i = 0 To 28     'Thanksgiving & the Day After
+					If Weekday(DateAdd("d", i, CDate("11/1/" & _
+						Year(dtmDate)))) = 5 Then 'this is the first 
+								   'thursday of the month
+					   if datediff("d", dtmDate,  DateAdd("d", i + 21, _
+							 CDate("11/1/" & Year(dtmDate)))) = 0 then 'add 3 
+								 'weeks to the first to get the 4th (thanksgiving)
+						  UTIL_Date_IsHoliday = 1
+						  Exit For
+						End If
+					End if
+					If Weekday(DateAdd("d", i, CDate("11/1/" & _
+						 Year(dtmDate)))) = 6 Then 'this is the day 
+								  'after thanksgiving
+					   if datediff("d", dtmDate,  DateAdd("d", i + 21,_
+							CDate("11/1/" & Year(dtmDate)))) = 0 then
+						  UTIL_Date_IsHoliday = 1
+						  Exit For
+					   End If            
+					 End if
+				 Next
+			  End If
+		   End If
+		End If
+
+			Case 12 'Dec
+		If iDay = 25 Then  'Christmas
+		   UTIL_Date_IsHoliday = 1
+		Else
+		   If iDay = 24 Then  'Make sure Christmas Day doesn't 
+				  'fall on saturday. If so, Friday is a holiday.
+			  if Weekday(DateAdd("d", 1, dtmDate)) = 7 then
+				 UTIL_Date_IsHoliday = 1
+			  end if
+		   Else    
+			  If iDay = 26 Then  'Make sure Christmas 
+				   'Day doesn't fall on sunday. If so, Monday is a holiday.
+				 if Weekday(DateAdd("d", -1, dtmDate)) = 1 then
+					UTIL_Date_IsHoliday = 1
+				 end if
+			  Else
+				 If iDay = 31 Then  'Make sure new years 
+					  'doesn't fall on saturday. If so, today is a holiday.
+					if Weekday(DateAdd("d", 1, dtmDate)) = 7 then
+					   UTIL_Date_IsHoliday = 1
+					End if
+				 End if
+			  End if
+		   End if
+		End If
+
+		Case Else
+			'Do nothing but return false
+
+		End Select
+	End If
+
+End Function
+
+Function UTIL_Date_GetCurrentTimeinPST()
+	set WshShell = CreateObject("WScript.Shell")
+	var_offset = WshShell.RegRead("HKLM\System\CurrentControlSet\Control\TimeZoneInformation\ActiveTimeBias")
+	PSTTime = DateAdd("h", -8, DateAdd("n", var_offset, Now))
+	If Month(PSTTime) > 3 AND Month(PSTTime) < 11  Then
+		PSTTime = DateAdd("h", 1, PSTTime)
+	ElseIf Month(PSTTime) = 3 Then
+		CurrentYear = Year(PSTTime)
+		CurrentDate = 0
+		CountSecondSunday = 0
+		While CountSecondSunday < 2
+			CurrentDate = CurrentDate + 1
+			If weekday(CDate("03/" & CurrentDate &  "/" & CurrentYear)) = 1 Then
+				CountSecondSunday = CountSecondSunday + 1
+			End If
+		Wend
+		If DateDiff("s", CDate("03/" & CurrentDate & "/" & CurrentYear & " 2:00:00 AM"), PSTTime) >=0 Then
+			PSTTime = DateAdd("h", 1, PSTTime)
+		End If
+	ElseIf Month(PSTTime) = 11 Then
+		PSTTime = DateAdd("h", 1, PSTTime)
+		CurrentYear = Year(PSTTime)
+		CurrentDate = 0
+		CountFirstSunday = 0
+		While CountFirstSunday < 1
+			CurrentDate = CurrentDate + 1
+			If weekday(CDate("11/" & CurrentDate &  "/" & CurrentYear)) = 1 Then
+				CountFirstSunday = CountFirstSunday + 1
+			End If
+		Wend
+		If  DateDiff("s", CDate("11/" & CurrentDate & "/" & CurrentYear & " 2:00:00 AM"), PSTTime) >= 0 Then
+			PSTTime = DateAdd("h", -1, PSTTime)
+		End If
+	End If
+	UTIL_Date_GetCurrentTimeinPST = PSTTime
+End Function
+
+Function UTIL_Date_AddBusinessDays_RegZCalendar(dtStart, intDays)
+	dtCurrentDate = dtStart
+	While Weekday(dtCurrentDate) = 1 OR UTIL_Date_IsHoliday_RegZCalendar(dtCurrentDate) = 1
+		dtCurrentDate = DateAdd("d", 1, dtCurrentDate)
+	Wend
+	i = 0
+	While i < intDays
+		dtCurrentDate = DateAdd("d", 1, dtCurrentDate)
+		If Weekday(dtCurrentDate) <> 1 AND UTIL_Date_IsHoliday_RegZCalendar(dtCurrentDate) <> 1 Then
+			i = i + 1
+		End If
+		
+	Wend
+	UTIL_Date_AddBusinessDays_RegZCalendar = dtCurrentDate
+End Function
+
+'Checks if a date is a RegZ calendar holiday
+'@param dtmDate - date object
+'@return True if it is holiday, False if not
+
+Function UTIL_Date_IsHoliday_RegZCalendar(dtmDate)
+	'Checks to see if passed date is a holiday
+	Dim iDay, iTmpDay, i
+
+	UTIL_Date_IsHoliday_RegZCalendar = 0
+	iDay = Day(dtmDate)
+
+	'Check if valid date first
+	If IsDate(dtmDate) Then
+		Select Case Month(dtmDate)
+
+			Case 1  'Jan
+				If iDay = 1 Then  'New Years
+					UTIL_Date_IsHoliday_RegZCalendar = 1
+				Else
+			 		For i = 0 To 30     'Martin Luther King B-Day
+						If Weekday(DateAdd("d", i, CDate("1/1/" & Year(dtmDate)))) _
+								  = 2 Then
+							If CDate(dtmDate) = CDate(DateAdd("d", i + 14, _
+							  CDate("1/1/" & Year(dtmDate)))) Then
+								UTIL_Date_IsHoliday_RegZCalendar = 1
+							End If
+							Exit For  'PG 1/28
+						End If
+					Next 
+				End If
+				
+
+			Case 2  'Feb
+				For i = 0 To 27     'President's Day
+			   		If Weekday(DateAdd("d", i, CDate("2/1/" & Year(dtmDate)))) = 2 _
+						Then
+						If CDate(dtmDate) = CDate(DateAdd("d", i + 14, _
+							CDate("2/1/" & Year(dtmDate)))) Then
+						   UTIL_Date_IsHoliday_RegZCalendar = 1
+						End If
+						Exit For 
+			 		End If
+		  		Next 
+
+			Case 5  'May
+				For i = 1 To 7  'Memorial Day
+					If Weekday(DateAdd("d", "-" & i, _
+						 CDate("5/31/" & Year(dtmDate)))) = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", "-" & i, _
+						  CDate("5/31/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday_RegZCalendar = 1
+						End If
+						Exit For
+					End If
+				Next 
+
+			Case 7  'Jul
+				If iDay = 4 Then  'Independence Day
+					UTIL_Date_IsHoliday_RegZCalendar = 1
+				End If
+		Case 9 'Sep
+				For i = 0 To 13  'Labor Day
+					If Weekday(DateAdd("d", i, CDate("9/1/" & _
+							Year(dtmDate)))) = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", i, _
+							   CDate("9/1/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday_RegZCalendar = 1
+						End If
+						Exit For
+					End If
+				Next 
+
+			Case 10 'Oct
+			For i = 0 To 13  'Columbus Day
+			   If Weekday(DateAdd("d", i, CDate("10/1/" & _
+						  Year(dtmDate)))) = 2 Then
+				  If CDate(dtmDate) = CDate(DateAdd("d", i + 7, CDate("10/1/" & _
+					  Year(dtmDate)))) Then
+					 UTIL_Date_IsHoliday_RegZCalendar = 1
+				  End If
+				Exit For
+			   End If
+			Next 
+
+			Case 11 'Nov
+				If iDay = 11 Then  'Veteran's Day
+				   UTIL_Date_IsHoliday_RegZCalendar = 1
+				Else
+					 For i = 0 To 28     'Thanksgiving
+							If Weekday(DateAdd("d", i, CDate("11/1/" & _
+							Year(dtmDate)))) = 5 Then 'this is the first 
+								   'thursday of the month
+						   		if datediff("d", dtmDate,  DateAdd("d", i + 21, _
+									 CDate("11/1/" & Year(dtmDate)))) = 0 then 'add 3 
+								 'weeks to the first to get the 4th (thanksgiving)
+									  UTIL_Date_IsHoliday_RegZCalendar = 1
+								  Exit For
+								End If
+							End if
+						Next
+			  		End If
+		Case 12 'Dec
+			If iDay = 25 Then  'Christmas
+			   UTIL_Date_IsHoliday_RegZCalendar = 1
+			End If
+		Case Else
+	
+
+		End Select
+	End If
+
+End Function	
+
+
+
+'This function is used to get date and time (hour,minute)
+'@code
+'    UTIL_Date_GetDayHourAndMinute(strDate)
+'@endcode
+'@Param strDate you can pass now, to get mm/dd/yyyy hour:minute
+
+Function UTIL_Date_GetDayHourAndMinute(strDate)
+
+	arrNewDate = Split(strDate,"/")
+	
+	If arrNewDate(0) < 10 and arrNewDate(0) > 0 and Len(arrNewDate(0))<2 Then
+		strNewDate = "0" & arrNewDate(0)
+	Else
+		strNewDate = arrNewDate(0)
+	End If
+	
+	If arrNewDate(1) < 10 and arrNewDate(1) > 0 and Len(arrNewDate(1))<2  Then
+		strNewMonth = "0"&arrNewDate(1)
+	Else
+		strNewMonth = arrNewDate(1)
+	End If
+	
+	arrYYTime = split(arrNewDate(2)," ")
+	strNewDatevalue = strNewDate & "/" & strNewMonth & "/" & arrYYTime(0)
+	
+	arrTime = split(arrYYTime(1),":")
+	If arrTime(0) < 10 and arrTime(0) > 0 and Len(arrTime(0))<2 Then
+		strHTime = "0" & arrTime(0)
+	Else
+		strHTime = arrTime(0)
+	End If
+	strTime = strHTime & ":" & arrTime(1)
+	
+	UTIL_Date_GetDayHourAndMinute	=	strNewDatevalue&" "&strTime
+	
+End Function
+
+
+	
+
+'@} 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\DateUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\DictionaryUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: DictionaryUtil UTIL_DictionaryUtil
+' This is the function group for dealing with Dictionary object
+'
+' List of functions here
+' @code
+'   Function UTIL_Dict_Keys(objDict) 
+'   Function UTIL_Dict_Values(objDict) 
+'   Function UTIL_Dict_KeyExists(objDict, strKey) 
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+'Get keys in a dictionary object
+'@param objDict dictionary object
+Function UTIL_Dict_Keys(objDict)
+   
+    strTypeName = typename(objDict) 
+    If strTypeName = "Dictionary" Then  
+		UTIL_Dict_Keys = objDict.Keys   ' Get the keys
+	End If
+End Function
+
+
+'Get items in a dictionary object
+'@param objDict dictionary object
+Function UTIL_Dict_Values(objDict)
+
+    strTypeName = typename(objDict) 
+    If strTypeName = "Dictionary" Then  
+		UTIL_Dict_Values = objDict.Items   ' Get the items.	
+	End If
+
+End Function
+
+
+'Check if a key exists a dictionary object
+'@param objDict dictionary object
+'@param strKey key
+Function UTIL_Dict_KeyExists(objDict, strKey) 
+
+	UTIL_Dict_KeyExists = objDict.Exists(strKey)
+	
+End Function
+
+'@}''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\DictionaryUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ExcelUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: ExcelUtil UTIL_ExcelUtil
+' This is a Util Excel function group
+' 
+' List of functions:
+' @code
+'	UTIL_Excel_SheetExistsInWorkbook(objWorkbook, strSheetName)
+'   UTIL_Excel_GetCellValues( strExcelFilePath, strSheetName, strColumnName) 
+'   UTIL_Excel_GetCellValueSearchByColumn(strExcelFilePath, strSheetName, strSearchByColumn, strSearchByValue, strColumnName) 
+'   UTIL_Excel_GetColumnIndexByName( strExcelFilePath, strSheetName, strColumnName )
+'   UTIL_Excel_GetRowIndexByColumnValue(strExcelFilePath, strSheetName, strColumnName, strColumnValue)
+'   UTIL_Excel_Save(localPath)
+'   UTIL_Excel_GetHeader(strExcelFilePath, strSheetName)
+'	UTIL_Excel_GetCellData(strExcelFilePath, strSheetName, strRowNumOrIndex, strColumnNumOrIndex)
+'	UTIL_Excel_Opened_File_Save(strExcelFileName)
+'	UTIL_Excel_Opened_File_Delete(strFileNameWithPath)
+' @endcode
+'
+'@{
+''''''''''''''''''''''''''''''''''''''''''
+
+'Checks to see if datasheet exists in the excel workbook
+'@param strExcelFilePath the full path to the excel workbook including file name
+'@param objWorkbook excel workbook object
+'@return True if datasheet exists; False if doesn't
+
+Function UTIL_Excel_SheetExistsInWorkbook(objWorkbook, strSheetName)
+
+    On Error Resume Next
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)	
+    If Err.Number <> 0 Then
+        UTIL_Excel_SheetExistsInWorkbook = False
+	Else
+        UTIL_Excel_SheetExistsInWorkbook = True
+    End If
+	Err.Clear
+	On Error GoTO 0
+	
+    Set objWorksheet = Nothing
+	
+End Function
+
+'Returns an array of values of a column of all rows in an excelsheet.  
+'             The values are returned in an array
+'@code
+'	strCellsList = UTIL_Excel_GetCellValues( "c:\MyDate.xls", "CustomerData", "Last Name") 
+'@endcode
+'@param strExcelFilePath the full path to the file including file name
+'@param strSheetName the name sheet/tab from excel document
+'@param strColumnName the the column name in the sheet
+'@return a zero-based, one-dimensional array that contains values from all rows for the given column <br>
+'        if file or column can't be found, returns an empty array
+
+Function UTIL_Excel_GetCellValues( strExcelFilePath, strSheetName, strColumnName ) 
+
+    UTIL_Excel_GetCellsValues = Array("") 
+    boolFileFound = UTIL_File_FileExists(strExcelFilePath)    
+	If Not boolFileFound Then			
+        Exit Function 
+    End If
+    
+    intTargetColumnNumber = UTIL_Excel_GetColumnIndexByName(strExcelFilePath, strSheetName, strColumnName)
+    If intTargetColumnNumber = -1 Then
+        UTIL_AssertTrue False, "UTIL_Excel_GetCellValues", _
+        "Check '"& strColumnName & "' exists in '"&  strSheetName & "' of " & strExcelFilePath
+        Exit Function
+    End If 
+    
+    strData = ""
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 
+
+    For i=1 to intRowCount
+        On Error Resume Next  
+        If strData = "" Then
+            strData =  trim(objWorksheet.Cells(i, intTargetColumnNumber).value) 
+        Else
+            If not trim(objWorksheet.Cells(i, intTargetColumnNumber).value) = "" Then
+              strData =  strData & "~" & trim(objWorksheet.Cells(i, intTargetColumnNumber).value)     
+	        End If                          
+        End if
+        If Err.Number <> 0  Then
+		   UTIL_AssertTrue False,"UTIL_Excel_GetCellValues", Err.Number & "," & Err.Description 
+           Err.Clear
+        End If
+    Next
+
+    UTIL_Excel_GetCellValues = Split(strData, "~")
+    objWorkbook.Close
+	objExcel.Quit
+
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+
+End Function
+
+
+
+'This function Loops through all the rows in the excel sheet, 
+'             locates the cell in the provided column that contains the provided ell value, 
+'             then retrieves the cell value of the another column in the same row             
+'@code
+'	strCellValueFound = UTIL_Excel_GetCellValueSearchByColumn("c:\mydata.xls", "Scenarios", "ScenarioID", "126", "UW Actions") 
+'@endcode
+'@param strExcelFilePath the full path to the file including file name
+'@param strSheetName the name sheet/tab from excel document
+'@param strSearchByColumn the name of column in which cell value should match a given value and row found
+'@param strSearchByValue the value by which row in column will be found
+'@param strColumnName the target column name in the sheet where cell value needs to be retrieved
+'@return value from the target column 
+
+Function UTIL_Excel_GetCellValueSearchByColumn(strExcelFilePath, strSheetName, strSearchByColumn, strSearchByValue, strColumnName) 
+
+    UTIL_Excel_GetCellValueSearchByColumn = ""
+	boolFileFound = True
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    boolFileFound = UTIL_AssertTrue (objFSO.FileExists(strExcelFilePath),"UTIL_Excel_GetCellValueSearchByColumn", _ 
+        "Check '"& strExcelFilePath & "' exists." )
+    Set objFSO = Nothing        
+    If Not boolFileFound Then
+        Exit Function 
+    End If
+
+    strData = ""
+    intTargetColumnNumber = UTIL_Excel_GetColumnIndexByName(strExcelFilePath, strSheetName, strColumnName)
+    intSearchByColumnNumber = UTIL_Excel_GetColumnIndexByName(strExcelFilePath, strSheetName, strSearchByColumn)
+    If intTargetColumnNumber = -1 Then
+        strErrorColumn = strColumnName
+    End If
+    If intSearchByColumnNumber = -1 Then
+        strErrorColumn = strSearchByColumn
+    End If    
+    If intTargetColumnNumber = -1 Or intSearchByColumnNumber = -1 Then
+        UTIL_AssertTrue False, "UTIL_Excel_GetCellValueSearchByColumn", _
+        "Check '"& strErrorColumn & "' exists in '"&  strSheetName & "' of " & strExcelFilePath 
+        Exit Function
+    End If 
+    
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 
+	  	
+    On Error Resume Next    
+    For n = 1 to intRowCount                       'get value from "target" column                                                        
+        If  trim(objWorksheet.Cells(n, intSearchByColumnNumber).value)  = trim(strSearchByValue) Then
+	        On Error Resume Next  
+            strData = Trim( objWorksheet.Cells(n, intTargetColumnNumber).value )
+	        If Err.Number <> 0  Then 
+			    UTIL_AssertTrue False,"UTIL_Excel_GetCellValueSearchByColumn",Err.Number & "," & Err.Description
+                strData = "ERROR:"& Err.Number & "," & Err.Description 
+                Err.Clear
+            End If
+            On Error GoTo 0
+	        Exit for
+        End If
+    Next 
+
+    UTIL_Excel_GetCellValueSearchByColumn = strData   
+    objWorkbook.Close
+	objExcel.Quit
+
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+
+End Function
+
+
+
+'Finds the index of a column that has the provided column header 
+'@code
+'	intColIndex = UTIL_Excel_GetColumnIndexByName( "c:\MyDate.xls", "CustomerData", "Last Name") 
+'@endcode
+'@param strExcelFilePath the full path to the file including file name
+'@param strSheetName the name sheet/tab from excel document
+'@param strColumnName the the column name in the sheet
+'@return the index of a column that has the provided column header if found; -1 if column not found
+
+Function UTIL_Excel_GetColumnIndexByName( strExcelFilePath, strSheetName, strColumnName )
+
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+    intTargetColumnNumber = -1
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 
+
+    For n = 1 to intColumnCount    'find "target" column number
+	    If  trim(objWorksheet.Cells(1, n).value) = trim(strColumnName)  Then
+		    intTargetColumnNumber = n
+		    Exit for
+	    End If
+    Next
+	
+    objWorkbook.Close
+    objExcel.Quit
+
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+
+    UTIL_Excel_GetColumnIndexByName = intTargetColumnNumber
+    
+End Function
+
+
+
+'Get row index with column name and column value .
+'@code
+'	intColIndex = UTIL_Excel_GetRowIndexByColumnValue( "c:\MyDate.xls", "sheetName", "Last Name", "Jim") 
+'@endcode
+'@param strExcelFilePath the full path to the file including file name
+'@param strSheetName the name sheet/tab from excel document
+'@param strColumnNameOrIndex the the column name or column index in the sheet
+'@param strColumnValue the column value with the column name in the sheet
+'@return the row index with strColumnNameOrIndex and strColumnValue .
+
+Function UTIL_Excel_GetRowIndexByColumnValue(strExcelFilePath, strSheetName, strColumnNameOrIndex, strColumnValue) 
+
+    UTIL_Excel_GetRowIndexByColumnValue = -1
+	boolFileFound = True
+    boolFileFound = UTIL_File_FileExists(strExcelFilePath)
+	If Not boolFileFound Then
+		Exit Function
+	End If
+    
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 
+	
+	If IsNumeric(strColumnNameOrIndex) Then
+		For intRowIndex = 2 to intRowCount
+			strValue = objWorksheet.Cells(intRowIndex, strColumnNameOrIndex).value
+			If Trim(strValue) = Trim(strColumnValue) Then
+				UTIL_Excel_GetRowIndexByColumnValue = intRowIndex
+				Exit For
+			End If
+		Next
+	Else
+		intColumnIndex = UTIL_Excel_GetColumnIndexByName(strExcelFilePath, strSheetName, strColumnNameOrIndex)
+		For intRowIndex = 2 to intRowCount
+			strValue = objWorksheet.Cells(intRowIndex, intColumnIndex).value
+			If Trim(strValue) = Trim(strColumnValue) Then
+				UTIL_Excel_GetRowIndexByColumnValue = intRowIndex
+				Exit For
+			End If
+		Next
+	End If
+ 
+    objWorkbook.Close
+	objExcel.Quit
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+
+End Function
+
+
+
+'Save the opened excel
+'@code
+'   UTIL_Excel_Save(localPath)
+'@endcode
+'@param localPath - the generated excel file will save to this local path
+
+Function UTIL_Excel_Save(localPath)
+
+	Dim objExcel, objWorkbook, objWorksheet
+	Set objExcel = CreateObject("Excel.Application")
+	objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWshShell = CreateObject("Wscript.Shell")
+
+	objWshShell.SendKeys "^s"
+    
+    If Dialog("text:=Save As").WinButton("text:=.*Save").Exist Then
+        
+        strLength = Len(Dialog("text:=Save As").WinEdit("micClass:=WinEdit", "index:=0").GetROProperty("text"))
+        Dialog("text:=Save As").WinEdit("micClass:=WinEdit", "index:=0").Click
+		
+		'========= Delete existing text and set file path, directly Set path in WinEdit doesn't work ======
+		'Dialog("text:=Save As").WinEdit("micClass:=WinEdit", "index:=0").Set localPath
+        For n = 1 To strLength
+        	objWshShell.SendKeys "{BACKSPACE}"
+        Next        
+        objWshShell.SendKeys localPath
+        Dialog("text:=Save As").WinButton("text:=.*Save").Click
+        If Dialog("text:=Confirm Save As").WinButton("text:=.*Yes").Exist Then
+            Dialog("text:=Confirm Save As").WinButton("text:=.*Yes").Click
+        End If
+    End If
+	
+    UTIL_Win_CloseExcel() 
+    Set objExcel = Nothing
+    Set objWshShell = Nothing
+
+End Function
+
+
+
+'open the excel and get the title of each column
+'@code
+'   UTIL_Excel_GetHeader(strExcelFilePath, strSheetName)
+'@endcode
+'@param strExcelFilePath - the path of excel file
+'@param strSheetName - the worksheet name in workbook
+
+Function UTIL_Excel_GetHeader(strExcelFilePath, strSheetName)
+
+	'if not found the excel file, exit function
+	UTIL_Excel_GetHeader = Array("") 
+    boolFileFound = UTIL_File_FileExists(strExcelFilePath)    
+	If Not boolFileFound Then			
+        Exit Function 
+    End If
+
+	Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    
+    'Check if worksheet exist in workbook
+	boolExcelExist = UTIL_Excel_SheetExistsInWorkbook(objWorkbook, strSheetName)
+	If Not boolExcelExist Then			
+        Exit Function 
+    End If
+
+	Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+	aTitle = Array()
+    intColumnCount = objWorksheet.UsedRange.Columns.count
+	ReDim aTitle(intColumnCount)
+    For iCount = 1 To intColumnCount
+        aTitle(iCount-1) = objWorksheet.Cells(1,iCount).Value
+    Next
+    UTIL_Excel_GetHeader = aTitle
+	UTIL_Win_CloseExcel()
+ 
+    Set objExcel = Nothing
+    Set objWorkbook = Nothing
+    Set objWorksheet = Nothing
+
+End Function
+
+'This function will return the cell value corresponding to the row and column num/Index
+'@code
+'	strCellValue = UTIL_Excel_GetCellData("c:\mydata.xls", "Scenarios", "1", "1") 
+'@endcode
+'@param strExcelFilePath - Full path to the file including file name
+'@param strSheetName - Name sheet/tab from excel document
+'@param strRowNumOrIndex - Row number 
+'@param strColumnNumOrIndex - Column number
+'@return cell value
+
+Function UTIL_Excel_GetCellData(strExcelFilePath, strSheetName, strRowNumOrIndex, strColumnNumOrIndex)
+	
+	Dim objExcel, objWorkbook, objWorksheet, strCellValue
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    
+    Set objWorkbook = objExcel.Workbooks.Open( strExcelFilePath )
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+    
+    strCellValue = objWorksheet.Cells(strRowNumOrIndex, strColumnNumOrIndex).value
+
+	objWorkbook.Close
+    objExcel.Quit
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+	
+	UTIL_Excel_GetCellData = strCellValue
+	
+End Function
+
+
+'This function is used to Save Opened Excel File to Local
+'@code
+'    UTIL_Excel_Opened_File_Save(strFileNameWithPath)
+'@endcode
+'@Param strFileNameWithPath - Name of Excel with Full path
+
+Function UTIL_Excel_Opened_File_Save(strFileNameWithPath)
+    
+    FRM_Logger_ReportInfoEvent "Save Opened excel", "Save Loan Data To Excel At '"&strFileNameWithPath&"'", null
+	
+    Dim myxl, strFilename
+	Wait g_ShortWaitMedium 'Explicit wait added due to sync
+    Execute "set myxl =GetObject(,""Excel.Application"")"
+    myxl.DisplayAlerts = False
+    myxl.ActiveWorkbook.SaveAs  strFileNameWithPath 
+    
+    Set myxl = Nothing
+    
+End Function
+
+'This function is used to Delete Excel File
+'@code
+'    UTIL_Excel_Opened_File_Delete(strFileNameWithPath)
+'@endcode
+'@Param strFileNameWithPath - Name of Excel File to delete with Full path
+
+Function UTIL_Excel_Opened_File_Delete(strFileNameWithPath)
+    
+    FRM_Logger_ReportInfoEvent "Delete excel", "Delete Excel File from '"&strFileNameWithPath&"'", null
+	
+    Dim fs,strExcelFilePath
+    
+    'Close Excel process
+    UTIL_Win_CloseProcesses "EXCEL.EXE"
+	'wait 3 seconds
+	Dim dteWait
+	dteWait = DateAdd("s", 3, Now())
+	Do Until (Now() > dteWait)
+	Loop
+	
+    Set fs = CreateObject("Scripting.FileSystemObject")            
+    'Deleted Excel file
+	On ERROR Resume Next
+    IF fs.FileExists(strFileNameWithPath) Then	 
+       fs.DeleteFile strFileNameWithPath,True
+    End IF
+    If Err.Number <> 0 Then
+        UTIL_Excel_Opened_File_Delete = False	
+	Else
+        UTIL_Excel_Opened_File_Delete = True
+    End If
+	Err.Clear
+    
+    Set fs = Nothing
+
+End Function
+
+'@}
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ExcelUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\FileUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: FileUtil UTIL_FileUtil
+' This is the function group for operating file
+' 
+' List Of functions here
+' @code
+'	Function UTIL_File_SearchForFile(strDirPath, strFileName)
+'   Function UTIL_File_SearchForFileStartsWith(strDirPath, strStart)
+'	Function UTIL_File_SearchForFileContains(strDirPath, strLookFor)
+'	Function UTIL_File_SearchForFileInDir(strDirPath, strLookFor, strMode)
+'   Function UTIL_File_AppendingText(strFilePath,strText)
+'   Function UTIL_File_WritingText(strFilePath,strText)
+'   Function UTIL_File_GetLatestModified(ByVal strDirPath, strPattern)
+'   Function UTIL_File_Delete(strFilePath, boolForce)
+'   Function UTIL_File_DeleteFiles(ByVal strDirPath, strPattern)
+'   Function UTIL_File_Rename(ByVal strPath, strRenameFromFile,strRenameToFile)
+'   Function UTIL_File_ReadContent(ByVal strFileFullPath)
+'	Function UTIL_File_ReadContentIntoArray(ByVal strFileFullPath)
+'   Function UTIL_File_GetParentFolderPath(strFileFullPath)
+'	Function UTIL_File_CreateFolderIfNotExist(strFolderPath)
+'	Function UTIL_File_FileExists(strFilePath)
+'	Function UTIL_File_CreateTextFileIfNotExist(strFilePath)
+'   Function UTIL_File_GetFileName(strFilePath)
+'   Function UTIL_File_GetFileExt(strFilePath)
+'   Function UTIL_File_GetFileNameNoExt(strFilePath)
+'	Function UTIL_File_GetFilesUnderDir(strFolderPath, strPattern)
+'   Function UTIL_File_Copy(strSourceFile, strDestFolder, boolOverwrite)
+'   Function UTIL_File_CopyFiles(strSrcFolder, strDestFolder, strRegExp)
+'   Function UTIL_File_DeleteFolders(strDirPath, strPattern)
+'   Function UTIL_File_ChangeFolderPermission (strFolderToChangeAttribute,intAttr)
+'   Function UTIL_File_ProcessFolderAttributeChange(objFolder,intAttr)
+'   Function UTIL_File_SetFolderAndFilesPermissionNotReadOnly(strDirPath)
+'   Function UTIL_File_ReplaceTextInFile(strFilePath,strReplaceFrom,strReplaceTo)
+'	Function UTIL_File_CreateFolderListinExcel(strFolderToRead,strFileNameToSave,arrFldrList)
+'   Function UTIL_File_FindMostRecentSubFolder(strFolder)
+'   Function UTIL_File_FindTempFolder()
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'This function is for get file path by equal string of file name 
+'@code
+'   UTIL_File_SearchForFile(strDirPath, strFileName)
+'@endcode
+'@param strDirPath This value should be file directly path
+'@param strFileName This value should be a string that the file name equal to
+
+Function UTIL_File_SearchForFile(strDirPath, strFileName)
+
+	UTIL_File_SearchForFile = UTIL_File_SearchForFileInDir(strDirPath, strFileName, "equals")
+	
+End Function
+
+
+'This function is for get file path by start string of file name 
+'@code
+'   UTIL_File_SearchForFileStartsWith("C:\lib\ImportResource\", "test")
+'@endcode
+'@param strDirPath This value should be file directly path
+'@param strStart This value should be a string that the file name starts with
+'@return If found file path , this function will return file path ,otherwise returns empty string
+
+Function UTIL_File_SearchForFileStartsWith(strDirPath, strStart)
+    UTIL_File_SearchForFileStartsWith = UTIL_File_SearchForFileInDir(strDirPath, strStart, "starts")
+End Function
+
+
+
+'This function is for get file path by start string of file name 
+'@code
+'   UTIL_File_SearchForFileContains("C:\lib\ImportResource\", "middle")
+'@endcode
+'@param strDirPath This value should be file directly path
+'@param strLookFor This value should be a string that the file name contains
+'@return If found file path , this function will return file path ,otherwise returns empty string
+
+Function UTIL_File_SearchForFileContains(strDirPath, strLookFor)
+    UTIL_File_SearchForFileContains = UTIL_File_SearchForFileInDir(strDirPath, strLookFor, "contains")
+End Function
+
+
+
+'This function is for get file path by start string of file name 
+'@code
+'   UTIL_File_SearchForFileInDir("C:\lib\ImportResource\", "string", "contains")
+'   UTIL_File_SearchForFileInDir("C:\lib\ImportResource\", "string", "starts")
+'@endcode
+'@param strDirPath This value should be file directly path
+'@param strLookFor This value should be a string that the file name contains
+'@param strMode valid values are "starts", "contains", "equals"
+'@return If found file path , this function will return file path ,otherwise returns empty string
+
+Function UTIL_File_SearchForFileInDir(strDirPath, strLookFor, strMode)
+	Dim blnFoundFile
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objFolder = objFSO.GetFolder(strDirPath)
+    Set objFiles = objFolder.Files
+    blnFoundFile= false
+    For Each objFile In objFiles
+        On Error Resume Next
+        If strMode="starts" And InStr(1, objFile.Name,strLookFor,1)=1 Then
+            blnFoundFile = True
+        Elseif strMode="contains" And InStr(1, objFile.Name,strLookFor,1)>0 Then
+            blnFoundFile = True
+        Elseif strMode="equals" And LCase(objFile.Name) = LCase(strLookFor) Then
+            blnFoundFile = True			
+        End If
+        If blnFoundFile Then
+            strFilePath = objFile.Path
+            UTIL_File_SearchForFileInDir = strFilePath
+            Exit For        
+        End If
+        On Error Goto 0
+    Next
+    
+	If Not blnFoundFile Then
+		UTIL_File_SearchForFileInDir = ""
+		Set objSubFolders = objFolder.SubFolders
+		For Each objSubFolder In objSubFolders
+			UTIL_File_SearchForFileInDir = UTIL_File_SearchForFileInDir(objSubFolder.Path, strLookFor, strMode)
+		Next
+	End If
+	
+	Set objFiles = Nothing
+	Set objFolder = Nothing
+    Set objFSO = Nothing
+    
+End Function
+
+
+
+'This function is for appending text to the file 
+'@code
+'   UTIL_File_AppendingText "C:\result.xml", "test"
+'@endcode
+'@param strFilePath This value should be a file path
+'@param strText This value should be a string value 
+
+Function UTIL_File_AppendingText(strFilePath,strText)
+    Const ForReading = 1, ForWriting = 2,ForAppending = 8
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objOTF = objFSO.OpenTextFile(strFilePath, ForAppending, True)
+    objOTF.Write strText
+    Set objFSO = Nothing
+    Set objOTF = Nothing  
+End Function
+
+
+
+'This function is for writing text to the file 
+'@code
+'   UTIL_File_WritingText "C:\result.xml","test" 
+'@endcode
+'@param strFilePath This value should be a file path
+'@param strText This value should be a string value 
+
+Function UTIL_File_WritingText(strFilePath,strText)
+    Const ForReading = 1, ForWriting = 2,ForAppending = 8
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objOTF = objFSO.OpenTextFile(strFilePath, ForWriting, True)
+    objOTF.Write strText
+    Set objFSO = Nothing
+    Set objOTF = Nothing 
+End Function
+
+
+
+'This function is for get the latest modified file in output directory
+'@code
+'   UTIL_File_GetLatestModified( "C:\Temp", "^Test_Summary_Report_.*\.xlsx")
+'@endcode
+'@param strDirPath This value should be a directory path
+'@return If found,return the latest modified file path,otherwise throw error message
+
+Function UTIL_File_GetLatestModified(ByVal strDirPath, strPattern)
+	Dim blnFoundFile
+    dtmPrevDate=  01/01/2001  ' set old date
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objFolder = objFSO.GetFolder(strDirPath)
+    Set objFiles = objFolder.Files
+    blnFoundFile = false
+    For Each objFile In objFiles
+        On Error Resume Next
+        If UTIL_String_IsMatch(objFile.Name, strPattern) Then
+            If dtmPrevDate < objFile.DateLastModified Then
+                dtmPrevDate = objFile.DateLastModified
+                blnFoundFile = true
+                UTIL_File_GetLatestModified = objFile.Path
+            End If
+        End If    
+        On Error Goto 0
+    Next
+    'UTIL_CheckTrue blnFoundFile,"UTIL_File_GetLatestModified","Look for the file path in directory:"&strDirPath
+   
+    Set objFSO = Nothing
+    Set objFolder = Nothing
+    Set objFiles = Nothing
+End Function
+
+
+
+'Delete a file <br>
+'           If the file is not found, nothing happens
+'@code
+'   UTIL_File_Delete(strFilePath)
+'@endcode
+'@param strFilePath path of the file to be deleted
+'@param boolForce A Boolean value that indicates whether read-only files will be deleted. 
+'           True indicates that the read-only files will be deleted, False indicates that they will not be deleted. Default is False
+
+Function UTIL_File_Delete(strFilePath, boolForce)
+    
+    On Error Resume Next
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    'check the existence of file to be deleted
+    If objFSO.FileExists(strFilePath) Then    
+    	objFSO.DeleteFile strFilePath,boolForce
+    	'check whether file exists anymore
+    	If objFSO.FileExists(strFilePath) Then    	
+    		FRM_Logger_ReportInfoEvent "File "&strFilePath &" could not be deleted", Null
+    	Else
+			FRM_Logger_ReportInfoEvent "File "&strFilePath &" deleted", Null
+		End If	
+    End If
+    Set objFSO = Nothing    
+    On Error Goto 0
+    
+End Function
+
+
+
+'This function is for delete files if a file name contains certain string
+'@code
+'   UTIL_File_DeleteFiles "C:\Users\Administrator\Downloads","Aus Results ("
+'@endcode
+'@param strDirPath directory to be deleted
+'@param strPattern match pattern
+
+Function UTIL_File_DeleteFiles(ByVal strDirPath, strPattern)
+
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objFolder = objFSO.GetFolder(strDirPath)
+    Set objFiles = objFolder.Files
+
+    For Each objFile In objFiles
+        On Error Resume Next
+        If UTIL_String_IsMatch(objFile.Name, strPattern) Then
+            objFSO.DeleteFile objFile, True
+            Err.Clear   
+        End If       
+    Next
+
+    Set objFSO = Nothing
+    Set objFolder = Nothing
+    Set objFiles = Nothing
+    
+End Function
+
+
+
+'This function is for rename the file to expected file name 
+'@code
+'   UTIL_File_Rename "C:\Users\Administrator\Downloads", "1.xml","2.xml"
+'@endcode
+'@param strPath This value should be a directory path for renaming
+'@param strOldFileName This value should be file name of old file 
+'@param strNewFileName This value should be file name of new file 
+
+Function UTIL_File_Rename(ByVal strPath, strOldFileName,strNewFileName)
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objFolder = objFSO.GetFolder(strPath)
+    Set objFiles = objFolder.Files
+    strNewFileName = strPath&"\"&strNewFileName
+    For Each objFile In objFiles
+        On Error Resume Next
+        If objFile.Name =  strOldFileName Then
+            objFSO.MoveFile objFile,strNewFileName
+            MsgBox "Renaming file get error:" & vbCrLf _
+                & "File Name:" & objFile.Name & vbCrLf _
+                & "Number:" & Err.Number & vbCrLf _
+                & "Source:" & Err.Source & vbCrLf _
+                & "Description:" & Err.Description & vbCrLf _
+                & "Helpfile:" & Err.HelpFile
+            Err.Clear
+        End If
+    Next
+
+    Set objFSO = Nothing
+    Set objFolder = Nothing
+    Set objFiles = Nothing
+End Function
+
+
+
+'This function is for read file content
+'@code
+'   UTIL_File_ReadContent("C:\Users\Administrator\Downloads\import.xml")
+'@endcode
+'@param strFileFullPath This value should be a full path of file
+'@return The content of file 
+
+Function UTIL_File_ReadContent(ByVal strFileFullPath)
+    Const intForReading = 1, intForWriting = 2, intForAppending = 8
+    Dim objFSO, objFile
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+
+    UTIL_AssertTrue objFSO.FileExists(strFileFullPath),"UTIL_File_ReadContent","Look for file in : "&strFileFullPath
+
+    Set objFile = objFSO.OpenTextFile(strFileFullPath, intForReading, True)
+    UTIL_File_ReadContent = objFile.ReadAll
+    Set objFile = Nothing
+    Set objFSO = Nothing
+End Function
+
+
+'This function is for read file content into an array
+'@code
+'   UTIL_File_ReadContent("C:\Users\Administrator\Downloads\import.xml")
+'@endcode
+'@param strFileFullPath This value should be a full path of file
+'@return array of strings representing lines of content
+
+Function UTIL_File_ReadContentIntoArray(ByVal strFileFullPath)
+
+    Const intForReading = 1, intForWriting = 2, intForAppending = 8
+    Dim objFSO, objFile
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+
+    UTIL_AssertTrue objFSO.FileExists(strFileFullPath),"UTIL_File_ReadContent","Look for file in : "&strFileFullPath
+	arrLines = Array()
+    Set objFile = objFSO.OpenTextFile(strFileFullPath, intForReading, True)
+	Do Until objFile.AtEndOfStream   
+		arrLines = UTIL_Array_InsertAtEnd(arrLines, objFile.ReadLine)   
+	Loop
+    Set objFile = Nothing
+    Set objFSO = Nothing
+	
+	UTIL_File_ReadContentIntoArray = arrLines
+	
+End Function
+
+
+'Get the direct parent folder path of a file.  
+'@code
+'   UTIL_File_GetFolderPath("C:\lib\ImportResource\test.xml") returns "C:\lib\ImportResource"
+'@endcode
+'@param strFileFullPath This value should be a full path of file
+'@return the direct parent folder path of a file
+
+Function UTIL_File_GetParentFolderPath(strFileFullPath)
+
+    intIndex = InStrRev(strFileFullPath, "\")
+    If intIndex = -1 Then
+        intIndex = InStrRev(strFileFullPath, "/")
+    End If
+    UTIL_File_GetParentFolderPath = Left(strFileFullPath, intIndex)
+    
+End Function
+
+
+
+'Checks if a folder exists, if not, create it
+'@code
+'   UTIL_File_CreateFolderIfNotExist(strFolderPath)
+'@endcode
+'@param strFolderPath This value should be a path of folder
+
+Function UTIL_File_CreateFolderIfNotExist(strFolderPath)
+
+    Set objFso = createobject("Scripting.FileSystemObject")
+    If objFso.FolderExists(strFolderPath) = false Then
+        objFso.CreateFolder (strFolderPath)
+    End If
+    Set objFso = Nothing
+    
+End Function
+
+
+
+'Checks if a file exists
+'@code
+'   UTIL_File_FileExists(strFilePath)
+'@endcode
+'@param strFilePath This value should be a path of file
+'@return returns True if a file exists, False if it doesn't
+
+Function UTIL_File_FileExists(strFilePath)
+
+    Set objFso = createobject("Scripting.FileSystemObject")
+    UTIL_File_FileExists = objFso.FileExists(strFilePath) 
+    Set objFso = Nothing
+    
+End Function
+
+
+'Checks if a text file exists, if not, create it
+'@code
+'   UTIL_File_CreateTextFileIfNotExist(strFilePath)
+'@endcode
+'@param strFilePath This value should be a path of file
+
+Function UTIL_File_CreateTextFileIfNotExist(strFilePath)
+
+    Set objFso = createobject("Scripting.FileSystemObject")
+    If objFso.FileExists(strFilePath) = false Then
+        objFso.CreateTextFile(strFilePath)
+    End If
+    Set objFso = Nothing
+    
+End Function
+
+
+
+'Returns the file name part of the file path
+'@code
+'   UTIL_File_GetFileName("C:\temp\testFile.xml") --- returns testFile.xml
+'@endcode
+'@param strFilePath This value should be a path of file
+'@return the file name part of the file path
+
+Function UTIL_File_GetFileName(strFilePath)
+    UTIL_File_GetFileName = Right(strFilePath, Len(strFilePath)-InStrRev(strFilePath, "\"))
+End Function
+
+
+
+'Returns the file extension of a file given a full file path
+'@code
+'   UTIL_File_GetFileExt("C:\temp\testFile.xml") --- returns .xml
+'@endcode
+'@param strFilePath This value should be a path of file
+'@return the file extension part of the file path
+
+Function UTIL_File_GetFileExt(strFilePath)
+    UTIL_File_GetFileExt = Right(strFilePath, Len(strFilePath)-InStrRev(strFilePath, "."))
+End Function
+
+
+
+'Returns the file name without extension given a full file path
+'@code
+'   UTIL_File_GetFileNameNoExt("C:\temp\testFile.xml") --- returns testFile
+'@endcode
+'@param strFilePath This value should be a path of file
+'@return the file name without extension of the file path
+
+Function UTIL_File_GetFileNameNoExt(strFilePath)
+    UTIL_File_GetFileNameNoExt = Replace(UTIL_File_GetFileName(strFilePath), "."&UTIL_File_GetFileExt(strFilePath), "")
+End Function
+
+
+
+'Returns an array of all files found under the provided folder
+'@code
+'   UTIL_File_GetFilesUnderDir(strFolderPath)
+'@endcode
+'@param strFolderPath - file folder path
+'@param strPattern - pattern to match
+
+Function UTIL_File_GetFilesUnderDir(strFolderPath, strPattern)
+ 
+	arrFiles = Array()
+	Set objFso = CreateObject("Scripting.FileSystemObject")
+	Set objFiles = objFso.GetFolder(strFolderPath).Files
+
+	For Each objFile in objFiles
+	
+        On Error Resume Next
+        If UTIL_String_IsMatch(objFile.Name, strPattern) Then
+            arrFiles = UTIL_Array_InsertAtEnd(arrFiles, objFile.Name)
+        End If    
+        On Error Goto 0	
+	Next
+	Set objFiles = Nothing
+	Set objFso = Nothing
+
+	UTIL_File_GetFilesUnderDir = arrFiles
+  
+End Function
+
+
+'Copy a file
+'@param strSourceFile - source file
+'@param strDestFile - destination file
+'@param boolOverwrite - if existing files are to be overwritten. If True, files are overwritten; if False, they are not. 
+
+Function UTIL_File_Copy(strSourceFile, strDestFolder, boolOverwrite)
+	strDestFile=strDestFolder
+	Set objFso = CreateObject("Scripting.FileSystemObject")
+	If(Len(boolOverwrite) > 0) Then 
+		objFso.CopyFile strSourceFile,strDestFolder, boolOverwrite
+		objFso.GetFile(strDestFolder).Attributes = 0
+	Else
+		set objFoldler = objFso.GetFolder(strDestFile)
+        If CInt(objFoldler.Attributes) = 16 Then
+            objFso.CopyFile strSourceFile,strDestFile
+        End If
+
+	End If
+	Set objFso = Nothing		
+    
+End Function
+
+
+
+'Copy files from source folder to destination folder, if file name matches provided regular expression
+'@param strSrcFolder - source folder
+'@param strDestFolder - destination folder
+'@param strRegExp - regular expression
+
+Function UTIL_File_CopyFiles(strSrcFolder, strDestFolder, strRegExp)
+
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	'****If a Folder do not exists,create a Folder to move the files to****
+	If Not objFSO.FolderExists(strDestFolder)Then
+		Set objFolderTo = objFSO.CreateFolder(strDestFolder)
+	Else
+		Set objFolderTo = objFSO.GetFolder(strDestFolder)
+	End If
+    
+	Set objFolderFrom = objFSO.GetFolder(strSrcFolder)
+	Set objFiles = objFolderFrom.Files
+	For Each objFile In objFiles
+        'if match found, copy the file
+		If UTIL_String_IsMatch(objFile.Name, strRegExp) Then 
+			objFSO.CopyFile strSrcFolder & objFile.Name, strDestFolder 
+		End If
+	Next
+	Set objFSO = Nothing
+End Function
+
+
+'Delete all folders under given dir with specified <pattern>.
+'@param strDirPath - a path to directory.
+'@param  strPattern - pattern for a folder name 
+'
+Function UTIL_File_DeleteFolders(strDirPath, strPattern)
+
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	Set objFolder = objFSO.GetFolder(strDirPath)
+    
+	For Each objSubFolder In objFolder.SubFolders
+		If UTIL_String_IsMatch(objSubFolder.Name, strPattern)  Then
+			objFSO.DeleteFolder strDirPath & objSubFolder.Name
+		End If
+	Next
+    Set objFolder = Nothing
+	Set objFSO = Nothing 
+    
+End Function
+
+
+'Change attribute permission for all folders/subfolders/files under given dir 
+'@param strFolderToChangeAttribute - a path to directory string.
+'@param  intAttr - attribute number (0 = Normal, 1 = ReadOnly, 2 = Hidden, 4 = System, 8 = Volume, 16 = Directory, 32 = Archive )  
+
+Function UTIL_File_ChangeFolderPermission (strFolderToChangeAttribute,intAttr)
+	Set objFSO = CreateObject("Scripting.FileSystemObject") 
+    If objFSO.FolderExists(strFolderToChangeAttribute) Then 
+    	Set objFolder = objfso.GetFolder(strFolderToChangeAttribute)  
+    	UTIL_File_ProcessFolderAttributeChange objFolder,intAttr
+ 	End If    
+	Set objFSO = NOTHING
+	Set objFolder = NOTHING
+End Function
+
+
+'Change attribute permission for all folders/subfolders/files under given dir 
+'@param objFolder - folder object
+'@param  intAttr - attribute number (0 = Normal, 1 = ReadOnly, 2 = Hidden, 4 = System, 8 = Volume, 16 = Directory, 32 = Archive )  
+
+Function UTIL_File_ProcessFolderAttributeChange(objFolder,intAttr)
+
+ 	For Each aFile In objFolder.Files
+ 		aFile.Attributes = intAttr
+ 	Next
+    For Each SubFolder In objFolder.SubFolders
+ 		SubFolder.Attributes = intAttr
+ 		UTIL_File_ProcessFolderAttributeChange SubFolder,intAttr
+ 	Next
+End Function
+
+
+'Change attribute permission for all folders/subfolders/files under given dir to NOT Read-Only
+'@param strDirPath - folder path
+
+Function  UTIL_File_SetFolderAndFilesPermissionNotReadOnly(strDirPath)
+    UTIL_File_ChangeFolderPermission strDirPath,0
+End Function
+
+
+'This function is to replace word or frase in the text file 
+'@code
+'    UTIL_File_ReplaceTextInFile(strFilePath,strReplaceFrom,strReplaceTo)
+'@endcode 
+'@param strFilePath - path to file
+'@param strReplaceFrom - word or frase to replace
+'@param strReplaceTo - text replace to
+
+Function UTIL_File_ReplaceTextInFile(strFilePath,strReplaceFrom,strReplaceTo)
+	Const ForReading = 1
+	Const ForWriting = 2
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	Set objFile = objFSO.OpenTextFile(strFilePath, ForReading)
+	strText = objFile.ReadAll
+	objFile.Close
+	strNewText = Replace(strText, strReplaceFrom, strReplaceTo)
+	Set objFile = objFSO.OpenTextFile(strFilePath, ForWriting)
+	objFile.WriteLine strNewText
+	objFile.Close
+	Set objFSO = Nothing
+	Set objFile = Nothing
+End Function    
+
+
+
+'This function is to create list of subfolders existing in a particular folder 
+'@code
+'    UTIL_File_CreateFolderListinExcel strFolderToRead,strFileNameToSave,array("RowID","FolderName")
+'@endcode 
+'@param strFolderToRead - path to folder which should be read
+'@param strFileNameToSave - path and file name to save to
+'@param arrFldrList - column names
+
+Function UTIL_File_CreateFolderListinExcel(strFolderToRead,strFileNameToSave,arrFldrList)
+	
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	Set objFolder = objFSO.GetFolder(strFolderToRead)
+	Set objSF = objFolder.SubFolders
+	
+	Set objExcel = CreateObject("Excel.Application")
+	objExcel.Application.DisplayAlerts = False
+	Set objWorkBook = objExcel.workbooks.add()
+	
+	'create header
+	For z = 0 to UBound(arrFldrList)
+		objExcel.cells(1,z+1).value = arrFldrList(z)
+	Next
+	k = 1
+	For each sb in objSF
+		k = k + 1
+		objExcel.cells(k,1).value = cStr(k -1)
+		objExcel.cells(k,2).value = sb.name
+	Next
+	objWorkBook.SaveAs strFileNameToSave
+	objExcel.workbooks.close
+	objExcel.quit
+	Set objWorkBook = Nothing
+	Set objExcel = Nothing
+	Set objFSO = Nothing
+	Set objFolder = Nothing
+	Set objSF = Nothing
+	
+End Function
+
+'This function is to Read CSV File and check if the Text Present
+'@code
+'    UTIL_ReadCSVFile strTextToSearch,strFileName 
+'@endcode 
+'@param strTextToSearch - The text to be searched in file
+'@param strFileName - path and file name  
+
+Function UTIL_ReadCSVFile(strTextToSearch,strFileName)
+    Set objFSO = CreateObject("scripting.filesystemobject")
+    strFilePath = FRM_RT_ReportDirPath() & strFileName
+    
+    Set objTF = objFSO.OpenTextFile(strFilePath, 1,True) 
+    boolFound = False
+    Do while objTF.AtEndOfStream <> true
+    
+        strLine = objTF.ReadLine
+           
+        arrFields = Split(strLine,",")
+
+
+        If InStr(strLine,strTextToSearch) > 0 Then
+            boolFound = True
+            Exit Do
+        End If
+    
+    Loop
+        
+    If boolFound Then
+        FRM_Logger_ReportPassEvent "Checking the Value in csv File","Value is Displayed In csv File"&strTextToSearch, null
+	Else 
+		FRM_Logger_ReportFailEvent "Checking the Value in csv File","Value is Not Displayed In csv File"&strTextToSearch, null
+	End If
+       
+            
+    Set objFSO = Nothing
+    Set objTF = Nothing
+        
+End Function
+
+
+
+'This function is to find the most recent subfolder in the folder
+'@code
+'    mostRecentSFolder = UTIL_File_FindMostRecentSubFolder(strFolder)
+'@endcode 
+'@param strFolder - path to folder where to look for the most recent subfolder
+
+Function UTIL_File_FindMostRecentSubFolder(strFolder)
+  Set fso = CreateObject("Scripting.FileSystemObject")
+  Set objFolder = fso.GetFolder(strFolder)
+  Set mostRecenFolder = objFolder
+  For Each sf In objFolder.SubFolders
+    Set mostRecenSubFolder = UTIL_File_FindMostRecentSubFolder(sf)
+    If mostRecenSubFolder.DateLastModified > mostRecenFolder.DateLastModified Then 
+       Set mostRecenFolder = mostRecenSubFolder
+    End If 
+  Next
+  Set UTIL_File_FindMostRecentSubFolder = mostRecenFolder
+  Set fso = Nothing
+  Set mostRecenFolder = Nothing
+  Set mostRecenSubFolder = Nothing
+  Set objFolder = Nothing
+End Function
+
+
+'This function is to find the temporary folder for the current user
+'@code
+'    tmpfolder = UTIL_File_FindTempFolder()
+'@endcode 
+
+Function UTIL_File_FindTempFolder()
+    UTIL_File_FindTempFolder = ""
+	Set fso = CreateObject("Scripting.FileSystemObject")	
+	Const TemporaryFolder = 2
+	Set tempfolder = fso.GetSpecialFolder(TemporaryFolder)
+	If Not IsNull(tempfolder) and Not isEmpty(tempfolder) Then
+		UTIL_File_FindTempFolder = tempfolder	
+	End If	
+	Set fso = Nothing
+	Set tempfolder = Nothing
+End Function
+
+
+'@}
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\FileUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\MathUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+'@defgroup: MathUtil UTIL_MathUtil
+' This is the function group for Match
+' 
+' List of functions here
+'@code
+'	Function UTIL_Math_Max(val1,val2) 
+'	Function UTIL_Math_Min(val1,val2) 
+'   Function UTIL_Math_RandomNo()
+'	Function CreateRandomNumber()
+'	Function UTIL_Math_RandomNumOfGivenLength(LengthOfRandomNumber)
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Returns the bigger number betwen the two provided numbers
+'@param val1 
+'@param val2
+
+Function UTIL_Math_Max(val1,val2) 
+	UTIL_Math_Max = val1 
+	If val2 > val1 Then UTIL_Math_Max = val2 
+End Function
+
+
+'Returns the lesser number betwen the two provided numbers
+'@param val1 
+'@param val2
+
+Function UTIL_Math_Min(val1,val2) 
+	UTIL_Math_Min = val1 
+	If val2 < val1 Then UTIL_Math_Min = val2 
+End Function 
+
+
+'Returns the Random Number 
+
+
+Function UTIL_Math_RandomNo() 
+		 Max=1000
+		 Min=1
+		 Randomize
+		 UTIL_Math_RandomNo=Int((max-min+1)*Rnd+min) 
+End Function 
+
+
+'This Function is to BIZ_Dashdboard_ManageViewDefaultNameValidation() 
+' @code
+'  		CreateRandomNumber()
+' @endcode
+
+Function CreateRandomNumber()
+ Dim max,min
+     intMax=1000
+     intMin=1
+     Randomize
+     ranNumberValue=Int((intMax-intMin+1)*Rnd+intMin)
+     CreateRandomNumber=ranNumberValue
+End Function
+
+
+
+'Returns a random number of given length
+'@param LengthOfRandomNumber Desired Length should be passed
+
+Function UTIL_Math_RandomNumOfGivenLength(LengthOfRandomNumber)
+
+	Dim sMaxVal, iLength
+	sMaxVal = ""
+	iLength = LengthOfRandomNumber
+	
+	For iL = 1 to iLength	'@ Find the maximum value for the given number of digits
+		sMaxVal = sMaxVal & "9"
+	Next
+	sMaxVal = Int(sMaxVal)
+	
+	Randomize	'@ Find Random Value
+	iTmp = Int((sMaxVal * Rnd) + 1)	'@ Add Trailing Zeros if required
+	iLen = Len(iTmp)
+	
+	UTIL_Math_RandomNumOfGivenLength = Int(iTmp * (10 ^(iLength - iLen)))
+
+End Function
+' @}''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\MathUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ObjectUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: ObjectUtil UTIL_ObjectUtil
+' This is the function group for operating file
+' 
+' List Of functions here
+' @code
+'   Function UTIL_Object_IsBlank(val)
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'This script returns True if parameter val is Empty or NULL or Zero
+'@code
+'   UTIL_Object_IsBlank(0)
+'@endcode
+'@param val - parameter can be a string, null, 0
+
+Function UTIL_Object_IsBlank(val)
+	
+	UTIL_Object_IsBlank = False
+	'In batch mode, IsEmpty or IsNull triggers warning in QTP, change to use TypeName
+	If TypeName(objScrollBar)="Null" Or TypeName(objScrollBar)="Empty" Then
+	'If IsEmpty(val) or IsNull(val) Then
+		UTIL_Object_IsBlank = True
+	ElseIf VarType(val) = vbString Then
+		If val = "" Then
+			UTIL_Object_IsBlank = True
+		End If
+	ElseIf IsObject(val) Then
+		If val Is Nothing Then
+			UTIL_Object_IsBlank = True
+		End If
+	ElseIf IsNumeric(val) Then
+		If val = 0 Then
+			UTIL_Object_IsBlank = True
+		End If
+	End If
+	
+End Function
+
+
+'@}''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ObjectUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\PropertyUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: PropertyUtil UTIL_PropertyUtil
+' This is the function group for dealing with properties file
+'
+' List of functions here
+' @code
+'   Function UTIL_Prop_ReadValue(strFilePath, strPropName) 
+'   Function UTIL_Prop_SetMultiplePropValues(strFilePath, strPropNameValuePair) 
+'   Function UTIL_Prop_SetValue(strFilePath, strPropName, strPropValue) 
+'   Function UTIL_Prop_ResetProperty(strFilePath, strPropName) 
+'   Function UTIL_Prop_ResetAll(strFilePath) 
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Reads a value of a property file in a propert file
+'@code
+'   UTIL_Prop_ReadValue(strFilePath, strPropName) 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropName - property name 
+'
+'@return value of the property, returns empty if not found
+
+Function UTIL_Prop_ReadValue(strFilePath, strPropName) 
+
+    Dim objFso : Set objFso = CreateObject( "Scripting.FileSystemObject" ) 
+    UTIL_AssertTrue objFso.FileExists(strFilePath), "UTIL_Prop_ReadValue", _ 
+        "Check '"& strFilePath & "' exists." 
+        
+    Dim objFile : Set objFile = objFso.OpenTextFile( strFilePath )
+    Dim strValue : strValue = ""
+    
+    Do Until objFile.AtEndOfStream
+        Dim strLine : strLine = Trim( objFile.ReadLine )
+        If "" <> strLine And "#" <> Left( strLine, 1 ) Then
+            Dim aParts : aParts = Split( strLine, "=" )
+            If UBound( aParts ) = 1 Then                        
+                If Trim(LCase(aParts(0))) = LCase(strPropName) Then
+                    strValue = Trim( aParts( 1 ) )
+                    Exit Do
+                End If   
+            End If
+        End If
+    Loop
+    
+    objFile.Close
+    Set objFile = Nothing
+    Set objFso = Nothing
+
+    UTIL_Prop_ReadValue = strValue
+    
+End Function
+
+
+
+'Sets values for multiple properties in a propert file
+'             if a property is not currently in the property file, it will be added
+'@code
+'   UTIL_Prop_SetMultiplePropValues("C:\temp\test.properties, "name1=tom") 
+'   UTIL_Prop_SetMultiplePropValues("C:\temp\test.properties, "name1=tom,isAccepted-false") 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropNameValuePair - property name and value to be set. <br>
+'               Multiple properties can be sent, the string must be in the format of 
+'               prop1=value1,prop2=value2,prop3=value3
+
+Function UTIL_Prop_SetMultiplePropValues(strFilePath, strPropNameValuePair) 
+
+    const ForReading = 1, ForWriting = 2, ForAppending = 8
+    
+    arrFields = Split(strPropNameValuePair, ",", -1, 1)    
+    For i = 0 to UBound(arrFields)
+        arrFieldNameValue = Split(arrFields(i), "=", -1, 1) 
+        UTIL_Prop_SetValue strFilePath, Trim(arrFieldNameValue(0)), Trim(arrFieldNameValue(1))
+    Next     
+    
+End Function
+
+
+
+'Sets a value of a property file in a propert file
+'             if a property is not currently in the property file, it will be added
+'@code
+'   UTIL_Prop_SetValue("C:\Temp\temp.properties", "loanNumber", "8934839834") 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropName - property name 
+'@param strPropValue - property value 
+
+Function UTIL_Prop_SetValue(strFilePath, strPropName, strPropValue) 
+
+    const ForReading = 1, ForWriting = 2, ForAppending = 8
+
+    Set objFso = CreateObject("Scripting.FileSystemObject")
+    UTIL_AssertTrue objFso.FileExists(strFilePath), "UTIL_Prop_SetValue", _ 
+        "Check '"& strFilePath & "' exists." 
+        
+    Set objPropFile = objFso.OpenTextFile(strFilePath, ForReading, True, 0)  
+    Set objTempFile = objFso.OpenTextFile(strFilePath &".tmp", ForWriting, True)
+    
+    boolFound = False
+    Do While Not objPropFile.AtEndOfStream
+        strLine = objPropFile.Readline
+        arrPropertyValue = split(strLine,"=")
+        If UBound(arrPropertyValue) = 1 Then
+            If LCase(arrPropertyValue(0)) = LCase(strPropName) Then  
+                strLine = strPropName & "=" & strPropValue                
+                boolFound = True
+            End If    
+        End If
+        objTempFile.WriteLine strLine     
+    Loop       
+    
+    If  objPropFile.AtEndOfStream and Not boolFound Then
+        objTempFile.WriteLine strPropName & "=" & strPropValue
+    End If      
+    
+    objPropFile.Close
+    objTempFile.Close
+    objFso.DeleteFile(strFilePath)
+    objFso.MoveFile strFilePath & ".tmp", strFilePath  
+    
+    Set objPropFile = Nothing
+    Set objTempFile = Nothing
+    Set objFso = Nothing   
+End Function
+
+
+
+'Resets the value of a property of empty string
+'@code
+'   UTIL_Prop_ResetProperty(strFilePath, strPropName) 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropName - property name 
+
+Function UTIL_Prop_ResetProperty(strFilePath, strPropName) 
+
+    UTIL_Prop_SetValue strFilePath, strPropName, ""
+    
+End Function
+
+
+
+'Resets all properties in a file to empty string
+'@code
+'   UTIL_Prop_ResetAll(strFilePath) 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropName - property name 
+
+Function UTIL_Prop_ResetAll(strFilePath) 
+
+    const ForReading = 1, ForWriting = 2, ForAppending = 8
+    Set objFso = CreateObject("Scripting.FileSystemObject")
+    UTIL_AssertTrue objFso.FileExists(strFilePath), "UTIL_Prop_ResetAll", _ 
+        "Check '"& strFilePath & "' exists." 
+        
+    Set objPropFile = objFso.OpenTextFile(strFilePath, ForReading, True, 0)  
+    Set objTempFile = objFso.OpenTextFile(strFilePath &".tmp", ForAppending, True)
+        
+    Do 
+        strLine = objPropFile.Readline
+        arrPropertyValue = split(strLine,"=")
+        If UBound(arrPropertyValue) = 1 Then  
+            strLine = arrPropertyValue(0) & "=" 
+            objTempFile.WriteLine strLine
+            boolFound = true
+        Else 
+            objTempFile.WriteLine strLine
+        End If      
+    Loop While Not objPropFile.AtEndOfStream                
+
+    objPropFile.Close
+    objTempFile.Close
+    objFso.DeleteFile(strFilePath)
+    objFso.MoveFile strFilePath & ".tmp", strFilePath    
+    
+    Set objPropFile = Nothing
+    Set objTempFile = Nothing
+    Set objFso = Nothing       
+    
+End Function
+
+
+
+'@}''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\PropertyUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ReportUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: ReportUtil UTIL_ReportUtil
+' This is a document to demonstrate ReportUtil
+'
+' List of functions here
+' @code
+'
+'   Function UTIL_Report_Initialize(strReportFilePath)
+'   Function UTIL_Report_Terminate()
+'   Function UTIL_ReportEvent(strReportFilePath, strEventStatus,strReportStepName,strDetails,arrOptionalArgs)
+'
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+Dim g_ReportHelper : Set g_ReportHelper = nothing
+Dim g_ReportTemplate_StartFile, g_ReportTemplate_EndFile
+
+g_ReportTemplate_StartFile="ReportTemplate_Start.html"
+g_ReportTemplate_EndFile="ReportTemplate_End.html"
+
+'initialize report util
+'@code
+'   UTIL_Report_Initialize(strReportFilePath) 
+'@endcode
+'@param strReportFilePath path of the report file
+
+Function UTIL_Report_Initialize(strReportFilePath)
+    If g_ReportHelper is Nothing Then
+        Set g_ReportHelper = New ReportHelper
+        g_ReportHelper.Initialize strReportFilePath
+    Elseif  g_ReportHelper.strReportFilePath <> strReportFilePath Then
+        'if a different report file path, start a new helper. 
+        Set g_ReportHelper = New ReportHelper
+        g_ReportHelper.Initialize strReportFilePath        
+    End If    
+End Function
+
+
+
+'terminate report util, clean up resources 
+'@code
+'   UTIL_Report_Terminate()
+'@endcode
+
+Function UTIL_Report_Terminate()
+    If Not g_ReportHelper is Nothing Then
+        g_ReportHelper.Terminate()    
+		Set g_ReportHelper = nothing
+    End If    
+End Function
+
+
+
+'This function is for recording the check point details in html file.
+'@code
+'   UTIL_ReportEvent "Report\TestReport.html", "Info", "Re-Enter Loan Reg", "Rate change Completed", null
+'@endcode
+'@param strReportFilePath the file path of the report file
+'@param strEventStatus you can chose different level, such as INFO,PASS,WARN,ERROR,FAIL,FATAL,TRACE,DEBUG,ect.
+'@param strReportStepName the description of the check step
+'@param strDetails the details description of the check result.
+'@param arrOptionalArgs an array of optional arguments, can be null
+
+Function UTIL_ReportEvent(strReportFilePath, strEventStatus,strReportStepName,strDetails,arrOptionalArgs)
+    UTIL_Report_Initialize strReportFilePath 
+    g_ReportHelper.ReportEvent strEventStatus, strReportStepName, strDetails, arrOptionalArgs
+End Function
+
+
+
+'Helper class for reporting
+
+Class ReportHelper
+    
+    public strReportFilePath 
+    private intLineCount
+    
+    'Initialize the ReportHelper 
+    '@param strReportFilePathParam path of the report file
+    
+	Public Function Initialize(strReportFilePathParam)      
+        strReportFilePath = strReportFilePathParam
+        strFolder = Left(strReportFilePath, InStrRev(strReportFilePath, "\"))
+        If strFolder <> "" Then UTIL_File_CreateFolderIfNotExist strFolder
+        
+		If Not UTIL_File_FileExists(strReportFilePath) Then        
+			strReportTemplateFile = UTIL_File_SearchForFile(UTIL_File_GetParentFolderPath(strReportFilePathParam), g_ReportTemplate_StartFile)
+			If UTIL_File_FileExists(strReportTemplateFile) Then
+				strLine = UTIL_File_ReadContent(strReportTemplateFile)
+				UTIL_File_AppendingText strReportFilePath, UTIL_String_UniReplace(strLine)
+			End If	
+        End If    
+        
+	End Function
+   
+    'report event
+    
+	Function ReportEvent(ByVal strEventStatus, ByVal strReportStepName, ByVal strDetails, ByVal arrOptionalArgs)
+ 
+        If( Len(strReportStepName) >= 4 AND UCase(Left(strReportStepName,4)) = "STEP") Then
+            sClazz = "step"
+        Elseif( InStr(LCase(strReportStepName), "test case") >= 1 ) Then
+            sClazz = "header2"    
+        End If
+
+        If UTIL_File_FileExists(strReportFilePath) Then
+           ' strLine = "<tr class=" & UTIL_String_DblQuote(sClazz) & ">" &_
+            '    "<td>" &UTIL_String_EscapeChr(strReportStepName) & "</td><td>" & UTIL_String_EscapeChr(strDetails) & "</td><td class=" & UTIL_String_DblQuote(LCase(strEventStatus)) & _
+           '     ">" & UTIL_String_EscapeChr(strEventStatus) & " </td><td>" & cStr(date) & " " & cStr(time) &_
+           '     "</td></tr>"
+           ' UTIL_File_AppendingText strReportFilePath, UTIL_String_UniReplace(strLine)
+           
+           
+            strHeader = "<tr class=" & UTIL_String_DblQuote(sClazz) &">"
+            strStepName = vbTab & "<td>" & UTIL_String_EscapeChr(strReportStepName) & "</td>"
+            strDetail = vbTab & "<td>" & UTIL_String_EscapeChr(strDetails) & "</td>"
+	'' modified by Ratnesh on 04 Apr 17 to link failure screenshot in report
+            If strEventStatus = "Fail" or strEventStatus = "Fatal" or strEventStatus = "Pass" Then            	
+            	'currTime = replace(replace(time,":","")," ","")
+            	'imgPath = CreateObject("Wscript.Shell").SpecialFolders("Desktop") & "\img" & currTime & ".png"            	
+            	imgPath = UTIL_ReturnScreenShotFile_DestinationPath
+            	Desktop.CaptureBitmap imgPath
+            	htmlLinkPath = "file:///" & imgPath				
+				strResult = vbTab & "<td class=" & UTIL_String_DblQuote(LCase(strEventStatus)) & ">" & "<a href=" & UTIL_String_DblQuote(htmlLinkPath) & ">" & UTIL_String_EscapeChr(strEventStatus) & "</a>" &  " </td>"            	
+			Else
+            	strResult = vbTab & "<td class=" & UTIL_String_DblQuote(LCase(strEventStatus)) & ">" & UTIL_String_EscapeChr(strEventStatus) & " </td>"
+            End If
+            
+            strTime = vbTab & "<td>" & cStr(date) & " " & cStr(time) &"</td>"
+            strEnd = "</tr>" & vbcrlf 
+            
+            lineAry = Array(strHeader,strStepName,strDetail,strResult,strTime,strEnd)
+            strLine = Join(lineAry,vbcrlf)
+            UTIL_File_AppendingText strReportFilePath, UTIL_String_UniReplace(strLine)  
+        End If
+		
+    End Function      
+    
+    
+    'Terminate the ReportHelper 
+    
+    Public Function Terminate()
+	
+		strReportTemplateFile = UTIL_File_SearchForFile(UTIL_File_GetParentFolderPath(strReportFilePath), g_ReportTemplate_EndFile)
+		If UTIL_File_FileExists(strReportTemplateFile) Then
+			strLine =  UTIL_File_ReadContent(strReportTemplateFile)
+			UTIL_File_AppendingText strReportFilePath, UTIL_String_UniReplace(strLine)   
+		End If	
+    End Function
+    
+   
+End Class
+
+	''' Returns the path where screenshot should be saved
+Function UTIL_ReturnScreenShotFile_DestinationPath()
+	
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	
+	screenshotFold = FRM_RT_ReportDirPath & "\Screenshots"
+
+	If Not objFSO.FolderExists(screenshotFold)Then
+		objFSO.CreateFolder(screenshotFold)
+	End If
+	
+	strDestFolder = FRM_RT_ReportDirPath & "Screenshots\" & Replace(Date,"/","_")
+	
+	If Not objFSO.FolderExists(strDestFolder)Then
+		Set oFold = objFSO.CreateFolder(strDestFolder)
+	Else
+		Set oFold = objFSO.GetFolder(strDestFolder)
+	End If
+
+	currTime = replace(replace(time,":","")," ","")
+	wait 1
+	imgFileName = "\Screenshot_" & currTime & ".png" 
+	
+	UTIL_ReturnScreenShotFile_DestinationPath = oFold & imgFileName
+	
+End Function												 
+
+
+' @}
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ReportUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ScreenshotUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: ScreenshotUtil UTIL_ScreenshotUtil
+' Util group for screenshots
+' Function list
+'@code
+'
+'   Function UTIL_Screen_CaptureScreenshot(strFolder, strScreenName)
+'   Function UTIL_Screen_AddScreenshotToWord(strWordFilePath, strScreenName, ByVal strComments)
+'   Private Function UTIL_Screen_GetWordAppObject(strWordDocPath) 
+'
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'To take screenshot and save image file to a folder
+'@code
+'   UTIL_Screen_CaptureScreenshot "C:\Temp", "Login"
+'@endcode
+'@param strFolder folder to save the screenshot image file to 
+'@param strScreenName description of the screen, can be null
+'@return the path of the generated screenshot file
+
+Function UTIL_Screen_CaptureScreenshot(strFolder, strScreenName)
+    If Browser("name:=.*").Exist(0) Then
+        Set objBrowser = Browser("micClass:=Browser","CreationTime:=1")		
+    Else
+        Set objBrowser = Browser("micClass:=Browser","CreationTime:=0")
+        If objBrowser.Exist(1) Then
+        	lng_Hwnd = objBrowser.object.HWND
+        	Reporter.Filter =3
+        	If Not (objBrowser.DialogExists) Then
+            		Window("hwnd:=" & lng_Hwnd).Restore
+            		Window("hwnd:=" & lng_Hwnd).Maximize
+        	End if
+	End If
+    End if
+    
+    sTimeStamp = DotnetFactory.CreateInstance("System.DateTime").Now.ToString("MMddyyHHmmss")    
+    If UTIL_String_IsEmpty(strScreenName) Then
+        strScreenshotFile = strFolder & "\screenshot_" & sTimeStamp & ".png"
+    Else
+        strScreenName = replace(Trim(strScreenName)," ","_")
+        strScreenshotFile = strFolder & "\" & strScreenName & "_" & sTimeStamp & ".png"
+    End If
+
+    if not objBrowser.Exist(2) then
+       Desktop.CaptureBitmap strScreenshotFile,True
+    Else
+       objBrowser.CaptureBitmap strScreenshotFile, True
+    End If 
+
+    Set objBrowser = Nothing
+    UTIL_Screen_CaptureScreenshot = strScreenshotFile
+    
+End Function
+
+
+
+'To take screenshot and add append them to word file
+'@code
+'   UTIL_Screen_AddScreenshotToWord "C:\Temp\test.doc", "Login", "Login screen"
+'@endcode
+'@param strWordFilePath path of the word document to save the screenshot to
+'@param strScreenName description of the screen, can be null
+'@param strComments to Pass commnets before each screen shots
+
+Function UTIL_Screen_AddScreenshotToWord(strWordFilePath, strScreenName, ByVal strComments)
+   	  
+    On Error Resume Next  
+    strFolder = UTIL_File_GetParentFolderPath(strWordFilePath)
+    UTIL_File_CreateFolderIfNotExist(strFolder)
+    
+    Set objWord = UTIL_Screen_GetWordAppObject(strWordFilePath)
+    Set objDoc = objWord.ActiveDocument
+    
+    Const END_OF_STORY = 6	   
+    'Add Comments before Screenshot
+    objWord.Selection.EndKey END_OF_STORY
+    'objWord.Selection.Style = "Heading 1"
+    objWord.Selection.TypeParagraph()
+    objWord.Selection.TypeText strComments 
+
+    Set objRange = objDoc.content
+    objRange.ParagraphFormat.Alignment = 0
+    objRange.insertafter vbcrlf 
+    objRange.collapse(0)
+    strScreenshotFilePath = UTIL_Screen_CaptureScreenshot(strFolder, strScreenName)
+    objRange.InlineShapes.AddPicture strScreenshotFilePath, False, True
+    
+    objWord.ActiveDocument.Saveas(strWordFilePath)
+    objWord.ActiveDocument.Close	
+''	objWord.Application.Quit True 
+    objWord.Quit
+    
+    Set objRange = Nothing 
+    Set objDoc = Nothing 
+    Set objWord = Nothing
+			
+	'' Delete the image file, after its captured into the doc file. - 
+	UTIL_File_Delete strScreenshotFilePath, True
+		
+    UTIL_Windows_CloseProcesses "WINWORD.exe"
+    
+	If  Err.Number <> 0 Then
+		UTIL_Windows_CloseProcesses "WINWORD.exe"
+	End If
+    On Error Goto 0	    
+			
+End Function
+
+
+
+'Returns a Document object that represents the active document
+'@code
+'   UTIL_Screen_GetWordAppObject "C:\Temp\test.doc"
+'@endcode
+'@param strWordDocPath file path to a word document
+'@return a Document object that represents the active document
+
+Private Function UTIL_Screen_GetWordAppObject(strWordDocPath)
+
+    boolFileExist = UTIL_File_FileExists(strWordDocPath)
+    
+    Set objWord = CreateObject("Word.Application")
+    objWord.DisplayAlerts = False
+    objWord.Visible = False 
+            
+	Const intWdHeaderFooterPrimary=1
+	Const intWdSeekMainDocument = 0
+	Const intWdSeekCurrentPageHeader = 9
+	Const intWdSeekCurrentPageFooter = 10
+	Const intWdPrintView = 3
+    
+    If Not boolFileExist Then
+        objWord.Documents.Add                       
+        Set objDoc = objWord.ActiveDocument
+
+        'Move the page to print view as headers and footers can only be added in print view
+        objDoc.ActiveWindow.ActivePane.View.Type = intWdPrintView
+        
+        'Select the header view and add the header
+        objDoc.ActiveWindow.ActivePane.View.SeekView = intWdSeekCurrentPageHeader
+        objDoc.Sections(1).Headers(intWdHeaderFooterPrimary).Range.Select 
+        objWord.Selection.TypeText "Created at: " &  UTIL_Date_FormatDateByPattern(now, "mm/dd/yyyy HH:nn:ss")
+        
+        'Select the footer view and add the footer
+        objDoc.ActiveWindow.ActivePane.View.SeekView = intWdSeekCurrentPageFooter
+        objDoc.Sections(1).Footers(intWdHeaderFooterPrimary).Range.Select 
+        'objWord.Selection.TypeText "This is a test footer"
+        objWord.Selection.Fields.Add objDoc.Sections(1).Footers(intWdHeaderFooterPrimary).Range,-1,"PAGE \* Arabic"
+        objWord.Selection.Fields.Update
+        
+        'Swicth back to the main document
+        objDoc.ActiveWindow.ActivePane.View.SeekView = intWdSeekMainDocument            
+    Else
+        objWord.Documents.Open strWordDocPath
+    End If
+    
+    objWord.Selection.ParagraphFormat.Alignment = 1
+    objWord.Selection.Font.Size=20
+    objWord.Selection.Font.Bold=True
+    Reporter.Filter =3    
+    
+    Set UTIL_Screen_GetWordAppObject = objWord
+    
+End Function
+
+
+
+' @}''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\ScreenshotUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\StringUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: StringUtil UTIL_StringUtil
+' This is the function group for string util.
+' List of functions here
+' @code
+'	Function UTIL_String_IsNotEmpty(strText)
+'   Function UTIL_String_IsEmpty(strText)
+'   Function UTIL_String_IsMatch(strText, strPattern)
+'   Function UTIL_String_FirstMatch(strText, strPattern)
+'   Function UTIL_String_AllMatch(strText, strPattern)
+'   Function UTIL_String_ReplaceByPattern(strPattern, strText, strReplace)
+'   Function UTIL_String_UniReplace(strText)
+'   Function UTIL_String_EndsWith(strText, strEndsWith)
+'	Function UTIL_String_DblQuote(strValue)
+'	Function UTIL_String_EscapeChr(strVal)
+'   Function UTIL_String_RemoveCharacters(strText,arrCharactersToRemove)
+' @endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Checks if a string is not empty
+'@code
+'   UTIL_String_IsNotEmpty(strText)
+'@endcode
+'@param strText String value
+'@return returns true if string is not empty or null; returns false if it is
+Function UTIL_String_IsNotEmpty(strText)
+    UTIL_String_IsNotEmpty = (Not UTIL_String_IsEmpty(strText))
+End Function
+
+
+
+'Checks if a string is empty
+'@code
+'   Dim str1
+'   UTIL_String_IsEmpty(str1) returns True
+'   str2 = Empty
+'    UTIL_String_IsEmpty(str2) returns True
+'   str3 = ""
+'   UTIL_String_IsEmpty(str3) returns True
+'   str4 = Null
+'   UTIL_String_IsEmpty(str4) returns True
+'   str5 = "10"
+'   UTIL_String_IsEmpty(str5) returns False
+'@endcode
+'@param strText String value
+'@return returns true if string is empty or null; returns false if not
+Function UTIL_String_IsEmpty(strText)
+    UTIL_String_IsEmpty = (Len(strText) = 0 or IsEmpty(strText) or IsNull(strText))
+End Function
+
+
+
+'Returns true if the text matches pattern, false if not
+'@param strText Any character string
+'@param strPattern A regular expression or string.
+'@return true if match found, false if not
+Function UTIL_String_IsMatch(strText, strPattern)
+
+    UTIL_String_IsMatch = UTIL_String_IsNotEmpty( UTIL_String_FirstMatch(strText,strPattern) ) 
+    
+End Function
+
+
+
+'This function is for finding the first string matched a regular expression in a string.
+'@code
+'   retVal = UTIL_String_FirstMatch("abcyu4afg1","y.*g")  'return "yu4afg"
+'   retVal = UTIL_String_FirstMatch("12313003523068123","1[3|5]\d{9}")  'return "13003523068"
+'@endcode
+'@param strText Any character string
+'@param strPattern A regular expression or string.
+'@return the first string which is matched the regular expression or empty if not found match value
+'@see UTIL_String_AllMatch
+Function UTIL_String_FirstMatch(strText, strPattern)
+    retAry = UTIL_String_AllMatch(strText,strPattern)
+    Dim retVal
+    If Ubound(retAry)>-1 Then retVal = retAry(0)
+    UTIL_String_FirstMatch = retVal
+End Function
+
+
+
+'This function is for finding all strings which are matched a regular expression in a string.
+'@code
+'   retAry = UTIL_String_AllMatch("abcyu4afg1","y.*g")  'return "yu4afg"
+'   retAry = UTIL_String_AllMatch("1231300352306812312313003523068123","1[3|5]\d{9}")  'return an array(12313003523068,12313003523068)
+'@endcode
+'@param strText Any character string
+'@param strPattern A regular expression or string.
+'@return all strings (in an array) which are matched the regular expression or empty array if not found match value
+Function UTIL_String_AllMatch(strText, strPattern)
+    Dim regEx, Matches, strTemp 
+    Set regEx = New RegExp   
+    regEx.Pattern = strPattern
+    regEx.IgnoreCase = True   
+    regEx.Global = True   
+    Set Matches = regEx.Execute(strText)
+    
+    retAry = Array()
+    If Matches.Count >0 Then
+        For idx=0 To Matches.Count-1
+            retAry = UTIL_Array_InsertAtEnd(retAry,Matches.item(idx).value)
+        Next
+    End If
+
+    UTIL_String_AllMatch = retAry
+End Function
+
+
+
+'Match a regular expression and replace the matched string to another string.It's case insensitive.
+'@code
+'   UTIL_String_ReplaceByPattern "dev","impact Dev1","qa" , return "impact qa1". 
+'   UTIL_String_ReplaceByPattern "d.*","impact dev1","2" , return "impact 2"
+'   UTIL_String_ReplaceByPattern ".*","impact dev1","2" , return "2"
+'@endcode
+'@param strPattern A regular expression or string.
+'@param strText String for matching by regular expression"strPattern".
+'@param strReplace String for replacing the matched string.
+'@return a string which is matched the regular expression.
+
+Function UTIL_String_ReplaceByPattern(strPattern, strText, strReplace)
+    Dim regEx
+    Set regEx = New RegExp               
+    regEx.Pattern = strPattern               
+    regEx.IgnoreCase = True
+    UTIL_String_ReplaceByPattern = regEx.Replace(strText, strReplace)  
+End Function
+
+
+
+'Replace the special characters to a blank space if the character is not ASCII code. 
+'@code
+'   UTIL_String_UniReplace "β@β#β$β%βpβ"; return " @ # $ % p "
+'   UTIL_String_UniReplace "asdfd"; return "asdfd"
+'@endcode
+'@param strText Any character string
+'@return string without any special characters(character's unicode value is greater than 128 or less than 0)
+Function UTIL_String_UniReplace(strText)
+    Dim strChr
+    For j = 1 to  Len(strText)
+        strChr = mid(strText,j,1)
+        If ascw(strChr) > 128 or  ascw(strChr) < 0 Then
+            strText = replace(strText,strChr," ")
+        End If
+    Next
+    UTIL_String_UniReplace = strText
+
+End Function
+
+
+
+'Finds if a string ends with certain text
+'@code
+'   UTIL_String_EndsWith "Test", "st"
+'@endcode
+'@param strText Any character string
+'@param strEndsWith string to search for
+'@return True if string ends with provided string, false if not
+Function UTIL_String_EndsWith(strText, strEndsWith)
+    UTIL_String_EndsWith = (strEndsWith = Right(strText, Len(strEndsWith)))
+End Function
+
+
+
+'Add double quote to string
+'@code
+'   UTIL_String_DblQuote(strValue)
+'@endcode
+'@param strValue 
+Function UTIL_String_DblQuote(strValue)
+	UTIL_String_DblQuote = Chr( 34 ) & strValue & Chr( 34 )	
+End Function
+
+
+
+'Escape specical characters in a string: "&", "<", ">", " "
+'@code
+'   UTIL_String_EscapeChr(strVal)
+'@endcode
+'@param strVal 
+Function UTIL_String_EscapeChr(strVal)
+	If (Not UTIL_String_IsEmpty(strVal)) Then
+		strVal = replace(strVal,"&","&amp;")
+		strVal = replace(strVal,"<","&lt;")
+		strVal = replace(strVal,">","&gt;")
+		strVal = replace(strVal," ","&nbsp;")
+		UTIL_String_EscapeChr = strVal
+	End If    
+End Function
+
+
+
+'Remove characters listed in the array from given text
+'@code
+'   UTIL_String_RemoveCharacters "(718) 615-3030" ,array("-","(",")"," ")  , returns "7186153030"
+'@endcode
+'@param strText String where remove 
+'@param arrCharactersToRemove array of characters to remove
+
+Function UTIL_String_RemoveCharacters(strText,arrCharactersToRemove)
+	For i = 0 to UBound(arrCharactersToRemove)
+		strText = Replace(strText,arrCharactersToRemove(i),"")
+	Next
+    UTIL_String_RemoveCharacters = strText
+End Function
+
+	
+' @}
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\StringUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\WindowsUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: WindowsUtil UTIL_WindowsUtil
+' This is the function group for Windows util.
+' List of functions:
+'
+' @code
+'   Function UTIL_Win_CloseIE()
+'	Function UTIL_Win_CloseExcel()
+'	Function UTIL_Win_CloseWinWord()
+'   Function UTIL_Win_CloseProcesses(strProcessName)
+' 	Function UTIL_Win_CloseProcessesbyFolder(strFolderName)
+'   Function UTIL_Win_TabAndClick(hWnd, intNumOfTabs)
+'   Function UTIL_Win_SendKey(ByVal strKeyValue)
+'	Function UTIL_Win_GetCurrentScriptPath()
+'	Function UTIL_Win_Run(strProgPath)
+'	Function UTIL_Win_RunWithOptions(strProgPath, intWindowStyle, boolWaitOnReturn)
+'   Function UTIL_Win_IsProcessRunning(strProcessName)
+'	Function Util_GetSystemIPAddress()
+' @endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Close IE process
+'@code
+'   UTIL_Win_CloseIE()
+'@endcode
+
+Function UTIL_Win_CloseIE()
+
+	UTIL_Win_CloseProcesses "iexplore.exe"
+	
+End Function
+
+
+'Close Excel process
+'@code
+'   UTIL_Win_CloseExcel()
+'@endcode
+
+Function UTIL_Win_CloseExcel()
+
+	UTIL_Win_CloseProcesses "Excel.exe"
+	
+End Function
+
+
+'Close Windows Word window
+'@code
+'   UTIL_Win_CloseWinWord()
+'@endcode
+
+Function UTIL_Win_CloseWinWord()
+
+    On Error Resume Next
+	If Window("regexpwndtitle:=.*Activation Failed.*", "index:=0").Exist(2) Then	
+		Window("regexpwndtitle:=.*Activation Failed.*", "index:=0").Activate
+		If Window("regexpwndtitle:=.*Activation Failed.*", "index:=0").Window("regexpwndtitle:=Microsoft Office Activation Wizard").Dialog("index:=0").WinButton("text:=OK").Exist(2) Then	
+			Window("regexpwndtitle:=.*Activation Failed.*", "index:=0").Window("regexpwndtitle:=Microsoft Office Activation Wizard").Dialog("index:=0").WinButton("text:=OK").Click
+		End If			
+		If Window("regexpwndtitle:=.*Activation Failed.*", "index:=0").Window("regexpwndtitle:=Microsoft Office Activation Wizard").WinObject("visible:=true").WinButton("enabled:=true", "acc_name:=Cancel").Exist(1) Then
+			Window("regexpwndtitle:=.*Activation Failed.*", "index:=0").Window("regexpwndtitle:=Microsoft Office Activation Wizard").WinObject("visible:=true").WinButton("enabled:=true", "acc_name:=Cancel").Click
+		End If
+	End If
+	On Error Goto 0
+	
+	Execute "set oWord =GetObject(,""Word.Application"")"
+	oWord.Quit
+	Set oWord = nothing
+	
+	UTIL_Win_CloseProcesses "WinWord.exe"
+	
+End Function
+
+
+
+'Close all processes by the process name
+'@code
+'   UTIL_Win_CloseProcesses "iexplore.exe"
+'@endcode
+'@param strProcessName name of a process
+
+Function UTIL_Win_CloseProcesses(strProcessName)
+	
+	Dim objWMI, colItem
+	Set objWMI = GetObject("winmgmts:\\.\root\CIMV2")
+	Set colItem = objWMI.ExecQuery("SELECT * FROM Win32_Process Where Name ='"& strProcessName & "'")	
+	For Each oItem In colItem
+		PID = oItem.processID
+		SystemUtil.CloseProcessByID PID
+	Next	
+	Set colItem =Nothing
+	Set objWMI = Nothing	
+
+End Function
+
+'Close all processes by the folder name
+'@code
+'   UTIL_Win_CloseProcesses "iexplore.exe"
+'@endcode
+'@param strFolderName name of a folder where process resides
+
+Function UTIL_Win_CloseProcessesbyFolder(strFolderName)
+	
+	Dim objWMIService, colItems
+	Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+
+	Set colItems = objWMIService.ExecQuery("Select * From Win32_Process")
+
+	For Each objItem in colItems
+    If Instr(objItem.ExecutablePath, strFolderName) > 0 Then objItem.terminate
+    
+	Next	
+	Set colItem =Nothing
+	Set objWMI = Nothing	
+
+End Function
+
+
+
+'Utility procedure to tab on a screen and click on something.  <br>
+'   Sometimes QTP doesn't recognize objects on a browser page until something is clicked.
+'@code
+'   UTIL_Win_TabAndClick Browser("micclass:=Browser","index:=0").GetROProperty("hwnd"), 3
+'@endcode
+'@param strHWnd unique identifier for a window handle that Windows assigns to each window created
+'@param intNumOfTabs number of tabs 
+
+Function UTIL_Win_TabAndClick(strHWnd, intNumOfTabs)
+
+    On Error Resume Next
+    Window("hwnd:=" & strHWnd).Activate
+    If Err.Number <> 0 Then
+        Window("hwnd:=" & Browser("hwnd:=" & strHWnd).Object.hWnd).Activate
+        Err.Clear
+    End If
+    On Error Goto 0  
+    Set objWshShell = CreateObject("WScript.Shell")
+    For i = 0 to intNumOfTabs -1 
+        strTabs = strTabs & "{TAB}"
+    Next 
+    objWshShell.SendKeys(strTabs)
+    objWshShell.SendKeys("{ENTER}") 
+    Set objWshShell = Nothing
+
+End Function
+
+
+
+'Sends Key as parameter to simulate user keyboard key
+'@code
+'	UTIL_Win_SendKey "{DOWN}"
+'   UTIL_Win_SendKey "~"
+'@endcode
+'@params strKeyValue - any character value
+
+Function UTIL_Win_SendKey(ByVal strKeyValue)
+	Dim objWshShell
+	Set objWshShell = CreateObject("Wscript.Shell")
+	objWshShell.SendKeys strKeyValue 
+	Services.ThinkTime 1
+	Set objWshShell = Nothing
+End Function
+
+
+
+'Runs the folder path of the current VBS script  
+'@code
+'   UTIL_Win_GetCurrentScriptPath()
+'@endcode
+'@return the folder path of the current VBS script  
+
+Function UTIL_Win_GetCurrentScriptPath()
+	UTIL_Win_GetCurrentScriptPath = Left(WScript.ScriptFullName, InStrRev(WScript.ScriptFullName, "\") - 1)+"\"
+End Function
+
+
+
+'Runs a program in a new process displaying a window and 
+'@			waits for the program to finish 
+'@code
+'   UTIL_Win_Run(strProgPath)
+'@endcode
+'@params strProgPath - path to the program to run
+'@see UTIL_Win_RunWithOptions
+
+Function UTIL_Win_Run(strProgPath)
+
+	UTIL_Win_RunWithOptions strProgPath, 1, True 
+	
+End Function 
+
+
+
+'Runs a program in a new process.
+'@code
+'	UTIL_Win_RunWithOptions "%windir%\notepad " & WScript.ScriptFullName, 1, True
+'@endcode
+'@params strProgPath - String value indicating the command line you want to run. 
+'@			You must include any parameters you want to pass to the executable file.
+'@params intWindowStyle - Integer value indicating the appearance of the 
+'@			program's window. Note that not all programs make use of this information.
+'@			Valid values are: 
+'@			0 - Hides the window and activates another window.
+'@			1 - Activates and displays a window. If the window is minimized 
+'@				or maximized, the system restores it to its original size and position. 
+'@				An application should specify this flag when displaying the window 
+'@				for the first time.
+'@			2 - Activates the window and displays it as a minimized window.
+'@			3 - Activates the window and displays it as a maximized window.
+'@			4 - Displays a window in its most recent size and position. The active window remains active.
+'@			5 - Activates the window and displays it in its current size and position.
+'@			6 - Minimizes the specified window and activates the next top-level window in the Z order.
+'@			7 - Displays the window as a minimized window. The active window remains active.
+'@			8 - Displays the window in its current state. The active window remains active.
+'@			9 - Activates and displays the window. If the window is minimized or maximized, 
+'@				the system restores it to its original size and position. An application 
+'@				should specify this flag when restoring a minimized window.
+'@			10 - Sets the show-state based on the state of the program that started the application.
+'@params boolWaitOnReturn - Boolean value indicating whether the script should 
+'@			wait for the program to finish executing before continuing to the 
+'@			next statement in your script. If set to true, script execution 
+'@			halts until the program finishes, and Run returns any error code 
+'@			returned by the program. If set to false (the default), the Run 
+'@			method returns immediately after starting the program, 
+'@			automatically returning 0 (not to be interpreted as an error code).
+
+Function UTIL_Win_RunWithOptions(strProgPath, intWindowStyle, boolWaitOnReturn)
+	
+	Set oShell = CreateObject ("Wscript.shell")
+
+	UTIL_Win_RunWithOptions = oShell.run(strProgPath, intWindowStyle, boolWaitOnReturn)
+
+	Set oShell = Nothing
+	
+End Function
+
+
+
+'Checks if a process is running
+'@code
+'   UTIL_Win_IsProcessRunning "UFT.exe"
+'@endcode
+'@param strProcessName name of the process 
+'@return If it is running returns True otherwise returns False
+
+Function UTIL_Win_IsProcessRunning(strProcessName)
+
+    Set objShell = CreateObject("WScript.Shell")
+    Set objService = GetObject("winmgmts:")
+    i = 0
+    DO UNTIL i = 3
+        boolIsRunning = False
+        i = i + 1
+        For Each objProcess In objService.InstancesOf("Win32_Process")
+            If objProcess.Name = strProcessName Then        
+                boolIsRunning = True
+            End If
+        Next
+        WScript.Sleep 500
+    LOOP
+    Set objShell = Nothing 
+    
+    UTIL_Win_IsProcessRunning = boolIsRunning
+        
+End Function
+
+
+
+Function UTIL_Win_MinimizeAll()
+
+	Set objShell = CreateObject("Shell.Application")
+	objShell.MinimizeAll 
+	Set objShell = Nothing 
+	
+End Function 
+
+'This function is used to Get Current System IP Address
+'@code
+'    Util_GetSystemIPAddress()
+'@endcode
+
+Function Util_GetSystemIPAddress()
+	
+	strMsg = ""
+	strComputer = "."
+	Set objWMIService = GetObject("winmgmts:\\" & strComputer &"\root\cimv2")
+	Set IPConfigSet = objWMIService.ExecQuery("Select IPAddress from Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'True'")
+	For Each IPConfig in IPConfigSet
+	If Not IsNull(IPConfig.IPAddress) Then
+	For i = LBound(IPConfig.IPAddress) to UBound(IPConfig.IPAddress)
+	If Not Instr(IPConfig.IPAddress(i), ":") > 0 Then
+	strMsg = strMsg & IPConfig.IPAddress(i) & vbcrlf
+	End If
+	Next
+	End If
+	Next
+
+Util_GetSystemIPAddress=strMsg
+
+End Function
+
+
+'@}
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\WindowsUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\XmlUtil.qfl" Start 
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: XmlUtil UTIL_XmlUtil
+' This is the function group for loading, reading and updating Xml.
+'
+' List of functions here
+' @code
+'   Function UTIL_Xml_LoadFromFile(strXmlFilePath)
+'   Function UTIL_Xml_LoadFromString(strXmlString)
+'   Function UTIL_Xml_ReadElementFromFile(strXmlFilePath, strTagName,index)
+'   Function UTIL_Xml_ReadElementFromString(strXmlString, strTagName,index)
+'   Private Function UTIL_Xml_ReadElement(XmlDoc,strTagName,index)
+'   Function UTIL_Xml_UpdateElementFromFile(strXmlFilePath, strTagName, strNewVal,index)
+'   Function UTIL_Xml_UpdateElementFromString(strXmlString, strTagName, strNewVal,index)
+'   Private Function UTIL_Xml_UpdateElement(xmlDoc, strTagName, strNewVal,index)
+'   Function UTIL_Xml_GetAttributeFromFile(strXmlFilePath,strNodes,strAttribute,index)
+'	Public Function UTIL_Xml_ApplyXSL(ByVal strInputXMLPath, ByVal strInputXSLPath, ByVal strHTMLFilePath)
+' @endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''
+'This function is for loading a xml file.
+'@code
+'   UTIL_Xml_LoadFromFile "C:\131-POC_48.xml"
+'@endcode
+'@param strXmlFile the path of xml document
+'@return the xmlDoc with xml conent      
+
+Function UTIL_Xml_LoadFromFile(strXmlFilePath)
+    Set xmlDoc = CreateObject("Msxml2.DOMDocument")
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    
+    UTIL_AssertTrue objFSO.FileExists(strXmlFilePath), "UTIL_Xml_LoadFromFile", "Check Xml file exists " & strXmlFilePath
+    
+    xmlDoc.load(strXmlFilePath)
+    Set UTIL_Xml_LoadFromFile = xmlDoc
+    Set xmlDoc= nothing
+    Set objFSO = nothing
+End Function
+
+
+
+'This function is for loading a string with xml content.
+'@code
+'   UTIL_Xml_LoadFromString "<IdentifierType>SatelliteId</IdentifierType>"
+'@endcode
+'@param strXmlString a string with xml content
+'@return the xmlDoc with xml conent      
+
+Function UTIL_Xml_LoadFromString(strXmlString)
+    Set xmlDoc = CreateObject("Msxml2.DOMDocument")
+    xmlDoc.LoadXml(strXmlString)
+    Set UTIL_Xml_LoadFromString = xmlDoc
+    Set xmlDoc= nothing
+End Function
+
+
+
+'This function is for reading tag value for xml file.
+'@code
+'   UTIL_Xml_ReadfromFile "C:\131-POC_48.xml","IdentifierValue","2"
+'@endcode
+'@param strFilePath the path of xml document
+'@param strTagName tag where value should be read or updated
+'@param index the index for the tag you want to find
+'@return the value of the tag         
+'@see UTIL_Xml_ReadElement
+
+Function UTIL_Xml_ReadElementFromFile(strXmlFilePath, strTagName,index)
+    Set xmlDoc = UTIL_Xml_LoadFromFile(strXmlFilePath)
+    UTIL_Xml_ReadElementFromFile = UTIL_Xml_ReadElement(xmlDoc,strTagName,index)
+    Set xmlDoc = Nothing
+End Function
+
+
+
+'This function is for reading tag value for xml content in string.
+'@code
+'   UTIL_Xml_ReadElementFromString "<IdentifierType>SatelliteId</IdentifierType>","IdentifierType","1"
+'@endcode
+'@param strXmlString the xml content in String
+'@param strTagName tag where value should be read or updated
+'@param index the index for the tag you want to find
+'@return the value of the tag         
+'@see UTIL_Xml_ReadElement
+
+Function UTIL_Xml_ReadElementFromString(strXmlString, strTagName,index)
+    Set xmlDoc = UTIL_Xml_LoadFromString(strXmlString)
+    UTIL_Xml_ReadElementFromString = UTIL_Xml_ReadElement(xmlDoc,strTagName,index)
+    Set xmlDoc = Nothing
+End Function
+
+
+
+'This function is for reading tag value from xmlDoc.It's a private function.
+'@code
+'   UTIL_Xml_ReadElement Msxml2.DOMDocument,"IdentifierValue","2"
+'@endcode
+'@param xmlDoc the xml Doc document
+'@param strTagName tag where value should be read
+'@param index the index for the tag you want to find
+'@return the value of the tag   
+
+Private Function UTIL_Xml_ReadElement(xmlDoc, strTagName, index)
+    Set colElemList = xmlDoc.getElementsByTagName(strTagName)
+    
+    UTIL_AssertTrue colElemList.length > 0, "UTIL_Xml_ReadElement", "Element List with "&strTagName&" should be greater than 0"
+    UTIL_AssertTrue colElemList.length >= clng(index), "UTIL_Xml_ReadElement", "Element List with "&strTagName&" should be >= parameter of index"
+
+    UTIL_Xml_ReadElement = colElemList.item(index-1).Text
+End Function
+
+
+
+'This function is for updating tag value for xml. 
+'@code
+'   UTIL_Xml_UpdateElementFromFile "C:\131-POC_48.xml","IdentifierValue","55","2"
+'@endcode
+'@param strXmlFilePath the path of xml document
+'@param strTagName tag where value should be read or updated
+'@param strNewVal the new value for updating 
+'@param index the index for the tag you want to find
+'@return the updated xmlDoc        
+
+Function UTIL_Xml_UpdateElementFromFile(strXmlFilePath, strTagName, strNewVal,index)
+    Set xmlDoc = UTIL_Xml_LoadFromFile(strXmlFilePath)
+    Set UTIL_Xml_UpdateElementFromFile = UTIL_Xml_UpdateElement(xmlDoc, strTagName, strNewVal,index)
+    xmlDoc.save(strXmlFilePath)
+    Set xmlDoc = Nothing
+End Function
+
+
+
+'This function is for updating xml value from string.
+'@code
+'   UTIL_Xml_UpdateElementFromString "<IdentifierType>SatelliteId</IdentifierType>","IdentifierType","modified","1"
+'@endcode
+'@param strXmlString string with xml content
+'@param strTagName tag where value should be updated
+'@param strNewVal the new value for updating 
+'@param index the index for the tag you want to find
+'@return return the updated xmlDoc
+
+Function UTIL_Xml_UpdateElementFromString(strXmlString, strTagName, strNewVal,index)
+    set xmlDoc = UTIL_Xml_LoadFromString(strXmlString)
+    Set UTIL_Xml_UpdateElementFromString = UTIL_Xml_UpdateElement(xmlDoc, strTagName, strNewVal,index)
+    Set xmlDoc = Nothing
+End Function 
+
+
+
+'This function is for updating tag value from xmlDoc.It's a private function.
+'@code
+'   UTIL_Xml_UpdateElement Msxml2.DOMDocument,"IdentifierValue","2","2"
+'@endcode
+'@param xmlDoc the xml Doc document
+'@param strTagName tag where value should be read
+'@param strNewVal the new value for updating 
+'@param index the index for the tag you want to find
+'@return the updated xmlDoc
+
+Private Function UTIL_Xml_UpdateElement(xmlDoc, strTagName, strNewVal,index)
+    Set colElemList = xmlDoc.getElementsByTagName(strTagName)
+    
+    UTIL_AssertTrue colElemList.length > 0, "UTIL_Xml_UpdateElement", "Element List with "&strTagName&" should be greater than 0"
+    UTIL_AssertTrue colElemList.length >= clng(index), "UTIL_Xml_UpdateElement", "Element List with "&strTagName&" should be >= parameter of index"
+
+    colElemList.item(index-1).Text = strNewVal
+    Set UTIL_Xml_UpdateElement= xmlDoc
+End Function
+
+   
+
+'This function is for getting attribute value in xml.
+'@code
+'   UTIL_Xml_GetAttributeFromFile "C:\131-POC_48.xml","Loan","xmlns","1"
+'@endcode
+'@param strXmlFilePath the path of the xml file
+'@param strNodes the name of the node
+'@param strAttribute the attribute of the node
+'@param index the index for the attribute you want to find
+'@return the value of attribute      
+
+Function UTIL_Xml_GetAttributeFromFile(strXmlFilePath,strNodes,strAttribute,index)
+    Set xmlDoc = UTIL_Xml_LoadFromFile(strXmlFilePath)
+    Set colNodeList = xmlDoc.documentElement.SelectNodes("//" & strNodes)
+    
+    UTIL_AssertTrue colElemList.length > 0, "UTIL_Xml_GetAttributeFromFile", "Element List with "&strTagName&" should be greater than 0"
+    UTIL_AssertTrue colElemList.length >= clng(index), "UTIL_Xml_GetAttributeFromFile", "Element List with "&strTagName&" should be >= parameter of index"
+
+    UTIL_Xml_GetAttributeFromFile = colNodeList(index-1).getAttribute(strAttribute)
+    Set xmlDoc = Nothing
+    Set colNodeList = Nothing
+End Function
+
+
+
+'@description: Transform XML to HTML format
+'@code
+'   UTIL_Xml_ApplyXSL(ByVal strInputXMLPath, ByVal strInputXSLPath, ByVal strHTMLFilePath)
+'@endcode
+'@param strInputXMLPath - XML file path
+'@param strInputXSLPath - XSL file path
+'@param strHTMLFilePath - path to generated HTML file
+
+Public Function UTIL_Xml_ApplyXSL(ByVal strInputXMLPath, ByVal strInputXSLPath, ByVal strHTMLFilePath)
+
+	Dim xmlDoc, xslDoc, strText, objOutFile, objFSO
+
+	Set xmlDoc = UTIL_Xml_LoadFromFile(strInputXMLPath)	
+	Set xslDoc = UTIL_Xml_LoadFromFile(strInputXSLPath)
+	
+	strText = xmlDoc.transformNode(xslDoc.documentElement)
+	strText = Replace(strText,"UTF-16","gb2312")
+	UTIL_File_WritingText strHTMLFilePath, strText
+	
+	Set xmlDoc = Nothing
+	Set xslDoc = Nothing
+	
+End Function
+	
+'@}
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+' File "C:\Automation\QTP\Encompass\Main\Core2P\Function Library\Util\XmlUtil.qfl" End 
+''''''''''''''''''''''''''''''''''''''''''''''''''''

@@ -1,0 +1,88 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Tools_TQLServices BIZ_Tools_TQLServices
+'
+' List of functions here
+'@code
+'	Function BIZ_Tools_TQLServices_SubmitValuationServiceOrders(strRowID)
+'	Function BIZ_TQLServices_SubmitOrder(strOrderName, strRowID) 
+'@endcode
+'
+'@{
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for set Header Data in Tools->TQL Services
+'@code
+'    BIZ_Tools_TQLServices_SubmitValuationServiceOrders(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Tools_TQLServices_SubmitValuationServiceOrders(strRowID)
+	FRM_Logger_ReportInfoEvent "Valuation Service Orders", "Set valuation service orders using Row Id '"&strRowID&"' in the SetData datasheet", null	
+
+    Dim objData
+    
+    Set objData = FRM_DS_GetTestData("Tools_TQLServices", "SetValuationServiceOrder", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AppraisalDate")) Then
+		GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog").SwfComboBox("swfname:=appraisalTypeCbo"), FRM_DS_GetValue(objData, "AppraisalDate")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AppraisalType")) Then
+		GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog").SwfEdit("swfname:=appraisalDateTxt"), FRM_DS_GetValue(objData, "AppraisalType")
+	End if	
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog").SwfButton("swfname:=btnOrderPass")
+	
+	Wait g_ShortWaitLarge+g_ShortWaitLarge
+
+	GUI_Window_Close SwfWindow("swfname:=MainForm").swfWindow("swfname:=PreviewHtmlDocument")
+
+    Set objData = Nothing
+End Function
+
+
+
+'This function is for set Header Data in Tools->TQL Services
+'@code
+'    BIZ_TQLServices_SubmitOrder(strOrderName, strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_TQLServices_SubmitOrder(strOrderName, strRowID) 
+	FRM_Logger_ReportInfoEvent "TQL Services", "Submit Order " & strOrderName, null
+	'Go to Tools->TQL Services
+	BIZ_Tools_Open("TQL Services")
+	wait 2
+	GUI_Object_ValidateText SwfWindow("swfname:=MainForm").SwfObject("swfname:=topContainer"), "TQL Services", "TQL services page is open"
+
+	If(strOrderName = "Valuation Service") Then
+		If(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfButton("swfname path:=btnOrder;panelOrderSummary;;serviceContainer;avmControl;AvmPlinthContainer;pnlOrders;topContainer;TQLClientControl;TQLServices;workPanel;rightPanel;LoanPage;loanTabPage;tabControl;pnlMain;MainScreen;mainPanel;MainForm").GetROProperty("enabled") = true) Then
+			GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfButton("swfname path:=btnOrder;panelOrderSummary;;serviceContainer;avmControl;AvmPlinthContainer;pnlOrders;topContainer;TQLClientControl;TQLServices;workPanel;rightPanel;LoanPage;loanTabPage;tabControl;pnlMain;MainScreen;mainPanel;MainForm")
+			Wait g_TinyWaitLarge
+			If(SwfWindow("swfname:=MainForm").Dialog("text:=Valuation Service").Exist(5)) Then
+				FRM_Logger_ReportFailEvent "Valuation Service Order","Valuation Service Order is not displayed", Null
+			Else
+				BIZ_Tools_TQLServices_SubmitValuationServiceOrders strRowID
+				FRM_Logger_ReportPassEvent "Valuation Service Order","Valuation Service Order is displayed", Null
+			End if				
+		Else
+			SwfWindow("swfname:=MainForm").SwfButton("swfname path:=toggleDetailBtn;panelOrderSummary;;serviceContainer;avmControl;AvmPlinthContainer;pnlOrders;topContainer;TQLClientControl;TQLServices;workPanel;rightPanel;LoanPage;loanTabPage;tabControl;pnlMain;MainScreen;mainPanel;MainForm","swfname:=toggleDetailBtn").Click
+			strDocumentStatus = GUI_List_GetCellData(SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvDocuments"), 0, 0)
+			If(InStr(LCase(strDocumentStatus),"pass") > 0) Then
+				FRM_Logger_ReportPassEvent "Valuation Service Order","Valuation Service Order is displayed", Null
+			Else
+				FRM_Logger_ReportFailEvent "Valuation Service Order","Valuation Service Order did not pass", Null
+			End If
+		End If	
+	ElseIf(strOrderName = "Compliance Service") Then
+		If(GUI_Object_IsExistX(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfButton("swfname path:=btnOrder;panelOrderSummary;;serviceContainer;complianceControl;CompliancePlinthContainer;pnlOrders;topContainer;TQLClientControl;TQLServices;workPanel;rightPanel;LoanPage;loanTabPage;tabControl;pnlMain;MainScreen;mainPanel;MainForm"), 10)) Then 
+			GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfButton("swfname path:=btnOrder;panelOrderSummary;;serviceContainer;complianceControl;CompliancePlinthContainer;pnlOrders;topContainer;TQLClientControl;TQLServices;workPanel;rightPanel;LoanPage;loanTabPage;tabControl;pnlMain;MainScreen;mainPanel;MainForm")
+			BIZ_ComplianceReview_ValidateComplianceReviewStatus()
+		Else
+			FRM_Logger_ReportFailEvent "TQL Service - Compliance Service","Service Order button is not available", Null
+		End If
+	Else
+		FRM_Logger_ReportFailEvent "TQL Service","Service Order is not valid", Null
+	End If
+End Function
+
+
+'@}

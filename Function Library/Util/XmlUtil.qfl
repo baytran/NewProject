@@ -1,0 +1,220 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: XmlUtil UTIL_XmlUtil
+' This is the function group for loading, reading and updating Xml.
+'
+' List of functions here
+' @code
+'   Function UTIL_Xml_LoadFromFile(strXmlFilePath)
+'   Function UTIL_Xml_LoadFromString(strXmlString)
+'   Function UTIL_Xml_ReadElementFromFile(strXmlFilePath, strTagName,index)
+'   Function UTIL_Xml_ReadElementFromString(strXmlString, strTagName,index)
+'   Private Function UTIL_Xml_ReadElement(XmlDoc,strTagName,index)
+'   Function UTIL_Xml_UpdateElementFromFile(strXmlFilePath, strTagName, strNewVal,index)
+'   Function UTIL_Xml_UpdateElementFromString(strXmlString, strTagName, strNewVal,index)
+'   Private Function UTIL_Xml_UpdateElement(xmlDoc, strTagName, strNewVal,index)
+'   Function UTIL_Xml_GetAttributeFromFile(strXmlFilePath,strNodes,strAttribute,index)
+'	Public Function UTIL_Xml_ApplyXSL(ByVal strInputXMLPath, ByVal strInputXSLPath, ByVal strHTMLFilePath)
+' @endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''
+'This function is for loading a xml file.
+'@code
+'   UTIL_Xml_LoadFromFile "C:\131-POC_48.xml"
+'@endcode
+'@param strXmlFile the path of xml document
+'@return the xmlDoc with xml conent      
+
+Function UTIL_Xml_LoadFromFile(strXmlFilePath)
+    Set xmlDoc = CreateObject("Msxml2.DOMDocument")
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    
+    UTIL_AssertTrue objFSO.FileExists(strXmlFilePath), "UTIL_Xml_LoadFromFile", "Check Xml file exists " & strXmlFilePath
+    
+    xmlDoc.load(strXmlFilePath)
+    Set UTIL_Xml_LoadFromFile = xmlDoc
+    Set xmlDoc= nothing
+    Set objFSO = nothing
+End Function
+
+
+
+'This function is for loading a string with xml content.
+'@code
+'   UTIL_Xml_LoadFromString "<IdentifierType>SatelliteId</IdentifierType>"
+'@endcode
+'@param strXmlString a string with xml content
+'@return the xmlDoc with xml conent      
+
+Function UTIL_Xml_LoadFromString(strXmlString)
+    Set xmlDoc = CreateObject("Msxml2.DOMDocument")
+    xmlDoc.LoadXml(strXmlString)
+    Set UTIL_Xml_LoadFromString = xmlDoc
+    Set xmlDoc= nothing
+End Function
+
+
+
+'This function is for reading tag value for xml file.
+'@code
+'   UTIL_Xml_ReadfromFile "C:\131-POC_48.xml","IdentifierValue","2"
+'@endcode
+'@param strFilePath the path of xml document
+'@param strTagName tag where value should be read or updated
+'@param index the index for the tag you want to find
+'@return the value of the tag         
+'@see UTIL_Xml_ReadElement
+
+Function UTIL_Xml_ReadElementFromFile(strXmlFilePath, strTagName,index)
+    Set xmlDoc = UTIL_Xml_LoadFromFile(strXmlFilePath)
+    UTIL_Xml_ReadElementFromFile = UTIL_Xml_ReadElement(xmlDoc,strTagName,index)
+    Set xmlDoc = Nothing
+End Function
+
+
+
+'This function is for reading tag value for xml content in string.
+'@code
+'   UTIL_Xml_ReadElementFromString "<IdentifierType>SatelliteId</IdentifierType>","IdentifierType","1"
+'@endcode
+'@param strXmlString the xml content in String
+'@param strTagName tag where value should be read or updated
+'@param index the index for the tag you want to find
+'@return the value of the tag         
+'@see UTIL_Xml_ReadElement
+
+Function UTIL_Xml_ReadElementFromString(strXmlString, strTagName,index)
+    Set xmlDoc = UTIL_Xml_LoadFromString(strXmlString)
+    UTIL_Xml_ReadElementFromString = UTIL_Xml_ReadElement(xmlDoc,strTagName,index)
+    Set xmlDoc = Nothing
+End Function
+
+
+
+'This function is for reading tag value from xmlDoc.It's a private function.
+'@code
+'   UTIL_Xml_ReadElement Msxml2.DOMDocument,"IdentifierValue","2"
+'@endcode
+'@param xmlDoc the xml Doc document
+'@param strTagName tag where value should be read
+'@param index the index for the tag you want to find
+'@return the value of the tag   
+
+Private Function UTIL_Xml_ReadElement(xmlDoc, strTagName, index)
+    Set colElemList = xmlDoc.getElementsByTagName(strTagName)
+    
+    UTIL_AssertTrue colElemList.length > 0, "UTIL_Xml_ReadElement", "Element List with "&strTagName&" should be greater than 0"
+    UTIL_AssertTrue colElemList.length >= clng(index), "UTIL_Xml_ReadElement", "Element List with "&strTagName&" should be >= parameter of index"
+
+    UTIL_Xml_ReadElement = colElemList.item(index-1).Text
+End Function
+
+
+
+'This function is for updating tag value for xml. 
+'@code
+'   UTIL_Xml_UpdateElementFromFile "C:\131-POC_48.xml","IdentifierValue","55","2"
+'@endcode
+'@param strXmlFilePath the path of xml document
+'@param strTagName tag where value should be read or updated
+'@param strNewVal the new value for updating 
+'@param index the index for the tag you want to find
+'@return the updated xmlDoc        
+
+Function UTIL_Xml_UpdateElementFromFile(strXmlFilePath, strTagName, strNewVal,index)
+    Set xmlDoc = UTIL_Xml_LoadFromFile(strXmlFilePath)
+    Set UTIL_Xml_UpdateElementFromFile = UTIL_Xml_UpdateElement(xmlDoc, strTagName, strNewVal,index)
+    xmlDoc.save(strXmlFilePath)
+    Set xmlDoc = Nothing
+End Function
+
+
+
+'This function is for updating xml value from string.
+'@code
+'   UTIL_Xml_UpdateElementFromString "<IdentifierType>SatelliteId</IdentifierType>","IdentifierType","modified","1"
+'@endcode
+'@param strXmlString string with xml content
+'@param strTagName tag where value should be updated
+'@param strNewVal the new value for updating 
+'@param index the index for the tag you want to find
+'@return return the updated xmlDoc
+
+Function UTIL_Xml_UpdateElementFromString(strXmlString, strTagName, strNewVal,index)
+    set xmlDoc = UTIL_Xml_LoadFromString(strXmlString)
+    Set UTIL_Xml_UpdateElementFromString = UTIL_Xml_UpdateElement(xmlDoc, strTagName, strNewVal,index)
+    Set xmlDoc = Nothing
+End Function 
+
+
+
+'This function is for updating tag value from xmlDoc.It's a private function.
+'@code
+'   UTIL_Xml_UpdateElement Msxml2.DOMDocument,"IdentifierValue","2","2"
+'@endcode
+'@param xmlDoc the xml Doc document
+'@param strTagName tag where value should be read
+'@param strNewVal the new value for updating 
+'@param index the index for the tag you want to find
+'@return the updated xmlDoc
+
+Private Function UTIL_Xml_UpdateElement(xmlDoc, strTagName, strNewVal,index)
+    Set colElemList = xmlDoc.getElementsByTagName(strTagName)
+    
+    UTIL_AssertTrue colElemList.length > 0, "UTIL_Xml_UpdateElement", "Element List with "&strTagName&" should be greater than 0"
+    UTIL_AssertTrue colElemList.length >= clng(index), "UTIL_Xml_UpdateElement", "Element List with "&strTagName&" should be >= parameter of index"
+
+    colElemList.item(index-1).Text = strNewVal
+    Set UTIL_Xml_UpdateElement= xmlDoc
+End Function
+
+   
+
+'This function is for getting attribute value in xml.
+'@code
+'   UTIL_Xml_GetAttributeFromFile "C:\131-POC_48.xml","Loan","xmlns","1"
+'@endcode
+'@param strXmlFilePath the path of the xml file
+'@param strNodes the name of the node
+'@param strAttribute the attribute of the node
+'@param index the index for the attribute you want to find
+'@return the value of attribute      
+
+Function UTIL_Xml_GetAttributeFromFile(strXmlFilePath,strNodes,strAttribute,index)
+    Set xmlDoc = UTIL_Xml_LoadFromFile(strXmlFilePath)
+    Set colNodeList = xmlDoc.documentElement.SelectNodes("//" & strNodes)
+    
+    UTIL_AssertTrue colElemList.length > 0, "UTIL_Xml_GetAttributeFromFile", "Element List with "&strTagName&" should be greater than 0"
+    UTIL_AssertTrue colElemList.length >= clng(index), "UTIL_Xml_GetAttributeFromFile", "Element List with "&strTagName&" should be >= parameter of index"
+
+    UTIL_Xml_GetAttributeFromFile = colNodeList(index-1).getAttribute(strAttribute)
+    Set xmlDoc = Nothing
+    Set colNodeList = Nothing
+End Function
+
+
+
+'@description: Transform XML to HTML format
+'@code
+'   UTIL_Xml_ApplyXSL(ByVal strInputXMLPath, ByVal strInputXSLPath, ByVal strHTMLFilePath)
+'@endcode
+'@param strInputXMLPath - XML file path
+'@param strInputXSLPath - XSL file path
+'@param strHTMLFilePath - path to generated HTML file
+
+Public Function UTIL_Xml_ApplyXSL(ByVal strInputXMLPath, ByVal strInputXSLPath, ByVal strHTMLFilePath)
+
+	Dim xmlDoc, xslDoc, strText, objOutFile, objFSO
+
+	Set xmlDoc = UTIL_Xml_LoadFromFile(strInputXMLPath)	
+	Set xslDoc = UTIL_Xml_LoadFromFile(strInputXSLPath)
+	
+	strText = xmlDoc.transformNode(xslDoc.documentElement)
+	strText = Replace(strText,"UTF-16","gb2312")
+	UTIL_File_WritingText strHTMLFilePath, strText
+	
+	Set xmlDoc = Nothing
+	Set xslDoc = Nothing
+	
+End Function
+	
+'@}

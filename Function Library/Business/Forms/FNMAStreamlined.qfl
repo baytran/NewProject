@@ -1,0 +1,67 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_FNMAStreamlined BIZ_Forms_FNMAStreamlined
+'
+' List of functions here
+'@code
+'   Function BIZ_FNMAStreamlined_SetData(strRowID)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for set information on FNMA Streamlined page
+'@code
+'    BIZ_FNMAStreamlined_SetData(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_FNMAStreamlined_SetData(strRowID)
+
+    FRM_Logger_ReportInfoEvent "FNMA Streamlined 1003", "Set data using Row Id '"&strRowID&"' in the FNMAStreamlined datasheet", null
+	
+    Set objData = FRM_DS_GetTestData("Forms_FNMAStreamlined", "FNMAStreamlined", strRowID)	
+	BIZ_Forms_Open "FNMA Streamlined 1003"
+	
+	Set objPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "DiscountPoints")) then 
+        If 	objPage.Webbutton("html id:=FieldLock2","index:=0").Exist(5) Then
+		    If objPage.WebEdit("html id:=l_1093","index:=0").GetROProperty("readonly") = 1 Then
+               objPage.WebButton("html id:=FieldLock2","index:=0").Click
+            End If   
+		End If
+		GUI_WebEdit_Set objPage.WebEdit("html id:=l_1093","index:=0"), FRM_DS_GetValue(objData, "DiscountPoints") 	
+	End If	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MIPRefund")) then 	
+		GUI_WebEdit_Set objPage.WebEdit("html id:=l_1134","index:=0"), FRM_DS_GetValue(objData, "MIPRefund") 	
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "IndexMargin")) then 
+		GUI_WebEdit_Set objPage.WebEdit("html id:=l_689"), FRM_DS_GetValue(objData, "IndexMargin")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "IndexValue")) then
+		GUI_WebEdit_Set objPage.WebEdit("html id:=l_688"), FRM_DS_GetValue(objData, "IndexValue")		
+    End if
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AmortizationType")) Then	
+        GUI_WebCheckBox_Set objPage.WebCheckbox("html id:=__cid_CheckBox.*_Ctrl", "value:="&FRM_DS_GetValue(objData, "AmortizationType")), "ON"
+    End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LenderCase")) then 	
+		GUI_WebEdit_Set objPage.WebEdit("html id:=l_305","index:=0"), FRM_DS_GetValue(objData, "LenderCase") 	
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "RefinanceType")) then 	
+		SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0").WebElement("innerhtml:=Title will be held").Highlight
+		GUI_WebList_Select objPage.WebList("html id:=DropdownBox2"), FRM_DS_GetValue(objData, "RefinanceType")
+	End If
+	'Set Heloc Credit Amount
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CASASRN.X168_HelocCreditLimit")) then 
+		valHelocCreditLimit=FRM_DS_GetValue(objData, "CASASRN.X168_HelocCreditLimit")	
+		GUI_WebEdit_Set objPage.WebEdit("html id:=I_CASASRNX168"), valHelocCreditLimit
+		FRM_logger_ReportInfoEvent "CASASRN.X168_HelocCreditLimit","Field CASASRN.X168_HelocCreditLimit has been set as " &valHelocCreditLimit& " ", null		
+	End If
+	Set objData = Nothing
+	Set objPage  = Nothing	
+	
+End Function
+
+
+'@}

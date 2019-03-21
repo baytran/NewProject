@@ -1,0 +1,114 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_AdminTools BIZ_AdminTools
+'List of functions:
+'@code
+'	Function BIZ_AdminTools_Login(strRowID)
+'   Function BIZ_AdminTools_UserLogin(strUserName, strUserPwd, strURL)
+'	Function BIZ_AminTools_Close()
+'	Function BIZ_LOConnect_ServerSettingsManager_SetValue(strCategory,strSettingName, strValue)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to Login system using Row Id
+'@code
+'    BIZ_AdminTools_Login(strRowID)
+'@endcode
+'@param strRowID - row id for data
+
+Function BIZ_AdminTools_Login(strRowID)
+
+	Set objData = FRM_DS_GetGlobalTestData("Login", strRowID)
+	strUserName = objData.Item("UserName")
+	strUserPwd = objData.Item("UserPassword")
+	strURL = objData.Item("URL")
+	BIZ_AdminTools_UserLogin strUserName, strUserPwd, strURL
+
+End Function
+
+
+
+'This function is used to Login in Admin Tools
+'@code
+'    Function BIZ_AdminTools_UserLogin(strUserName, strUserPwd, strURL)
+'@endcode
+'@param strUserName - The user id
+'@param strUserPwd - The password
+'@param strURL - server to connect
+
+Function BIZ_AdminTools_UserLogin(strUserName, strUserPwd, strURL)
+
+	FRM_Logger_ReportInfoEvent "Login in Admin tools", "Login in Admin tools", Null
+	Set objAdminLogin = SwfWindow("swfname:=AdminTools").SwfWindow("swfname:=LoginForm")
+	GUI_SwfEdit_Set objAdminLogin.SwfEdit("swfname:=loginNameBox"), strUserName
+	GUI_SwfEdit_Set objAdminLogin.SwfEdit("swfname:=passwordBox"), strUserPwd
+        
+    If NOT strURL = "" Then
+		   GUI_SwfEdit_Set objAdminLogin.WinEdit("window id:=1001"), strURL
+    End If
+        
+	GUI_SwfButton_Click objAdminLogin.SwfButton("swfname:=okBtn")
+	Set objAdminLogin = Nothing
+	
+End Function
+
+
+
+'As same functionality with different property and flow we have created another function
+'This function is used to set status on Server Settings Manager window
+'@code
+'    BIZ_LOConnect_ServerSettingsManager_SetValue(strCategory, strSettingName, strValue)
+'@endcode
+'@param strCategory    - the Category you want to select
+'@param strSettingName - the Setting Name you want to select 
+'@param strValue       - the Value you want to set
+
+Function BIZ_LOConnect_ServerSettingsManager_SetValue(strCategory,strSettingName, strValue)
+
+	FRM_Logger_ReportInfoEvent "Server Settings Manager", "Select '"&strCategory&"'Category, Double click label'"&strSettingName&"', set'"&strValue&"'to it", null
+	
+	Dim WndSettingsManager,strPolicesVal,intValue
+	Set WndSettingsManager = SwfWindow("swfname:=ServerSettingsManager")
+	
+	If strValue = True Then
+		intValue = 1
+	ElseIf strValue = False Then
+		intValue = 0
+	End If
+	
+	GUI_SwfComboBox_Select WndSettingsManager.SwfComboBox("swfname:=cboCategory"), strCategory
+	
+	Select Case LCase(strSettingName)
+		Case LCase("Allow Mobile Platform")
+			GUI_SwfLabel_DblClick WndSettingsManager.SwfLabel("swfname:=Policies_AllowMobile_label"), 1, 1
+			strPolicesVal = trim(GUI_Object_GetPropertyValue (WndSettingsManager.SwfComboBox("swfname:=Policies_AllowMobile"),"text"))
+			If lcase(strPolicesVal) <> lcase(strValue) Then
+				GUI_SwfComboBox_Select WndSettingsManager.SwfComboBox("swfname:=Policies_AllowMobile"), intValue
+			Else
+				FRM_Logger_ReportPassEvent "Allow Mobile Platform", "Already Status is '"&strPolicesVal&"'" , Null
+			End If
+			
+	End Select
+	
+	Wait g_LongWaitLarge 
+	GUI_SwfButton_Click WndSettingsManager.SwfButton("swfname:=btnApply")
+	GUI_SwfButton_Click WndSettingsManager.SwfButton("swfname:=btnOK")
+
+	Set WndSettingsManager = Nothing
+	
+End Function
+
+'This function is used to Close Admin tools
+'@code
+'    Function BIZ_AdminTools_Close()
+'@endcode
+'@param 
+
+Function BIZ_AminTools_Close()
+	
+	FRM_Logger_ReportInfoEvent "Close Admin tool", "Close Admin Tool", Null
+	SwfWindow("swfname:=AdminTools").Activate
+	SwfWindow("swfname:=AdminTools").Close
+	
+End Function
+'@}

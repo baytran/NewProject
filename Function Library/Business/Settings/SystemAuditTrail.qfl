@@ -1,0 +1,20 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Settings_SystemAuditTrail BIZ_Settings_SystemAuditTrail
+'
+' List of functions here
+'@code
+'	Function BIZ_SystemAuditTrail_Search()
+'   Function BIZ_SystemAuditTrail_GetSearchResultNumber(strCategory, strAction, strBoLastName)
+'   Function BIZ_SystemAuditTrail_VerifyModifiedInColumnBasedOnLoanNumber()
+'	Function BIZ_SystemAuditTrail_VerifyBySearch(strPersonaName, strAction, StrSearchColumn)
+'@endcode
+'
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+
+
+
+'@}
+

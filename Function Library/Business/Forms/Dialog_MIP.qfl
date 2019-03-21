@@ -1,0 +1,61 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_USDAMangement
+'
+'List of functions here
+'@code
+
+'   Function BIZ_MIPDialog_SetDetails(strRowID)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'@ This function is to close the MIP popup winodw
+'@code
+'    BIZ_MIPDialog_SetDetails(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_MIPDialog_SetDetails(strRowID)
+	FRM_Logger_ReportInfoEvent "Set MIP/Funding/Guarantee Fee", "Set data using Row Id '"&strRowID&"' in the Dialog_MIP datasheet", null
+	Dim objMIPFeeWindow, objData
+	
+	Set objMIPFeeWindow=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog")
+    Set objData = FRM_DS_GetTestData("Dialog_MIP", "SetFeeDetails", strRowID)
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"1107_MIPFundingGuaranteePercent")) Then
+    	GUI_SwfEdit_Set objMIPFeeWindow.SwfEdit("swfname:=rateFundingTxt"),FRM_DS_GetValue(objData,"1107_MIPFundingGuaranteePercent")
+    End If
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"1765_Lock")) Then
+        If FRM_DS_GetValue(objData,"1765_Lock")="Y" Then
+        	GUI_SwfCheckbox_Set objMIPFeeWindow.SwfCheckBox("swfname:=lockChkbox"),"ON"
+        End If
+    End If
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"1199_Percent")) Then
+    	GUI_SwfEdit_Set objMIPFeeWindow.SwfEdit("swfname:=rateMI1Txt"),FRM_DS_GetValue(objData,"1199_Percent")
+    End If   
+   
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"1198_Mths")) Then
+    	GUI_SwfEdit_Set objMIPFeeWindow.SwfEdit("swfname:=monthMI1Txt"),FRM_DS_GetValue(objData,"1198_Mths")
+    End If
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"1201_Percent")) Then
+    	GUI_SwfEdit_Set objMIPFeeWindow.SwfEdit("swfname:=rateMI2Txt"),FRM_DS_GetValue(objData,"1201_Percent")
+    End If
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"1200_Mths")) Then
+    	GUI_SwfEdit_Set objMIPFeeWindow.SwfEdit("swfname:=monthMI2Txt"),FRM_DS_GetValue(objData,"1200_Mths")
+    End If
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"1205_Percent")) Then
+    	GUI_SwfEdit_Set objMIPFeeWindow.SwfEdit("swfname:=rateMICancelTxt"),FRM_DS_GetValue(objData,"1205_Percent")  
+    End If
+	
+	Set objMIPFeeWindow=Nothing
+	Set objData=Nothing
+End Function
+
+
+
+'@}

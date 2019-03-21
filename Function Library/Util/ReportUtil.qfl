@@ -1,0 +1,186 @@
+
+'''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: ReportUtil UTIL_ReportUtil
+' This is a document to demonstrate ReportUtil
+'
+' List of functions here
+' @code
+'
+'   Function UTIL_Report_Initialize(strReportFilePath)
+'   Function UTIL_Report_Terminate()
+'   Function UTIL_ReportEvent(strReportFilePath, strEventStatus,strReportStepName,strDetails,arrOptionalArgs)
+'
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+Dim g_ReportHelper : Set g_ReportHelper = nothing
+Dim g_ReportTemplate_StartFile, g_ReportTemplate_EndFile
+
+g_ReportTemplate_StartFile="ReportTemplate_Start.html"
+g_ReportTemplate_EndFile="ReportTemplate_End.html"
+
+'initialize report util
+'@code
+'   UTIL_Report_Initialize(strReportFilePath) 
+'@endcode
+'@param strReportFilePath path of the report file
+
+Function UTIL_Report_Initialize(strReportFilePath)
+    If g_ReportHelper is Nothing Then
+        Set g_ReportHelper = New ReportHelper
+        g_ReportHelper.Initialize strReportFilePath
+    Elseif  g_ReportHelper.strReportFilePath <> strReportFilePath Then
+        'if a different report file path, start a new helper. 
+        Set g_ReportHelper = New ReportHelper
+        g_ReportHelper.Initialize strReportFilePath        
+    End If    
+End Function
+
+
+
+'terminate report util, clean up resources 
+'@code
+'   UTIL_Report_Terminate()
+'@endcode
+
+Function UTIL_Report_Terminate()
+    If Not g_ReportHelper is Nothing Then
+        g_ReportHelper.Terminate()    
+		Set g_ReportHelper = nothing
+    End If    
+End Function
+
+
+
+'This function is for recording the check point details in html file.
+'@code
+'   UTIL_ReportEvent "Report\TestReport.html", "Info", "Re-Enter Loan Reg", "Rate change Completed", null
+'@endcode
+'@param strReportFilePath the file path of the report file
+'@param strEventStatus you can chose different level, such as INFO,PASS,WARN,ERROR,FAIL,FATAL,TRACE,DEBUG,ect.
+'@param strReportStepName the description of the check step
+'@param strDetails the details description of the check result.
+'@param arrOptionalArgs an array of optional arguments, can be null
+
+Function UTIL_ReportEvent(strReportFilePath, strEventStatus,strReportStepName,strDetails,arrOptionalArgs)
+    UTIL_Report_Initialize strReportFilePath 
+    g_ReportHelper.ReportEvent strEventStatus, strReportStepName, strDetails, arrOptionalArgs
+End Function
+
+
+
+'Helper class for reporting
+
+Class ReportHelper
+    
+    public strReportFilePath 
+    private intLineCount
+    
+    'Initialize the ReportHelper 
+    '@param strReportFilePathParam path of the report file
+    
+	Public Function Initialize(strReportFilePathParam)      
+        strReportFilePath = strReportFilePathParam
+        strFolder = Left(strReportFilePath, InStrRev(strReportFilePath, "\"))
+        If strFolder <> "" Then UTIL_File_CreateFolderIfNotExist strFolder
+        
+		If Not UTIL_File_FileExists(strReportFilePath) Then        
+			strReportTemplateFile = UTIL_File_SearchForFile(UTIL_File_GetParentFolderPath(strReportFilePathParam), g_ReportTemplate_StartFile)
+			If UTIL_File_FileExists(strReportTemplateFile) Then
+				strLine = UTIL_File_ReadContent(strReportTemplateFile)
+				UTIL_File_AppendingText strReportFilePath, UTIL_String_UniReplace(strLine)
+			End If	
+        End If    
+        
+	End Function
+   
+    'report event
+    
+	Function ReportEvent(ByVal strEventStatus, ByVal strReportStepName, ByVal strDetails, ByVal arrOptionalArgs)
+ 
+        If( Len(strReportStepName) >= 4 AND UCase(Left(strReportStepName,4)) = "STEP") Then
+            sClazz = "step"
+        Elseif( InStr(LCase(strReportStepName), "test case") >= 1 ) Then
+            sClazz = "header2"    
+        End If
+
+        If UTIL_File_FileExists(strReportFilePath) Then
+           ' strLine = "<tr class=" & UTIL_String_DblQuote(sClazz) & ">" &_
+            '    "<td>" &UTIL_String_EscapeChr(strReportStepName) & "</td><td>" & UTIL_String_EscapeChr(strDetails) & "</td><td class=" & UTIL_String_DblQuote(LCase(strEventStatus)) & _
+           '     ">" & UTIL_String_EscapeChr(strEventStatus) & " </td><td>" & cStr(date) & " " & cStr(time) &_
+           '     "</td></tr>"
+           ' UTIL_File_AppendingText strReportFilePath, UTIL_String_UniReplace(strLine)
+           
+           
+            strHeader = "<tr class=" & UTIL_String_DblQuote(sClazz) &">"
+            strStepName = vbTab & "<td>" & UTIL_String_EscapeChr(strReportStepName) & "</td>"
+            strDetail = vbTab & "<td>" & UTIL_String_EscapeChr(strDetails) & "</td>"
+	'' modified by Ratnesh on 04 Apr 17 to link failure screenshot in report
+            If strEventStatus = "Fail" or strEventStatus = "Fatal" or strEventStatus = "Pass" Then            	
+            	'currTime = replace(replace(time,":","")," ","")
+            	'imgPath = CreateObject("Wscript.Shell").SpecialFolders("Desktop") & "\img" & currTime & ".png"            	
+            	imgPath = UTIL_ReturnScreenShotFile_DestinationPath
+            	Desktop.CaptureBitmap imgPath
+            	htmlLinkPath = "file:///" & imgPath				
+				strResult = vbTab & "<td class=" & UTIL_String_DblQuote(LCase(strEventStatus)) & ">" & "<a href=" & UTIL_String_DblQuote(htmlLinkPath) & ">" & UTIL_String_EscapeChr(strEventStatus) & "</a>" &  " </td>"            	
+			Else
+            	strResult = vbTab & "<td class=" & UTIL_String_DblQuote(LCase(strEventStatus)) & ">" & UTIL_String_EscapeChr(strEventStatus) & " </td>"
+            End If
+            
+            strTime = vbTab & "<td>" & cStr(date) & " " & cStr(time) &"</td>"
+            strEnd = "</tr>" & vbcrlf 
+            
+            lineAry = Array(strHeader,strStepName,strDetail,strResult,strTime,strEnd)
+            strLine = Join(lineAry,vbcrlf)
+            UTIL_File_AppendingText strReportFilePath, UTIL_String_UniReplace(strLine)  
+        End If
+		
+    End Function      
+    
+    
+    'Terminate the ReportHelper 
+    
+    Public Function Terminate()
+	
+		strReportTemplateFile = UTIL_File_SearchForFile(UTIL_File_GetParentFolderPath(strReportFilePath), g_ReportTemplate_EndFile)
+		If UTIL_File_FileExists(strReportTemplateFile) Then
+			strLine =  UTIL_File_ReadContent(strReportTemplateFile)
+			UTIL_File_AppendingText strReportFilePath, UTIL_String_UniReplace(strLine)   
+		End If	
+    End Function
+    
+   
+End Class
+
+	''' Returns the path where screenshot should be saved
+Function UTIL_ReturnScreenShotFile_DestinationPath()
+	
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	
+	screenshotFold = FRM_RT_ReportDirPath & "\Screenshots"
+
+	If Not objFSO.FolderExists(screenshotFold)Then
+		objFSO.CreateFolder(screenshotFold)
+	End If
+	
+	strDestFolder = FRM_RT_ReportDirPath & "Screenshots\" & Replace(Date,"/","_")
+	
+	If Not objFSO.FolderExists(strDestFolder)Then
+		Set oFold = objFSO.CreateFolder(strDestFolder)
+	Else
+		Set oFold = objFSO.GetFolder(strDestFolder)
+	End If
+
+	currTime = replace(replace(time,":","")," ","")
+	wait 1
+	imgFileName = "\Screenshot_" & currTime & ".png" 
+	
+	UTIL_ReturnScreenShotFile_DestinationPath = oFold & imgFileName
+	
+End Function												 
+
+
+' @}

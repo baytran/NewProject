@@ -1,0 +1,655 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: DateUtil UTIL_DateUtil
+' This is the function group for date format convert .
+' 
+' List Of functions here
+' @code
+'   Function UTIL_Date_Now_mmddyyyy_HHnnss()
+'	Function UTIL_Date_LastDayOfMonth(strMonth, strYear)
+'   Function UTIL_Date_CalcBusinessDays(dtmStart, dtmDue)
+'   Function UTIL_Date_AddBusinessDay(dtmStart, intDays)
+'   Function UTIL_Date_FormatDateByPattern(dtmVal, strPattern)
+'   Function UTIL_Date_GetWeekendDays(ByVal dtmStart, ByVal dtmDue)
+'   Function UTIL_Date_AddMinutesToNow(intMin)
+'	Function UTIL_Date_IsHoliday(dtmDate)
+'	Function UTIL_Date_GetCurrentTimeinPST()
+'	Function UTIL_Date_AddBusinessDays_RegZCalendar(dtStart, intDays)
+'	Function UTIL_Date_IsHoliday_RegZCalendar(dtmDate)
+'	Function UTIL_Date_GetDayHourAndMinute(strDate)
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Returns current timestamp in format of mmddyyyy_HHnnss
+Function UTIL_Date_Now_mmddyyyy_HHnnss()
+	UTIL_Date_Now_mmddyyyy_HHnnss = UTIL_Date_FormatDateByPattern(Now(), "mmddyyyy_HHnnss")
+End Function
+
+
+'This function is to return the last day of the Month and Year provided
+'@param strMonth month
+'@param strYear year
+'@return the last day of the Month and Year provided
+
+Function UTIL_Date_LastDayOfMonth(strMonth, strYear)
+
+	dim tmpMonth, tmpYear
+	tmpMonth = strMonth
+	tmpYear = strYear
+
+	UTIL_Date_LastDayOfMonth = DateAdd("d", -1, DateAdd("m", 1, tmpMonth & "/1/" & tmpYear))
+	
+End Function
+
+'This function is to calculate business day between start date and due date. 
+'@code
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("2015/02/11", "2015/02/09")	intBusinessDays value is -2
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("2015/02/11", "2015/02/15")	02/14 and 02/15 are weekend . intBusinessDays value is 2
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("02/11/2015", "02/15/2015")	02/14 and 02/15 are weekend . intBusinessDays value is 2
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("2015/02/11", "2015/02/18")	02/11 and 02/18 not the same week . intBusinessDays value is 5
+'	intBusinessDays = UTIL_Date_CalcBusinessDays("2015/02/14", "2015/02/15")	02/14 is Saturday , 02/15 is Sunday . intBusinessDays value is 0.
+'@endcode
+'@param dtmStart start date of a task 
+'@param dtmDue due date of a task.
+'@return the value of the business day difference between start date and due date.  
+
+Function UTIL_Date_CalcBusinessDays(ByVal dtmStart, ByVal dtmDue)
+
+	If Not (IsDate(dtmStart) and IsDate(dtmDue)) Then		'Check whether the parameters are date type .
+		UTIL_AssertTrue False, "UTIL_Date_CalcBusinessDays", "Check start date and end date is valid.  Start date=" _
+			& dtmStart & ", End date=" & dtmDue
+	Else
+		dtmStart = CDate(dtmStart)
+		dtmDue = CDate(dtmDue)
+	End If
+
+    'remove days off beginning or end, in case an argument is a weekend
+    Select Case datepart("w", dtmStart)
+		Case 1
+			dtmStart = DateAdd("d",-2,dtmStart)
+		Case 7
+			dtmStart = DateAdd("d",-1,dtmStart)
+	End Select
+
+	Select Case datepart("w", dtmDue)
+		Case 1
+			dtmDue = DateAdd("d",-2,dtmDue)
+		Case 7
+			dtmDue = DateAdd("d",-1,dtmDue)
+	End Select
+
+	intDateDiff = DateDiff("d", dtmStart, dtmDue)
+	intWeekendDays = DateDiff("ww", dtmStart, dtmDue) * 2
+	UTIL_Date_CalcBusinessDays = intDateDiff - intWeekendDays
+ 
+End Function
+
+
+
+'This function is to calculate the business date of start date plus some days . 
+'@code
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 2)	dtmResultDate value is 2015/02/20
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 3)	02/21 and 02/22 are weekend . dtmResultDate value is 2015/02/23
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 8)	02/21 02/22 02/28 and 03/01 not are weekend . dtmResultDate value is 2015/03/02 .
+'@endcode
+'@param dtmStart Start date . 
+'@param intDays The days be used to add with Start date .
+'@return the business date after start date plus days .  
+
+Function UTIL_Date_AddBusinessDay(dtmStart, intDays)
+
+    intWeeks = Fix(intDays/5)		'5 business days for a week . 
+    intDaysMod = intDays Mod 5		
+    intDay = DatePart("w", dtmStart)
+	
+    If (intDay = 7) And intDaysMod > -1 Then	'When dtmStart is Saturday . And intDaysMod is greater than -1 .
+        If intDaysMod = 0 Then					'When intDaysMod is 0 . intDays is a multiple of 5 .
+            intDaysMod = intDaysMod - 2
+            intDay = intDay + 2
+        End If
+        intDaysMod = intDaysMod + 1
+        intDay = intDay - 7
+    End If
+	
+    If intDay = 1 And intDaysMod < 1 Then		'When dtmStart is Sunday . 
+        If intDaysMod = 0 Then
+			intDaysMod = intDaysMod + 2
+			intDay = intDay - 2
+		End If
+		intDaysMod = intDaysMod - 1
+		intDay = intDay + 6
+    End If
+	
+    If intDay + intDaysMod > 6 Then 			'When intDay plus intdaysMod greater than 6. The day will be Saturday . So the day is next Monday .
+		intDaysMod = intDaysMod + 2
+	End If
+	
+    If intDay + intDaysMod < 2 Then 			'When intDay plus intDaysMod less than 2. The day will be Sunday . 
+		intDaysMod = intDaysMod - 2
+	End If
+	
+	'Caculate the date after dtmStart plus intDays .
+    UTIL_Date_AddBusinessDay = DateAdd("d", (intWeeks * 7 + intDaysMod), dtmStart)
+End Function
+
+
+
+'This function is to convert date format to which you want . 
+'@code
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "yymmdd")  			    now is 2015/02/22 11:19:43 .  dtmConvert is 150222
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "yyyy-mm-dd")		    dtmConvert is 2015-02-22
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "yymmdd HH:nn")		    dtmConvert is 150222 11:19	
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "mmddyyyy HH:nn:ss")    dtmConvert is 02222015 11:19:43
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "mm/dd/yyyy")		    dtmConvert is 02/22/2015
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "HH:nn:ss")			    dtmConvert is 11:19:43
+'   dtmConvert = UTIL_Date_FormatDateByPattern(now, "mmdyyyyHHnnss")	    dtmConvert is 02222015111943
+'@endcode
+'@param dtmVal A date format param which need to be converted .
+'@param strPattern The data format which you want to convert.
+'@return The date of  the format same as param strPattern. 
+
+Function UTIL_Date_FormatDateByPattern(dtmVal, strPattern)
+ 
+    If( Not IsDate(dtmVal) ) Then 
+        dtmVal = CDate(dtmVal) 
+    End If  
+    
+    UTIL_Date_FormatDateByPattern = strPattern
+	
+    dtmYear = Year(dtmVal)    
+    If( InStr(strPattern, "yyyy") > 0 ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "yyyy", dtmYear)
+    ElseIf( InStr(strPattern, "yy") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "yy", Mid(dtmYear,3,2))
+    End If 
+    
+    dtmMonth = Month(dtmVal)
+    If( InStr(strPattern, "mm") > 0  ) Then
+        If dtmMonth < 10 Then
+            dtmMonth = "0" & dtmMonth 
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "mm", dtmMonth)
+    ElseIf( InStr(strPattern, "m") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "m", dtmMonth)
+    End If 
+    
+    dtmDay = Day(dtmVal)
+    If( InStr(strPattern, "dd") > 0  ) Then
+        If dtmDay < 10 Then
+            dtmDay = "0" & dtmDay 
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "dd", dtmDay)
+    ElseIf( InStr(strPattern, "d") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "d", dtmDay)
+    End If
+    
+    dtmHour = Hour(dtmVal)
+    If( InStr(strPattern, "HH") > 0  ) Then
+        If dtmHour < 10 Then
+            dtmHour = "0" & dtmHour
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "HH", dtmHour)
+    ElseIf( InStr(strPattern, "H") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "H", dtmHour)
+    End If  
+
+    dtmMinute = Minute(dtmVal)
+    If( InStr(strPattern, "nn") > 0  ) Then
+        If dtmMinute < 10 Then
+            dtmMinute = "0" & dtmMinute
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "nn", dtmMinute)
+    ElseIf( InStr(strPattern, "n") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "n", dtmMinute)
+    End If      
+
+    dtmSecond = Second(dtmVal)
+    If( InStr(strPattern, "ss") > 0  ) Then
+        If dtmSecond < 10 Then
+            dtmSecond = "0" & dtmSecond
+        End If      
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "ss", dtmSecond)
+    ElseIf( InStr(strPattern, "s") > 0  ) Then
+        UTIL_Date_FormatDateByPattern = Replace(UTIL_Date_FormatDateByPattern, "s", dtmSecond)
+    End If      
+	
+End Function  
+
+
+'This function is to calculate weekend days between start date and due date . 
+'@code
+'   intWeekendDays = UTIL_Date_GetWeekendDays("2015/07/07", "2015/07/10")	return value is 0
+'   intWeekendDays = UTIL_Date_GetWeekendDays("2015/07/07", "2015/07/11")	return value is 1
+'   intWeekendDays = UTIL_Date_GetWeekendDays("2015/07/07", "2015/07/12")	return value is 2
+'@endcode
+'@param dtmStart start date of a task 
+'@param dtmDue due date of a task.
+'@return the value of the Weekend day difference between start date and due date .  
+
+Function UTIL_Date_GetWeekendDays(ByVal dtmStart, ByVal dtmDue)
+    If Not (IsDate(dtmStart) and IsDate(dtmDue)) Then
+        UTIL_AssertTrue False, "UTIL_Date_CalcBusinessDays", "Check start date and end date is valid.  Start date=" & dtmStart & ", End date=" & dtmDue
+    Else
+        dtmStart = CDate(dtmStart)
+        dtmDue = CDate(dtmDue)
+    End If
+    intWeekendDays=DateDiff("ww",dtmStart,dtmDue) + DateDiff("ww",dtmStart,dtmDue,7)
+    UTIL_Date_GetWeekendDays=intWeekendDays
+End Function
+
+
+
+'Returns a date to which a specified time interval has been added. (Format: 04/07/2015 12:23 PM)
+'@code
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 2)	dtmResultDate value is 2015/02/20
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 3)	02/21 and 02/22 are weekend . dtmResultDate value is 2015/02/23
+'	dtmResultDate = UTIL_Date_AddBusinessDay("2015/02/18", 8)	02/21 02/22 02/28 and 03/01 not are weekend . dtmResultDate value is 2015/03/02 .
+'@endcode
+'@param intMin - the amout of added time should be in minutes (one day = 1440 min)
+ 
+Function UTIL_Date_AddMinutesToNow(intMin)
+
+	'=====Add minuts to the current time=====
+	objDate = DateAdd("n", intMin, Now)
+	UTIL_Date_AddMinutesToNow = UTIL_Date_FormatDateByPattern("mm/dd/yyyy HH:nn") & " " & Right(objDate, 2)
+End Function
+	
+
+'Checks if a date is a holiday
+'@param dtmDate - date object
+'@return True if it is holiday, False if not
+	
+Function UTIL_Date_IsHoliday(dtmDate)
+	'Checks to see if passed date is a holiday
+	Dim iDay, iTmpDay, i
+
+	UTIL_Date_IsHoliday = 0
+	iDay = Day(dtmDate)
+
+	'Check if valid date first
+	If IsDate(dtmDate) Then
+		Select Case Month(dtmDate)
+
+			Case 1  'Jan
+				If iDay = 1 Then  'New Years
+					UTIL_Date_IsHoliday = 1
+				Else
+			 If iDay = 2 Then  'Make sure new years doesn't fall on sunday. 
+							   'If so, today is a holiday.
+							if Weekday(DateAdd("d", -1, dtmDate)) = 1 then
+					UTIL_Date_IsHoliday = 1
+				end if
+				 Else
+				For i = 0 To 30     'Martin Luther King B-Day
+					If Weekday(DateAdd("d", i, CDate("1/1/" & Year(dtmDate)))) _
+								  = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", i + 14, _
+							  CDate("1/1/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday = 1
+						End If
+						Exit For  'PG 1/28
+					End If
+				Next 
+			End If
+				End If
+
+			Case 2  'Feb
+			For i = 0 To 27     'President's Day
+			   If Weekday(DateAdd("d", i, CDate("2/1/" & Year(dtmDate)))) = 2 _
+						Then
+				If CDate(dtmDate) = CDate(DateAdd("d", i + 14, _
+						CDate("2/1/" & Year(dtmDate)))) Then
+				   UTIL_Date_IsHoliday = 1
+				End If
+				Exit For 
+			 End If
+		  Next 
+
+			Case 3  'Mar
+			Case 4  'Apr
+
+			Case 5  'May
+				For i = 1 To 7  'Memorial Day
+					If Weekday(DateAdd("d", "-" & i, _
+						 CDate("5/31/" & Year(dtmDate)))) = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", "-" & i, _
+						  CDate("5/31/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday = 1
+						End If
+						Exit For
+					End If
+				Next 
+
+			Case 6  'Jun
+
+			Case 7  'Jul
+		If iDay = 4 Then  'Independence Day
+			UTIL_Date_IsHoliday = 1
+		Else
+			If iDay = 3 Then  'Make sure Independence Day doesn't 
+						 'fall on saturday. If so, Friday is a holiday.
+						  if Weekday(DateAdd("d", 1, dtmDate)) = 7 then
+					UTIL_Date_IsHoliday = 1
+				end if
+			Else    
+				If iDay = 5 Then  'Make sure Independence 
+						'Day doesn't fall on sunday. If so, Monday is a holiday.
+					if Weekday(DateAdd("d", -1, dtmDate)) = 1 then
+						UTIL_Date_IsHoliday = 1
+					end if
+				End If
+			End If
+		End If
+
+			Case 8 'Aug
+
+			Case 9 'Sep
+				For i = 0 To 13  'Labor Day
+					If Weekday(DateAdd("d", i, CDate("9/1/" & _
+							Year(dtmDate)))) = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", i, _
+							   CDate("9/1/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday = 1
+						End If
+						Exit For
+					End If
+				Next 
+
+			Case 10 'Oct
+		For i = 0 To 13  'Columbus Day
+		   If Weekday(DateAdd("d", i, CDate("10/1/" & _
+						  Year(dtmDate)))) = 2 Then
+			  If CDate(dtmDate) = CDate(DateAdd("d", i + 7, CDate("10/1/" & _
+					  Year(dtmDate)))) Then
+				 UTIL_Date_IsHoliday = 1
+			  End If
+				Exit For
+		   End If
+		Next 
+
+			Case 11 'Nov
+		If iDay = 11 Then  'Veteran's Day
+		   UTIL_Date_IsHoliday = 1
+		Else
+		   If iDay = 10 Then  'Make sure Veterans Day doesn't fall 
+					   'on saturday. If so, Friday is a holiday.
+			  if Weekday(DateAdd("d", 1, dtmDate)) = 7 then
+				 UTIL_Date_IsHoliday = 1
+			  end if
+		   Else    
+			  If iDay = 12 Then  'Make sure Veterans Day doesn't 
+					   'fall on sunday. If so, Monday is a holiday.
+				 if Weekday(DateAdd("d", -1, dtmDate)) = 1 then
+					UTIL_Date_IsHoliday = 1
+				 end if
+			  Else
+				 For i = 0 To 28     'Thanksgiving & the Day After
+					If Weekday(DateAdd("d", i, CDate("11/1/" & _
+						Year(dtmDate)))) = 5 Then 'this is the first 
+								   'thursday of the month
+					   if datediff("d", dtmDate,  DateAdd("d", i + 21, _
+							 CDate("11/1/" & Year(dtmDate)))) = 0 then 'add 3 
+								 'weeks to the first to get the 4th (thanksgiving)
+						  UTIL_Date_IsHoliday = 1
+						  Exit For
+						End If
+					End if
+					If Weekday(DateAdd("d", i, CDate("11/1/" & _
+						 Year(dtmDate)))) = 6 Then 'this is the day 
+								  'after thanksgiving
+					   if datediff("d", dtmDate,  DateAdd("d", i + 21,_
+							CDate("11/1/" & Year(dtmDate)))) = 0 then
+						  UTIL_Date_IsHoliday = 1
+						  Exit For
+					   End If            
+					 End if
+				 Next
+			  End If
+		   End If
+		End If
+
+			Case 12 'Dec
+		If iDay = 25 Then  'Christmas
+		   UTIL_Date_IsHoliday = 1
+		Else
+		   If iDay = 24 Then  'Make sure Christmas Day doesn't 
+				  'fall on saturday. If so, Friday is a holiday.
+			  if Weekday(DateAdd("d", 1, dtmDate)) = 7 then
+				 UTIL_Date_IsHoliday = 1
+			  end if
+		   Else    
+			  If iDay = 26 Then  'Make sure Christmas 
+				   'Day doesn't fall on sunday. If so, Monday is a holiday.
+				 if Weekday(DateAdd("d", -1, dtmDate)) = 1 then
+					UTIL_Date_IsHoliday = 1
+				 end if
+			  Else
+				 If iDay = 31 Then  'Make sure new years 
+					  'doesn't fall on saturday. If so, today is a holiday.
+					if Weekday(DateAdd("d", 1, dtmDate)) = 7 then
+					   UTIL_Date_IsHoliday = 1
+					End if
+				 End if
+			  End if
+		   End if
+		End If
+
+		Case Else
+			'Do nothing but return false
+
+		End Select
+	End If
+
+End Function
+
+Function UTIL_Date_GetCurrentTimeinPST()
+	set WshShell = CreateObject("WScript.Shell")
+	var_offset = WshShell.RegRead("HKLM\System\CurrentControlSet\Control\TimeZoneInformation\ActiveTimeBias")
+	PSTTime = DateAdd("h", -8, DateAdd("n", var_offset, Now))
+	If Month(PSTTime) > 3 AND Month(PSTTime) < 11  Then
+		PSTTime = DateAdd("h", 1, PSTTime)
+	ElseIf Month(PSTTime) = 3 Then
+		CurrentYear = Year(PSTTime)
+		CurrentDate = 0
+		CountSecondSunday = 0
+		While CountSecondSunday < 2
+			CurrentDate = CurrentDate + 1
+			If weekday(CDate("03/" & CurrentDate &  "/" & CurrentYear)) = 1 Then
+				CountSecondSunday = CountSecondSunday + 1
+			End If
+		Wend
+		If DateDiff("s", CDate("03/" & CurrentDate & "/" & CurrentYear & " 2:00:00 AM"), PSTTime) >=0 Then
+			PSTTime = DateAdd("h", 1, PSTTime)
+		End If
+	ElseIf Month(PSTTime) = 11 Then
+		PSTTime = DateAdd("h", 1, PSTTime)
+		CurrentYear = Year(PSTTime)
+		CurrentDate = 0
+		CountFirstSunday = 0
+		While CountFirstSunday < 1
+			CurrentDate = CurrentDate + 1
+			If weekday(CDate("11/" & CurrentDate &  "/" & CurrentYear)) = 1 Then
+				CountFirstSunday = CountFirstSunday + 1
+			End If
+		Wend
+		If  DateDiff("s", CDate("11/" & CurrentDate & "/" & CurrentYear & " 2:00:00 AM"), PSTTime) >= 0 Then
+			PSTTime = DateAdd("h", -1, PSTTime)
+		End If
+	End If
+	UTIL_Date_GetCurrentTimeinPST = PSTTime
+End Function
+
+Function UTIL_Date_AddBusinessDays_RegZCalendar(dtStart, intDays)
+	dtCurrentDate = dtStart
+	While Weekday(dtCurrentDate) = 1 OR UTIL_Date_IsHoliday_RegZCalendar(dtCurrentDate) = 1
+		dtCurrentDate = DateAdd("d", 1, dtCurrentDate)
+	Wend
+	i = 0
+	While i < intDays
+		dtCurrentDate = DateAdd("d", 1, dtCurrentDate)
+		If Weekday(dtCurrentDate) <> 1 AND UTIL_Date_IsHoliday_RegZCalendar(dtCurrentDate) <> 1 Then
+			i = i + 1
+		End If
+		
+	Wend
+	UTIL_Date_AddBusinessDays_RegZCalendar = dtCurrentDate
+End Function
+
+'Checks if a date is a RegZ calendar holiday
+'@param dtmDate - date object
+'@return True if it is holiday, False if not
+
+Function UTIL_Date_IsHoliday_RegZCalendar(dtmDate)
+	'Checks to see if passed date is a holiday
+	Dim iDay, iTmpDay, i
+
+	UTIL_Date_IsHoliday_RegZCalendar = 0
+	iDay = Day(dtmDate)
+
+	'Check if valid date first
+	If IsDate(dtmDate) Then
+		Select Case Month(dtmDate)
+
+			Case 1  'Jan
+				If iDay = 1 Then  'New Years
+					UTIL_Date_IsHoliday_RegZCalendar = 1
+				Else
+			 		For i = 0 To 30     'Martin Luther King B-Day
+						If Weekday(DateAdd("d", i, CDate("1/1/" & Year(dtmDate)))) _
+								  = 2 Then
+							If CDate(dtmDate) = CDate(DateAdd("d", i + 14, _
+							  CDate("1/1/" & Year(dtmDate)))) Then
+								UTIL_Date_IsHoliday_RegZCalendar = 1
+							End If
+							Exit For  'PG 1/28
+						End If
+					Next 
+				End If
+				
+
+			Case 2  'Feb
+				For i = 0 To 27     'President's Day
+			   		If Weekday(DateAdd("d", i, CDate("2/1/" & Year(dtmDate)))) = 2 _
+						Then
+						If CDate(dtmDate) = CDate(DateAdd("d", i + 14, _
+							CDate("2/1/" & Year(dtmDate)))) Then
+						   UTIL_Date_IsHoliday_RegZCalendar = 1
+						End If
+						Exit For 
+			 		End If
+		  		Next 
+
+			Case 5  'May
+				For i = 1 To 7  'Memorial Day
+					If Weekday(DateAdd("d", "-" & i, _
+						 CDate("5/31/" & Year(dtmDate)))) = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", "-" & i, _
+						  CDate("5/31/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday_RegZCalendar = 1
+						End If
+						Exit For
+					End If
+				Next 
+
+			Case 7  'Jul
+				If iDay = 4 Then  'Independence Day
+					UTIL_Date_IsHoliday_RegZCalendar = 1
+				End If
+		Case 9 'Sep
+				For i = 0 To 13  'Labor Day
+					If Weekday(DateAdd("d", i, CDate("9/1/" & _
+							Year(dtmDate)))) = 2 Then
+						If CDate(dtmDate) = CDate(DateAdd("d", i, _
+							   CDate("9/1/" & Year(dtmDate)))) Then
+							UTIL_Date_IsHoliday_RegZCalendar = 1
+						End If
+						Exit For
+					End If
+				Next 
+
+			Case 10 'Oct
+			For i = 0 To 13  'Columbus Day
+			   If Weekday(DateAdd("d", i, CDate("10/1/" & _
+						  Year(dtmDate)))) = 2 Then
+				  If CDate(dtmDate) = CDate(DateAdd("d", i + 7, CDate("10/1/" & _
+					  Year(dtmDate)))) Then
+					 UTIL_Date_IsHoliday_RegZCalendar = 1
+				  End If
+				Exit For
+			   End If
+			Next 
+
+			Case 11 'Nov
+				If iDay = 11 Then  'Veteran's Day
+				   UTIL_Date_IsHoliday_RegZCalendar = 1
+				Else
+					 For i = 0 To 28     'Thanksgiving
+							If Weekday(DateAdd("d", i, CDate("11/1/" & _
+							Year(dtmDate)))) = 5 Then 'this is the first 
+								   'thursday of the month
+						   		if datediff("d", dtmDate,  DateAdd("d", i + 21, _
+									 CDate("11/1/" & Year(dtmDate)))) = 0 then 'add 3 
+								 'weeks to the first to get the 4th (thanksgiving)
+									  UTIL_Date_IsHoliday_RegZCalendar = 1
+								  Exit For
+								End If
+							End if
+						Next
+			  		End If
+		Case 12 'Dec
+			If iDay = 25 Then  'Christmas
+			   UTIL_Date_IsHoliday_RegZCalendar = 1
+			End If
+		Case Else
+	
+
+		End Select
+	End If
+
+End Function	
+
+
+
+'This function is used to get date and time (hour,minute)
+'@code
+'    UTIL_Date_GetDayHourAndMinute(strDate)
+'@endcode
+'@Param strDate you can pass now, to get mm/dd/yyyy hour:minute
+
+Function UTIL_Date_GetDayHourAndMinute(strDate)
+
+	arrNewDate = Split(strDate,"/")
+	
+	If arrNewDate(0) < 10 and arrNewDate(0) > 0 and Len(arrNewDate(0))<2 Then
+		strNewDate = "0" & arrNewDate(0)
+	Else
+		strNewDate = arrNewDate(0)
+	End If
+	
+	If arrNewDate(1) < 10 and arrNewDate(1) > 0 and Len(arrNewDate(1))<2  Then
+		strNewMonth = "0"&arrNewDate(1)
+	Else
+		strNewMonth = arrNewDate(1)
+	End If
+	
+	arrYYTime = split(arrNewDate(2)," ")
+	strNewDatevalue = strNewDate & "/" & strNewMonth & "/" & arrYYTime(0)
+	
+	arrTime = split(arrYYTime(1),":")
+	If arrTime(0) < 10 and arrTime(0) > 0 and Len(arrTime(0))<2 Then
+		strHTime = "0" & arrTime(0)
+	Else
+		strHTime = arrTime(0)
+	End If
+	strTime = strHTime & ":" & arrTime(1)
+	
+	UTIL_Date_GetDayHourAndMinute	=	strNewDatevalue&" "&strTime
+	
+End Function
+
+
+	
+
+'@} 

@@ -1,0 +1,160 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_2010Itemization
+'List of functions here
+'@code
+'   Function BIZ_2010Itemization_Set1000Section(strRowID)
+'	Function BIZ_Common_2010Itemization_Set900Section(objParentObject, strRowID)
+'	Function BIZ_Common_2010Itemization_Set800Section(objParentObject, strRowID)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for set 1000 line section data in 2010 Itemization page.
+'@code
+'    BIZ_2010Itemization_Set1000Section(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+
+Function BIZ_2010Itemization_Set1000Section(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Set 1000 line data", "Set data using Row Id '"&strRowID&"' in the Forms_2010Itemization datasheet", null
+	
+    Dim obj2010ItemzationPage, objData
+    Set obj2010ItemzationPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Forms_2010Itemization", "Set1000Section", strRowID)
+    
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1007_Mths")) Then
+		GUI_WebEdit_Set obj2010ItemzationPage.WebEdit("html id:=l_1629"), FRM_DS_GetValue(objData, "1007_Mths")
+	End If
+
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1007_Reserve")) Then
+		GUI_WebEdit_Set obj2010ItemzationPage.WebEdit("html id:=l_1630"), FRM_DS_GetValue(objData, "1007_Reserve")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1008_Mths")) Then
+		GUI_WebEdit_Set obj2010ItemzationPage.WebEdit("html id:=l_340"), FRM_DS_GetValue(objData, "1008_Mths")
+	End If
+    
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1008_Reserve")) Then
+		GUI_WebEdit_Set obj2010ItemzationPage.WebEdit("html id:=l_253"), FRM_DS_GetValue(objData, "1008_Reserve")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1009_Mths")) Then
+		GUI_WebEdit_Set obj2010ItemzationPage.WebEdit("html id:=l_341"), FRM_DS_GetValue(objData, "1009_Mths")
+	End If
+    
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1009_Reserve")) Then
+		GUI_WebEdit_Set obj2010ItemzationPage.WebEdit("html id:=l_254"), FRM_DS_GetValue(objData, "1009_Reserve")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1010_Mths")) Then
+		GUI_WebEdit_Set obj2010ItemzationPage.WebEdit("html id:=TextBox376"), FRM_DS_GetValue(objData, "1010_Mths")
+	End If
+    
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1010_USDAAnnualFee")) Then
+		GUI_WebEdit_Set obj2010ItemzationPage.WebEdit("html id:=l_X1707"), FRM_DS_GetValue(objData, "1010_USDAAnnualFee")
+	End If
+
+	Set obj2010ItemzationPage = Nothing
+	Set objData = Nothing	
+	
+End Function
+
+
+
+'This function is for set 800 line section data in 2010 Itemization page.
+'@code
+'    BIZ_Common_2010Itemization_Set800Section(objParentObject, strRowID)
+'@endcode
+'@param objParentObject parent object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_2010Itemization_Set800Section(objParentObject, strRowID)
+	
+	FRM_Logger_ReportInfoEvent "BIZ_Common_2010Itemization_Set800Section", "Setting the data in 800 section 2010 Itemization form", null
+	
+    Dim objData
+    Set objData = FRM_DS_GetTestData("Forms_2010Itemization", "Set800Section", strRowID)
+    
+    '801
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "801a_LoanOriginationFees")) Then
+        GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox12"), FRM_DS_GetValue(objData, "801a_LoanOriginationFees")
+    End If 
+   
+   	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "801b_ApplicationFees")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_L228"), FRM_DS_GetValue(objData, "801b_ApplicationFees")
+	End If
+	
+	'802
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X1139_Specify")) And  FRM_DS_GetValue(objData, "X1139_Specify")="OFF"  Then
+		
+		If (GUI_Object_GetPropertyValue(objParentObject.WebCheckBox("html id:=__cid_CheckBox162_Ctrl"),"Checked")) Then	
+			GUI_SwfCheckbox_Set objParentObject.WebCheckBox("html id:=__cid_CheckBox162_Ctrl"), "OFF"	
+		Else	
+			FRM_Logger_ReportInfoEvent "Adjusted Origination Charge Details ","Adjusted Origination Charge Details Set  OFF", null	
+		End If 	
+		GUI_Object_ValidateChecked objParentObject.WebCheckBox("html id:=__cid_CheckBox162_Ctrl"), "0","Adjusted Origination Charge Details OFF "
+			
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X715_OriginationCredit")) And  FRM_DS_GetValue(objData, "X715_OriginationCredit")="ON"  Then
+		
+		If (GUI_Object_GetPropertyValue(objParentObject.WebCheckBox("html id:=__cid_CheckBox26_Ctrl"),"Checked")) Then			
+		FRM_Logger_ReportInfoEvent "Origination Credit ","Origination Credit  Already ON", null			
+		Else	
+		GUI_SwfCheckbox_Set objParentObject.WebCheckBox("html id:=__cid_CheckBox26_Ctrl"), "ON"	
+		End If 
+		GUI_Object_ValidateChecked objParentObject.WebCheckBox("html id:=__cid_CheckBox26_Ctrl"), "1","Origination Credit ON"
+		
+	End If
+	
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X734_OriginationCredit")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox120"), FRM_DS_GetValue(objData, "X734_OriginationCredit")
+	End If
+	
+	'805
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LoanOriginationFees_Seller")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox134"), FRM_DS_GetValue(objData, "LoanOriginationFees_Seller")
+	End If
+	'Broker fees
+		
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "389_BrokerFees")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_389"), FRM_DS_GetValue(objData, "389_BrokerFees")
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1620_BrokerFees")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_1620"), FRM_DS_GetValue(objData, "1620_BrokerFees")
+	End If
+	
+	Set objData = Nothing	
+	
+End Function
+
+
+
+'This function is for set 900 line section data in 2010 Itemization page.
+'@code
+'    BIZ_Common_2010Itemization_Set900Section(objParentObject, strRowID)
+'@endcode
+'@param objParentObject parent object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_2010Itemization_Set900Section(objParentObject, strRowID)
+	
+	FRM_Logger_ReportInfoEvent "BIZ_Common_2010Itemization_Set900Section", "Setting the data in 900 section 2010 Itemization form", null
+	
+    Dim objData 
+    Set objData = FRM_DS_GetTestData("Forms_2010Itemization", "Set900Section", strRowID)
+	
+	'905
+ 	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "905_Borrower")) Then
+		GUI_WebButton_Click objParentObject.WebButton("html id:=FieldLock5")
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_1050"), FRM_DS_GetValue(objData, "905_Borrower")
+	End If
+
+   	Set objData = Nothing	
+	
+End Function
+
+
+
+'@}

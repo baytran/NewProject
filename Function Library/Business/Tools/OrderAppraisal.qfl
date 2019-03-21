@@ -1,0 +1,57 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup : BIZ_Tools_OrderAppraisal BIZ_Tools_OrderAppraisal
+'
+' List of functions here
+'@code
+'	Function BIZ_Tools_SendOrderAppraisal(strRowID)
+'@endcode
+'
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is set values to "Order Appraisal
+'@code
+'    BIZ_Tools_SendOrderAppraisal(strRowID)
+'@endcode
+'@param strRowID- id form data in external datatable
+
+Function BIZ_Tools_SendOrderAppraisal(strRowID)
+	Dim objOrderDialog, objData, isSelected
+	Set objOrderDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=OrderDialog")
+	Set objData = FRM_DS_GetTestData("Tools_OrderAppraisal", "SetOrderAppraisal", strRowID)
+	BIZ_Services_Open "Appraisal"
+
+	If(GUI_Object_IsExistX(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AppraiserDialog").SwfObject("swfname:=lvwMyAppraisers"), 120) or GUI_Object_IsExistX(SwfWindow("swfname:=AppraiserDialog").SwfObject("swfname:=lvwMyAppraisers"), 120))Then 
+		If(GUI_Object_IsExist(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AppraiserDialog").SwfObject("swfname:=lvwMyAppraisers")))Then 
+			Set objMainView = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AppraiserDialog")
+		End If
+		If(GUI_Object_IsExist(SwfWindow("swfname:=AppraiserDialog").SwfObject("swfname:=lvwMyAppraisers")))Then 
+			Set objMainView = SwfWindow("swfname:=AppraiserDialog")
+		End If
+		isSelected = GUI_List_SelectItem(objMainView.SwfObject("swfname:=lvwMyAppraisers"),FRM_DS_GetValue(objData, "AppraisalName"),0)
+		objMainView.SwfButton("swfname:=orderBtn").Click
+		FRM_Logger_ReportInfoEvent "Select Appraisal Name", FRM_DS_GetValue(objData, "AppraisalName") & " is selected as Appraisal Name", null
+	End If
+	If(GUI_Object_IsExistX(objOrderDialog, 60) or GUI_Object_IsExistX(SwfWindow("swfname:=OrderDialog"), 60)) then 
+		If(GUI_Object_IsExist(SwfWindow("swfname:=OrderDialog"))) then
+			Set objOrderDialog = SwfWindow("swfname:=OrderDialog")
+		End If
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PhoneNumber")) Then 
+			GUI_SwfEdit_Set objOrderDialog.SwfEdit("swfname:=fromPhoneTxt"),  FRM_DS_GetValue(objData, "PhoneNumber")
+		End If
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "DueDate")) Then 
+			objOrderDialog.SwfCalendar("swfname:=dueDtp").SetDate FRM_DS_GetValue(objData, "DueDate")
+		End If
+		GUI_SwfButton_Click objOrderDialog.SwfButton("swfname:=sendBtn")
+		GUI_Dialog_Encompass_YesX 80, ""
+		GUI_Dialog_Encompass_OKX 200, ""
+		GUI_Dialog_Encompass_YesX 80, ""
+		GUI_Dialog_Encompass_OK ""
+		FRM_Logger_ReportInfoEvent "Send Appraisal Details", "Your appraisal order has been sent to 'Test appraisal' services message is shown", null
+	Else
+		FRM_Logger_ReportFailEvent "Send Order Appraisal Details", "Order Details are not submitted", null
+	End If
+	Set objOrderDialog = Nothing
+	Set objData = Nothing
+End Function  
+'@}

@@ -1,0 +1,86 @@
+''''''''''''''''''''''''''''''''''''''''''
+'@defgroup: MathUtil UTIL_MathUtil
+' This is the function group for Match
+' 
+' List of functions here
+'@code
+'	Function UTIL_Math_Max(val1,val2) 
+'	Function UTIL_Math_Min(val1,val2) 
+'   Function UTIL_Math_RandomNo()
+'	Function CreateRandomNumber()
+'	Function UTIL_Math_RandomNumOfGivenLength(LengthOfRandomNumber)
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Returns the bigger number betwen the two provided numbers
+'@param val1 
+'@param val2
+
+Function UTIL_Math_Max(val1,val2) 
+	UTIL_Math_Max = val1 
+	If val2 > val1 Then UTIL_Math_Max = val2 
+End Function
+
+
+'Returns the lesser number betwen the two provided numbers
+'@param val1 
+'@param val2
+
+Function UTIL_Math_Min(val1,val2) 
+	UTIL_Math_Min = val1 
+	If val2 < val1 Then UTIL_Math_Min = val2 
+End Function 
+
+
+'Returns the Random Number 
+
+
+Function UTIL_Math_RandomNo() 
+		 Max=1000
+		 Min=1
+		 Randomize
+		 UTIL_Math_RandomNo=Int((max-min+1)*Rnd+min) 
+End Function 
+
+
+'This Function is to BIZ_Dashdboard_ManageViewDefaultNameValidation() 
+' @code
+'  		CreateRandomNumber()
+' @endcode
+
+Function CreateRandomNumber()
+ Dim max,min
+     intMax=1000
+     intMin=1
+     Randomize
+     ranNumberValue=Int((intMax-intMin+1)*Rnd+intMin)
+     CreateRandomNumber=ranNumberValue
+End Function
+
+
+
+'Returns a random number of given length
+'@param LengthOfRandomNumber Desired Length should be passed
+
+Function UTIL_Math_RandomNumOfGivenLength(LengthOfRandomNumber)
+
+	Dim sMaxVal, iLength
+	sMaxVal = ""
+	iLength = LengthOfRandomNumber
+	
+	For iL = 1 to iLength	'@ Find the maximum value for the given number of digits
+		sMaxVal = sMaxVal & "9"
+	Next
+	sMaxVal = Int(sMaxVal)
+	
+	Randomize	'@ Find Random Value
+	iTmp = Int((sMaxVal * Rnd) + 1)	'@ Add Trailing Zeros if required
+	iLen = Len(iTmp)
+	
+	UTIL_Math_RandomNumOfGivenLength = Int(iTmp * (10 ^(iLength - iLen)))
+
+End Function
+' @}

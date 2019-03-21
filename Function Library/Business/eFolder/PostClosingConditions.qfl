@@ -1,0 +1,105 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_eFolder_PostClosingConditions BIZ_eFolder_PostClosingConditions
+'List of functions:
+'@code
+'   Function BIZ_PostClosingConditions_AddConditionsFromSet(strRowID)
+'   Function BIZ_PostClosingConditions_SetAllConditionsStatus(strRowID)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to Add Post-Closing Conditons from Condition Set on eFolder->Post-Closing Conditions tab
+'@code
+'    Function BIZ_PostClosingConditions_AddConditionsFromSet(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_PostClosingConditions_AddConditionsFromSet(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Add Post-Closing Conditions From Conditons Set", "Add Post-Closing Conditions From Conditons Set using using Row Id '"&strRowID&"' in the AddConditionsFromSet datasheet", Null
+    	
+	Dim objeFolder,objAddConditionWindow,objConditionSetsDialog,objData,arrStrConditionName,strConditionSet
+	Set objeFolder =  SwfWindow("swfname:=eFolderDialog")
+	Set objAddConditionWindow = objeFolder.SwfWindow("swfname:=AddPostClosingDialog")
+	Set objConditionSetsDialog = objAddConditionWindow.SwfWindow("swfname:=ConditionSetsDialog")
+	Set objScrollBar =  objConditionSetsDialog.SwfScrollBar("swfname:=vPanelScrollBar")
+	Set objData = FRM_DS_GetTestData("eFolder_Tab","AddConditionsFromSet",strRowID)
+	
+	arrStrConditionName = Split(FRM_DS_GetValue(objData,"ConditionsName"),";")
+	strConditionSet = FRM_DS_GetValue(objData,"ConditionSet")
+	
+	GUI_SwfObject_Click objeFolder.SwfObject("swfname:=btnNew")
+	Wait g_TinyWaitSmall
+    GUI_SwfRadioButton_Click objAddConditionWindow.SwfRadioButton("swfname:=rdoSet")
+    GUI_SwfButton_Click objAddConditionWindow.SwfButton("swfname:=btnOK")
+	Wait g_TinyWaitSmall
+    
+    GUI_SwfComboBox_Select objConditionSetsDialog.SwfComboBox("swfname:=cboSet"),strConditionSet
+
+    For i = 0 To UBound(arrStrConditionName) Step 1
+    	GUI_List_ClickRow objConditionSetsDialog.SwfObject("swfname:=gvAvailable"),objScrollBar,"Name",arrStrConditionName(i),True,False,False,"Single"
+        GUI_SwfButton_Click objConditionSetsDialog.SwfButton("swfname:=btnAdd")
+        Wait g_TinyWaitSmall
+    Next
+    
+    GUI_SwfButton_Click objConditionSetsDialog.SwfButton("swfname:=btnOK")
+
+	Set objeFolder   = Nothing
+	Set objScrollBar = Nothing
+	Set objData      = Nothing 
+	Set objAddConditionWindow  = Nothing
+	Set objConditionSetsDialog = Nothing
+	
+End Function
+
+
+
+'This function is used to set status for all Conditons on eFolder->Post-Closing Conditions tab
+'@code
+'    Function BIZ_PostClosingConditions_SetAllConditionsStatus(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_PostClosingConditions_SetAllConditionsStatus(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Set Post-Closing Conditions Status", "Set Post-Closing Conditions Status on the eFolder->Post-Closing Conditions Tab using Row Id '"&strRowID&"' in the SetAllPostClosingConditionsStatus datasheet", Null
+    
+    Dim objConditionsList,objScrollBar,objData,arrStrStatus,objConditionDetails
+	Set objConditionsList =  SwfWindow("swfname:=eFolderDialog").SwfObject("swfname:=gvConditions")
+	Set objScrollBar      =  SwfWindow("swfname:=eFolderDialog").SwfScrollBar("swfname:=vPanelScrollBar")
+	Set objData           = FRM_DS_GetTestData("eFolder_Tab","SetPostClosingConditionsStatus",strRowID)
+	
+	arrStrStatus=Split(FRM_DS_GetValue(objData,"Status"),";")
+	For i = 0 To objConditionsList.Object.Items.Count - 1 
+		GUI_List_ClickOnCell  objConditionsList,objScrollBar,i,2,True,True,False,"Double"
+		Set objConditionDetails = SwfWindow("swfname:=PostClosingDetailsDialog")
+		objConditionDetails.Maximize
+		
+		For j = 0 To UBound(arrStrStatus)
+		    Select Case arrStrStatus(j)
+		    	   Case "Requested"
+		    	        GUI_SwfCheckBox_Set objConditionDetails.SwfCheckBox("swfname:=chkRequested"),"ON"
+		    	   Case "Re-requested"
+		    	        GUI_SwfCheckBox_Set objConditionDetails.SwfCheckBox("swfname:=chkRerequested"),"ON"
+		    	   Case "Received"  
+		    	        GUI_SwfCheckBox_Set objConditionDetails.SwfCheckBox("swfname:=chkReceived"),"ON"
+		    	   Case "Sent"
+		    	        GUI_SwfCheckBox_Set objConditionDetails.SwfCheckBox("swfname:=chkSent"),"ON"
+		    	   Case "Cleared"
+		    	        GUI_SwfCheckBox_Set objConditionDetails.SwfCheckBox("swfname:=chkCleared"),"ON"
+		    End Select
+	    Next
+     
+        GUI_SwfButton_Click objConditionDetails.SwfButton("swfname:=btnClose")
+	Next
+	
+    Set objConditionDetails = Nothing 
+    Set objConditionsList   = Nothing
+    Set objScrollBar        = Nothing
+    Set objData             = Nothing	
+    
+End Function
+
+
+
+'@}

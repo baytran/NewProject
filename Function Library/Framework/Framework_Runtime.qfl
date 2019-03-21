@@ -1,0 +1,412 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: Framework_Runtime Framework_Runtime
+' This is the function group for framework runtime
+' @code
+'
+'   Function FRM_RT_SetupTest(arrArgs)
+'   Private Function FRM_RT_SetupTestProps(arrArgs)
+'   Function FRM_RT_TeardownTest(arrArgs)
+'   Function FRM_RT_DataDirPath()
+'   Function FRM_RT_ReportDirPath()
+'   Function FRM_RT_ConfigurationDirPath()
+'   Function FRM_RT_ConfigurationFilePath()
+'   Function FRM_RT_RuntimePropFilePath()
+'   Function FRM_RT_ReportFilePath()
+'   Function FRM_RT_GetPropValueRequired(strPropName)
+'   Function FRM_RT_GetPropValue(strPropName, boolRequired)
+'   Function FRM_RT_SetPropValue(strPropName, strPropValue)
+'   Function FRM_RT_AddScreenshotToDoc(strScreenName, ByVal strComments)
+'   Function FRM_RT_ScreenshotDocPath()
+'   Function FRM_RT_RecoveryScenarioDirPath()
+'   Function FRM_RT_TestCaseDirPath()
+'   Function FRM_RT_FunctionLibraryDirPath()
+'	Function FRM_RT_E2EPropFilePath()
+'	Function FRM_RT_SetLoanNo_RT_PropFile()
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+g_FRM_RuntimePropFile="RuntimeProp.txt"
+g_FRM_GlobalConfigFile="GlobalConfig.txt"
+g_FRM_Prop_ReportFile = "ReportFile"
+g_FRM_Prop_RaiseError = "AlwaysRaiseError"
+g_FRM_Prop_LoanNo = "LoanNo"
+g_FRM_Prop_ScreenshotFile = "ScreenshotFile"
+g_FRM_Prop_LoginDataRowID = "LoginRowID"
+g_RecoveryScenarioHandlerFile = "RecoveryScenarioHandler.vbs"
+g_FRM_E2EPropFile = "E2EScriptProp.txt"
+g_FRM_Prop_NewUserCreateDataRowID = "NewUserCreateRowID"
+g_FRM_Prop_NewUserCreated = "NewUserCreated"
+g_FRM_Prop_NewUserPassword = "NewUserPassword"
+
+'Wait Time Variables
+g_TinyWaitSmall = 1
+g_TinyWaitMedium = 2
+g_TinyWaitLarge = 3
+g_ShortWaitSmall = 4
+g_ShortWaitMedium = 5
+g_ShortWaitLarge = 6
+g_LongWaitSmall = 7
+g_LongWaitMedium = 8
+g_LongWaitLarge = 9
+g_LongWaitTime = 200
+g_ShortWaitTime = 60
+g_VeryLongWaitTime = 300
+
+'Default Browser
+g_DefaultBrowser = "IE"
+''''''''''''''''''''''''''''''''''''''''''
+
+Function FRM_RT_SCRIPTNAME()
+
+	' Set objShel1 = CreateObject("WScript.Shell")
+	' Set objEnv1 = objShel1.Environment("USER")
+	If FRM_QTP_EnvVariableExist("BatchTestCasePath") Then
+		strPath1 = Environment.value("BatchTestCasePath")
+		strTestName1 = Right(strPath1, Len(strPath1)-InstrRev(strPath1, "\"))
+	Else
+        strTestName1 = Environment.Value("TestName")
+	' FRM_RT_SCRIPTNAME=objEnv1("TestScriptName")
+	End If
+	FRM_RT_SCRIPTNAME=strTestName1
+	
+End Function
+
+
+
+
+'This function is for Initialize test
+'@code
+'    FRM_RT_SetupTest(arrArgs)
+'@endcode
+'@param an arry of arguments
+
+Function FRM_RT_SetupTest(arrArgs)
+
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_RT_TestCaseDirPath()
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_RT_RecoveryScenarioDirPath()
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_RT_ConfigurationDirPath()
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_RT_ReportDirPath()
+	UTIL_File_SetFolderAndFilesPermissionNotReadOnly FRM_RT_FunctionLibraryDirPath()
+	
+	FRM_Logger_CreateTestCaseXML()
+	FRM_RT_SetupTestProps(arrArgs)
+    FRM_Logger_ReportInfoEvent "Report File", FRM_RT_GetPropValue(g_FRM_Prop_ReportFile, True), null
+	FRM_Logger_ReportInfoEvent "Start To Run Test", Environment.Value("TestName"), null
+	FRM_Logger_ReportInfoEvent "Start To Run Action", Environment.Value("ActionName"), null
+	
+	'======== Load environment from external file ========
+	'LoadEnvironmentFile	
+
+	'Add Object dynamically
+	'Dim arrOR
+	'arrOR = Array("Encompass360.tsr","EncompassSetting.tsr","EncompassLoan.tsr")
+	'AddObjectRepository(arrOR)
+	
+End Function
+
+
+
+'This function is for setting test properties
+'@code
+'    FRM_RT_SetupTestProps(arrArgs)
+'@endcode
+'@param an arry of arguments
+
+Private Function FRM_RT_SetupTestProps(arrArgs)
+    
+    UTIL_Prop_ResetAll(FRM_RT_RuntimePropFilePath())
+    
+    If FRM_QTP_EnvVariableExist("BatchTestCasePath") Then
+        strPath = Environment.Value("BatchTestCasePath")
+        strTestName = Right(strPath, Len(strPath)-InstrRev(strPath, "\"))
+    Else
+        strTestName = Environment.Value("TestName")
+    End If
+	
+	
+    strReportFilePath = FRM_RT_ReportDirPath() & strTestName & "_" & _
+		UTIL_Date_FormatDateByPattern(Now(), "mmddyyyy-HHnnss")
+    
+    strHTMLReportFile = strReportFilePath & ".html"
+    strWordDocFile = strReportFilePath & ".doc"
+    FRM_RT_SetPropValue g_FRM_Prop_ReportFile, strHTMLReportFile
+    FRM_RT_SetPropValue g_FRM_Prop_ScreenshotFile, strWordDocFile
+    
+    UTIL_Report_Initialize strHTMLReportFile
+End Function
+
+
+
+'This function is for Tear Down test
+'@code
+'    FRM_RT_TeardownTest(arrArgs)
+'@endcode
+'@param an arry of arguments
+
+Function FRM_RT_TeardownTest(arrArgs)
+
+    FRM_Logger_ReportInfoEvent "End of Running Test", Environment.Value("TestName"), null
+    
+    UTIL_Report_Terminate()
+	'UTIL_Prop_ResetAll(FRM_RT_RuntimePropFilePath())
+	
+End Function
+
+
+'This function is for loacate Test Data path
+'@code
+'    FRM_RT_DataDirPath()
+'@endcode
+
+
+Function FRM_RT_DataDirPath()
+	On Error Resume Next
+    FRM_RT_DataDirPath = PathFinder.Locate( "Test Data\" )
+	'if Err.Description=Object required, batch mode
+	If Err.Number <> 0  AND Err.Number = 424 Then 
+		FRM_RT_DataDirPath = FRM_Batch_ProjectBase & "\Test Data\"		
+	End If
+	Err.Clear
+	On Error Goto 0
+End Function
+
+
+
+'This function returns the directory path to the Reports folder
+'@code
+'    FRM_RT_ReportDirPath()
+'@endcode
+
+Function FRM_RT_ReportDirPath()
+	On Error Resume Next
+    FRM_RT_ReportDirPath = PathFinder.Locate( "Test Report\" )
+	'if Err.Description=Object required, batch mode
+	If Err.Number <> 0  AND Err.Number = 424 Then  
+		FRM_RT_ReportDirPath = FRM_Batch_ProjectBase & "\Test Report\"		
+	End If
+	Err.Clear
+	On Error Goto 0	
+End Function
+
+
+
+
+'This function returns the directory path to the Test Configuration folder
+'@code
+'    FRM_RT_ConfigurationDirPath()
+'@endcode
+
+Function FRM_RT_ConfigurationDirPath()
+	On Error Resume Next
+    FRM_RT_ConfigurationDirPath = PathFinder.Locate( "Test Configuration\" )
+	'if Err.Description=Object required, batch mode
+	If Err.Number <> 0  AND Err.Number = 424 Then 
+		FRM_RT_ConfigurationDirPath = FRM_Batch_ProjectBase & "\Test Configuration\"		
+	End If
+	Err.Clear
+	On Error Goto 0		
+End Function
+
+
+'This function returns the directory path to the Global Config File
+'@code
+'    FRM_RT_ConfigurationFilePath()
+'@endcode
+
+Function FRM_RT_ConfigurationFilePath()
+	FRM_RT_ConfigurationFilePath = FRM_RT_ConfigurationDirPath() + g_FRM_GlobalConfigFile
+End Function
+
+
+'This function returns the directory path to the RuntimeProp File
+'@code
+'    FRM_RT_RuntimePropFilePath()
+'@endcode
+
+Function FRM_RT_RuntimePropFilePath()
+	FRM_RT_RuntimePropFilePath = FRM_RT_ConfigurationDirPath() + g_FRM_RuntimePropFile
+End Function
+
+
+
+
+'This function returns the html report file path
+'@code
+'    FRM_RT_ReportFilePath()
+'@endcode
+
+Function FRM_RT_ReportFilePath()
+    FRM_RT_ReportFilePath = FRM_RT_GetPropValue(g_FRM_Prop_ReportFile, True)
+End Function
+
+
+'This function is for get a particular run time property value from 
+'@code
+'    FRM_RT_GetPropValueRequired(strPropName)
+'@endcode
+'@param string of property name
+'@see FRM_RT_GetPropValue
+
+Function FRM_RT_GetPropValueRequired(strPropName)
+    FRM_RT_GetPropValueRequired = FRM_RT_GetPropValue(strPropName,true)
+End Function 
+
+
+
+'Gets the value of a runtime property
+'@code
+'   FRM_RT_GetPropValue("LoginID", True)
+'@endcode
+'@param strPropName name of a runtime property
+'@param boolRequired  
+'@return returns the value of a runtime property
+
+Function FRM_RT_GetPropValue(strPropName, boolRequired)
+	'check runtime property file first, if not found, check global config file
+    strValue = UTIL_Prop_ReadValue(FRM_RT_RuntimePropFilePath(), strPropName)
+	If UTIL_String_IsEmpty(strValue) Then
+		strValue = UTIL_Prop_ReadValue(FRM_RT_ConfigurationFilePath(), strPropName)
+	End If 
+	
+	If boolRequired Then 
+        UTIL_AssertNotEmpty strValue, "FRM_RT_GetPropValue", "Get value of runtime property [" & strPropName & "]" 
+    End If
+    FRM_RT_GetPropValue = strValue
+End Function
+
+
+
+'set the value of a runtime property
+'@code
+'   FRM_RT_SetPropValue(strPropName, strPropValue)
+'@endcode
+'@param strPropName name of a runtime property
+'@param strPropValue value of a property
+
+Function FRM_RT_SetPropValue(strPropName, strPropValue)
+	UTIL_Prop_SetValue FRM_RT_RuntimePropFilePath(), strPropName, strPropValue
+End Function
+
+
+
+'Tgetting path to Screenshot documents file
+'@code
+'    FRM_RT_ScreenshotDocPath
+'@endcode
+
+Function FRM_RT_ScreenshotDocPath()
+    FRM_RT_ScreenshotDocPath = FRM_RT_GetPropValue(g_FRM_Prop_ScreenshotFile, True)
+End Function
+
+
+
+'To take screenshot and add/Append them to word file
+'@code
+'   FRM_RT_AddScreenshotToDoc(strScreenName, ByVal strComments) 
+'@endcode
+'@param strComments to Pass comments before each screen shots
+
+Function FRM_RT_AddScreenshotToDoc(strScreenName, ByVal strComments)    
+	On Error Resume Next	
+    strScreenCapture = Lcase(DataTable("ScreenCapture","Global"))
+	If Lcase(strScreenCapture) <> "" Then
+		If Err.Number = 0 Then            
+			If strScreenCapture ="on" OR _
+               strScreenCapture ="yes" OR _
+               strScreenCapture ="y"  Then
+                blnToScreenCapture=True
+		    End If	
+		End If
+	End If
+	     
+	If blnToScreenCapture=True Then		    
+        UTIL_Screen_AddScreenshotToWord FRM_RT_ScreenshotDocPath(), strScreenName, strComments     
+	End If	
+    
+	If  Err.Number>0 Then
+		FRM_RT_ReportEvent "ERROR ", "FRM_RT_SaveScreenshot", "Error # " & Err.Number & " Error Description " & Err.Description  
+       	Err.Clear
+	End If
+    On Error Goto 0	
+End Function
+
+
+
+'This function returns the directory path to the Recovery Scenario folder
+'@code
+'    FRM_RT_RecoveryScenarioDirPath()
+'@endcode
+
+Function FRM_RT_RecoveryScenarioDirPath()
+	On Error Resume Next
+    FRM_RT_RecoveryScenarioDirPath = PathFinder.Locate( "Recovery Scenario\" )
+	'if Err.Description=Object required, batch mode
+	If Err.Number <> 0  AND Err.Number = 424 Then 
+		FRM_RT_RecoveryScenarioDirPath = FRM_Batch_ProjectBase & "\Recovery Scenario\"		
+	End If
+	Err.Clear
+	On Error Goto 0		
+End Function
+
+
+'This function returns the directory path to the Test Case folder
+'@code
+'    FRM_RT_TestCaseDirPath()
+'@endcode
+
+Function FRM_RT_TestCaseDirPath()
+	On Error Resume Next
+    FRM_RT_TestCaseDirPath = PathFinder.Locate( "Test Case\" )
+	'if Err.Description=Object required, batch mode
+	If Err.Number <> 0  AND Err.Number = 424 Then 
+		FRM_RT_TestCaseDirPath = FRM_Batch_ProjectBase & "\Test Case\"		
+	End If
+	Err.Clear
+	On Error Goto 0		
+End Function
+
+
+'This function returns the directory path to the Test Case folder
+'@code
+'    FRM_RT_FunctionLibraryDirPath()
+'@endcode
+
+Function FRM_RT_FunctionLibraryDirPath()
+	On Error Resume Next
+    FRM_RT_FunctionLibraryDirPath = PathFinder.Locate( "Function Library\" )
+	'if Err.Description=Object required, batch mode
+	If Err.Number <> 0  AND Err.Number = 424 Then 
+		FRM_RT_FunctionLibraryDirPath = FRM_Batch_ProjectBase & "\Function Library\"		
+	End If
+	Err.Clear
+	On Error Goto 0		
+End Function
+
+
+
+'This function returns the directory path to the RuntimeProp File
+'@code
+'    FRM_RT_E2EPropFilePath()
+'@endcode
+Function FRM_RT_E2EPropFilePath()
+	FRM_RT_E2EPropFilePath = FRM_RT_ConfigurationDirPath() + g_FRM_E2EPropFile
+End Function
+
+
+
+'This function read the LoanNo from the E2E Property file and places it in the RT Property file
+'@code
+'    FRM_RT_SetLoanNoinRunTimePropertyFile()
+'@endcode
+Function FRM_RT_SetLoanNo_RT_PropFile()
+	Dim strLoanNumber
+	strLoanNumber = UTIL_Prop_ReadValue(FRM_RT_E2EPropFilePath, "LoanNo")
+    'Sets the Property value in the Run Time Property file
+    FRM_RT_SetPropValue g_FRM_Prop_LoanNo, strLoanNumber
+End Function
+
+
+
+'@} 

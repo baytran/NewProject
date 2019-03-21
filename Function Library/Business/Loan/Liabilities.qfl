@@ -1,0 +1,145 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Loan_Liabilities
+'List of functions here
+'@code
+'   Function BIZ_Liabilities_Import()
+'   Function BIZ_Liabilities_Verify(strRowID)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for import Liabilities from the Credit report 
+'@code
+'    BIZ_Liabilities_Import()
+'@endcode
+
+Function BIZ_Liabilities_Import()
+
+    FRM_Logger_ReportInfoEvent "Borrower Summary - Origination", "Import Liabilities from the Crdit report", Null
+
+	'Window("LoanWindow").Page("BorrowerSummary-Origination").WebButton("Import Liabilities").Click
+	GUI_WebButton_Click SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebButton("html id:=Button19")
+	
+	'=======Make sure the user should be able to select & import liabilities from the credit report to page 2 of the 1003=========
+	'GUI_Object_WaitTillEnabled SwfWindow("EncompassMenu").SwfWindow("Liability Import").SwfButton("Import")	
+	'GUI_SwfButton_Click SwfWindow("EncompassMenu").SwfWindow("Liability Import").SwfButton("Import")
+	'GUI_Object_WaitTillEnabled SwfWindow("EncompassMenu").SwfWindow("Liability Import").Dialog("Import Liabilities").WinButton("OK")
+	'GUI_WinButton_Click SwfWindow("EncompassMenu").SwfWindow("Liability Import").Dialog("Import Liabilities").WinButton("OK")
+	
+	GUI_Object_WaitTillEnabled SwfWindow("swfname:=MainForm").SwfWindow("swfname:=LiabImportDialog").SwfButton("swfname:=okBtn")
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=LiabImportDialog").SwfButton("swfname:=okBtn")
+	GUI_Object_WaitTillEnabled SwfWindow("swfname:=MainForm").SwfWindow("swfname:=LiabImportDialog").Dialog("text:=Import Liabilities").WinButton("text:=OK")
+	GUI_WinButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=LiabImportDialog").Dialog("text:=Import Liabilities").WinButton("text:=OK")
+	
+End Function
+
+
+
+'This function is for Verify Imported Liabilities
+'@code
+'    BIZ_Liabilities_Verify(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Liabilities_Verify(strRowID)
+
+    FRM_Logger_ReportInfoEvent "1003 Page 2", "Verify Liabilities Information using Row Id '"&strRowID&"' in the VerifyLiabilities datasheet", Null
+
+	BIZ_Forms_Open "1003 Page 2"
+	Dim objData, strCompanyName, boolCompanyName, boolBalance, boolPayment
+	Set objData = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "VerifyLiabilities", strRowID)
+	
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Balance_FL0113"), objData.Item("Balance_FL0113"),"Balance_FL0113"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Balance_FL0213"), objData.Item("Balance_FL0213"),"Balance_FL0213"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Balance_FL0313"), objData.Item("Balance_FL0313"),"Balance_FL0313"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Balance_FL0413"), objData.Item("Balance_FL0413"),"Balance_FL0413"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Company Name_FL0102"), objData.Item("CompanyName_FL0102"),"CompanyName_FL0102"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Company Name_FL0202"), objData.Item("CompanyName_FL0202"),"CompanyName_FL0202"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Company Name_FL0302"), objData.Item("CompanyName_FL0302"),"CompanyName_FL0302"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Company Name_FL0402"), objData.Item("CompanyName_FL0402"),"CompanyName_FL0402"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Mos LeftFL0112"), objData.Item("MonthLeft_FL0212"),"MonthLeft_FL0112" 
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Mos LeftFL0212"), objData.Item("MonthLeft_FL0212"),"MonthLeft_FL0212"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Mos LeftFL0312"), objData.Item("MonthLeft_FL0312"),"MonthLeft_FL0312"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Mos LeftFL0412"), objData.Item("MonthLeft_FL0412"),"MonthLeft_FL0412"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Payment1_FL0111"), objData.Item("Payment1_FL0111"),"Payment1_FL0111"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Payment2_FL0211"), objData.Item("Payment2_FL0211"),"Payment2_FL0211"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Payment3_FL0311"), objData.Item("Payment3_FL0311"),"Payment3_FL0311"
+	'GUI_Object_ValidateValue Window("LoanWindow").Page("1003Page2").WebEdit("Liabilities_Payment4_FL0411"), objData.Item("Payment4_FL0411"),"Payment4_FL0411"
+	
+	For i = 1 To 7
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CompanyName")) Then
+		   'boolCompanyName = GUI_Object_ValidateValue (SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0"&i&"02"), objData.Item("CompanyName"),"CompanyName")
+		   strCompanyName = GUI_Object_GetPropertyValue (SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0"&i&"02"), "value")
+		   
+		   If Trim(FRM_DS_GetValue(objData, "CompanyName")) = Trim(strCompanyName) Then
+			  boolCompanyName = True
+		   End If
+		   
+    	End If
+    	
+    	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Balance")) Then
+		   'boolBalance = GUI_Object_ValidateValue (SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0"&i&"13"), objData.Item("Balance"),"Balance")
+		   strBalance = GUI_Object_GetPropertyValue (SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0"&i&"13"), "value")
+		   
+		   If Trim(FRM_DS_GetValue(objData, "Balance")) = Trim(strBalance) Then
+			  boolBalance = True
+		   End If
+		   
+    	End If
+    	
+    	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Payment")) Then
+		   'boolPayment = GUI_Object_ValidateValue (SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0"&i&"11"), objData.Item("Payment"),"Payment")
+		   strPayment = GUI_Object_GetPropertyValue (SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0"&i&"11"), "value")
+		   
+		   If Trim(FRM_DS_GetValue(objData, "Payment")) = Trim(strPayment) Then
+			  boolPayment = True
+		   End If
+		   
+    	End If
+    	
+    	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MosLeft")) Then
+		   'boolMosLeft = GUI_Object_ValidateValue (SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0"&i&"12"), objData.Item("MosLeft"),"MonthLeft")
+		   strMosLeft = GUI_Object_GetPropertyValue (SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0"&i&"12"), "value")
+		   
+		   If Trim(FRM_DS_GetValue(objData, "MosLeft")) = Trim(strMosLeft) Then
+			  boolMosLeft = True
+		   End If
+		   
+    	End If
+    	
+    	If boolCompanyName = True AND boolBalance = True AND boolPayment = True AND boolMosLeft = True Then
+    	   FRM_Logger_ReportPassEvent "Verify Liabilities","Correct liability has been imported",Null
+    	   Exit Function
+    	End If
+	Next
+	
+	If boolCompanyName = False OR boolBalance = False OR boolPayment = False OR boolMosLeft = False Then
+       FRM_Logger_ReportFailEvent "Verify Liabilities","Correct liability hasn't been imported",Null
+       Exit Function
+    End If
+	
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0113"), objData.Item("Balance_FL0113"),"Balance_FL0113"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0213"), objData.Item("Balance_FL0213"),"Balance_FL0213"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0313"), objData.Item("Balance_FL0313"),"Balance_FL0313"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0413"), objData.Item("Balance_FL0413"),"Balance_FL0413"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0102"), objData.Item("CompanyName_FL0102"),"CompanyName_FL0102"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0202"), objData.Item("CompanyName_FL0202"),"CompanyName_FL0202"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0302"), objData.Item("CompanyName_FL0302"),"CompanyName_FL0302"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0402"), objData.Item("CompanyName_FL0402"),"CompanyName_FL0402"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0112"), objData.Item("MonthLeft_FL0112"),"MonthLeft_FL0112"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0212"), objData.Item("MonthLeft_FL0212"),"MonthLeft_FL0212"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0312"), objData.Item("MonthLeft_FL0312"),"MonthLeft_FL0312"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0412"), objData.Item("MonthLeft_FL0412"),"MonthLeft_FL0412"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0111"), objData.Item("Payment1_FL0111"),"Payment1_FL0111"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0211"), objData.Item("Payment1_FL0211"),"Payment1_FL0211"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0311"), objData.Item("Payment1_FL0311"),"Payment1_FL0311"
+	'GUI_Object_ValidateValue SwfWindow("swfname:=MainForm").Page("micclass:=Page").WebEdit("html id:=l_FL0411"), objData.Item("Payment1_FL0411"),"Payment1_FL0411"
+	
+	Set objData = Nothing	
+	
+End Function	
+
+
+
+'@}

@@ -1,0 +1,11 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Settings_ClosingCostTemplates BIZ_Settings_ClosingCostTemplates 
+' List of functions here
+' @code
+'   BIZ_Settings_UpdateClosingCostTemplate(strRowID,strNewFolderName,strSubLoantemplate)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+'@}

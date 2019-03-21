@@ -1,0 +1,56 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Tools_SecondaryRegistration BIZ_Tools_SecondaryRegistration
+'
+' List of functions here
+'@code
+' Function BIZ_SecondaryRegistration_LockAndConfirm()
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is to Lock and Confirm the new Requested Lock on Secondary Registration Page
+'@code
+'    BIZ_SecondaryRegistration_LockAndConfirm()
+'@endcode
+'@param 
+
+Function BIZ_SecondaryRegistration_LockAndConfirm()
+
+    FRM_Logger_ReportInfoEvent "Lock and Confirm Lock Request", "Lock and Confirm Lock Request on Secondary Registration Page", null	
+
+    Dim objLockRequestSnapshot,objScrollBar,objSecondaryLockTool, boolLockRequestExists
+	BIZ_Tools_Open "Secondary Registration"
+	
+	Set objLockRequestSnapshot = SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridSnapshot")
+	Set objScrollBar = SwfWindow("swfname:=MainForm").SwfScrollBar("swfname:=vPanelScrollBar")
+	'Click the Lock Request Snapsot
+	boolLockRequestExists = GUI_List_ClickRow(objLockRequestSnapshot,objScrollBar,"Status","Requested",True,False,False,"Single")
+	
+	If(boolLockRequestExists = True) Then 
+		'Click "Copy from Request" button
+		Set objSecondaryLockTool = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=BuySellForm")
+		GUI_SwfButton_Click objSecondaryLockTool.SwfButton("swfname:=btnCopyRequest")
+
+		GUI_Object_WaitTillExistX objSecondaryLockTool.SwfButton("swfname:=btnLockConfirm"), 50
+	
+		'Click "Lock and Confirm" button
+		GUI_SwfButton_Click objSecondaryLockTool.SwfButton("swfname:=btnLockConfirm")
+    
+		'Click "Confirm" button
+		GUI_Object_WaitTillExistX objSecondaryLockTool.SwfWindow("swfname:=LockSnapshotCompareForm").SwfButton("swfname:=btnConfirm"), 50
+		GUI_SwfButton_Click objSecondaryLockTool.SwfWindow("swfname:=LockSnapshotCompareForm").SwfButton("swfname:=btnConfirm")
+		SwfWindow("swfname:=MainForm").SwfWindow("swfname:=BuySellForm").SwfWindow("swfname:=DifferencesChangeDialog").SwfButton("swfname:=button1").Click
+
+		'Click "OK" button and the loan is locked
+		GUI_Dialog_Encompass_OKX 30,""
+	Else
+		FRM_Logger_ReportFailEvent "Lock and Confirm Lock Request", "Lock Request is not displayed in Secondary Registration Page", null	
+	End If
+    
+    Set objLockRequestSnapshot = Nothing
+	Set objScrollBar = Nothing
+	Set objSecondaryLockTool = Nothing
+ 
+End Function
+
+'@}

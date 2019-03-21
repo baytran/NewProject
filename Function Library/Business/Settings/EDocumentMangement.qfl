@@ -1,0 +1,37 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Settings_EDocManagement BIZ_Settings_EDocManagement
+'
+' List of functions here
+' @code
+'	Function BIZ_EDocManagement_AccessRight(arrUsers)
+' @endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to set the access right to E-Document Mangement for persona
+'@code
+'    BIZ_EDocManagement_AccessRight(arrUsers)
+'@endcode
+'@param arrUsers - Users array list
+
+Function BIZ_EDocManagement_AccessRight(arrUsers)
+
+    FRM_Logger_ReportInfoEvent "Set AccessRight", "Set the access right to E-Document Mangement for Persona", null
+    
+    Dim objSettings, objUserList, objUserScrollBar
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objUserList = objSettings.SwfObject("swfname:=lvwUsers")
+	Set objUserScrollBar = objSettings.SwfScrollBar("swfname:=vPanelScrollBar")
+    
+	For i = LBound(arrUsers) to UBound(arrUsers)
+		GUI_List_ClickCheckbox objUserList, objUserScrollBar, arrUsers(i), 0, True, False, "Single", True
+	Next
+
+	If GUI_Object_IsEnabled(objSettings.SwfObject("swfname:=stdIconBtnSave")) Then
+		GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnSave")
+	End If
+    
+End Function
+
+
+'@}

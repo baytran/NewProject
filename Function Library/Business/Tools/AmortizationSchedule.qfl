@@ -1,0 +1,800 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup : BIZ_Tools_AmortizationSchedule 
+'
+' List of functions here
+'@code
+'	Function BIZ_AmortizationSchedule_VerifyCalculations(strRowID)
+'	Function BIZ_ProjectedPayment_ARMLoanType_InterestOnly_Validation
+'	Function BIZ_ProjectedPayment_ARMLoanType_BalloonAndMITermination_InterestOnly_Validation
+'	Function BIZ_ProjectedPaymentTable_FixedLoanType
+'	Function BIZ_Validation_ProjectedPaymentTable_FromLEPage1
+'	Function BIZ_Amortization_Schedule
+'	Function BIZ_Amortization_Schedule_USDA
+'	Function BIZ_ValidateProjectedPaymentTable_FixedLoanType
+'	Function BIZ_ValidateProjectedPaymentTable_FixedLoanType_Balloon_InterestOnly
+
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to verify multiple calculation values in Amortization Schedule table
+'@code
+'	Function BIZ_AmortizationSchedule_VerifyCalculations(strRowID)
+'@endcode
+'@param strRowID - row ID in test data sheet 
+
+Function BIZ_AmortizationSchedule_VerifyCalculations(strRowID)
+	
+	Dim strRowNumber,strColumnName,strExpectedValue,strCustomMessage
+	
+	Set objAmortDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AmortSchDialog").SwfObject("swfname:=amortListview")
+	Set objData        = FRM_DS_GetTestData("Tools_AmortizationSchedule","VerifyAmortizationScheduleCalc",strRowID)
+	
+	GUI_Object_WaitTillExistX objAmortDialog,25
+	
+	strRowNumber     = Split(FRM_DS_GetValue(objData,"RowNumber"),";")
+	strColumnName    = Split(FRM_DS_GetValue(objData,"ColumnName"),";")
+	strExpectedValue = Split(FRM_DS_GetValue(objData,"ExpectedValue"),";")
+	strCustomMessage = Split(FRM_DS_GetValue(objData,"CustomMessage"),";")
+    
+	For i = 0 To Ubound(strRowNumber) Step 1
+		GUI_List_ValidateCellDataWithCustomMsg objAmortDialog,strRowNumber(i),strColumnName(i),strExpectedValue(i),_
+		strCustomMessage(i)
+	Next
+	
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AmortSchDialog").SwfButton("swfname:=okBtn")
+	
+	Set objAmortDialog = Nothing
+	Set objData        = Nothing
+	
+End Function
+
+Function BIZ_Amortization_Schedule(strRowID1,strRowID2,strExpectedMtgIns,strFlagMIP)
+	'========set test data in MIP/Funding/GuaranteeFee dialog=========
+	BIZ_Forms_Open "Borrower Summary - Origination"
+	BIZ_BorrowerSummaryOrigination_SetMIPGuaranteeFeeCalculation strRowID1
+	If lcase(strFlagMIP)="yes" Then
+		BIZ_BorrowerSummaryOrigination_VerifyMIPGuaranteeFeeCalculation strRowID1
+	End If
+	
+	'================Expected Mtg Ins is blank/empty ======
+	Set objMtgIns=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=QuickEntryPopupDialog").Page("index:=1").WebEdit("html id:=l_232")
+	strActualMtgIns=GUI_Object_GetPropertyValue(objMtgIns,"value")
+	'strExpectedMtgIns = ""
+	FRM_VerifyEqual strActualMtgIns,strExpectedMtgIns,"Verify Mortgage Insurance in Total Monthly Payment","Mortgage Insurance should be match in Total Monthly Payment"
+	'=================close Total Monthly Payment window===========
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=QuickEntryPopupDialog").SwfButton("swfname:=btnClose")
+	
+	BIZ_Tools_Open "Amortization Schedule"
+	'==========verify default option complete Schedule=====
+	Set objAmortDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AmortSchDialog")
+	GUI_Object_ValidateProperty objAmortDialog.SwfRadioButton("text:=Complete Schedule"),"checked",True,"Complete Schedule checked as default"
+	
+	'===========Validate cell data in Amortization Schedule Tool ===========
+	BIZ_AmortizationSchedule_VerifyCalculations strRowID2
+	
+	Set objAmortDialog = Nothing	
+End Function
+
+
+
+Function BIZ_Amortization_Schedule_USDA(strRowID1,strRowID2,strExpectedMtgIns)
+	'========set test data in MIP/Funding/GuaranteeFee dialog=========	
+	BIZ_Forms_Open "Borrower Summary - Origination"
+	Set objMipDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=QuickEntryPopupDialog").SwfWindow("swfname:=MIPUSDADialog")
+	BIZ_Common_BorrowerSummaryOrigination_SetMIPGuaranteeFeeCalculation objMipDialog,strRowID1
+	
+	'==============verify data entry in  MIP/Funding/GuaranteeFee dialog================
+	BIZ_Common_BorrowerSummaryOrigination_VerifyMIPGuaranteeFeeCalculation objMipDialog,strRowID1
+	
+	Set objMtgIns=SwfWindow("swfname:=MainForm").SwfWindow("swfname:=QuickEntryPopupDialog").Page("index:=1").WebEdit("html id:=l_234")
+	strActualMtgIns=GUI_Object_GetPropertyValue(objMtgIns,"value")
+	FRM_VerifyEqual strActualMtgIns,strExpectedMtgIns,"Verify Mortgage Insurance in Total Monthly Payment","Mortgage Insurance in Total Monthly Payment"
+	
+	'=================close Total Monthly Payment window=====================
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=QuickEntryPopupDialog").SwfButton("swfname:=btnClose")
+
+	
+	BIZ_Tools_Open "Amortization Schedule"
+	'==========verify default option complete Schedule=====
+	Set objAmortDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AmortSchDialog")
+	GUI_Object_ValidateProperty objAmortDialog.SwfRadioButton("text:=Complete Schedule"),"checked",True,"Complete Schedule checked as default"
+	
+	'===========Validate cell data in Amortization Schedule Tool ===========
+	BIZ_AmortizationSchedule_VerifyCalculations strRowID2
+	
+	Set objAmortDialog = Nothing	
+End Function
+
+
+'@**************************************************************************************************
+'@ Name: BIZ_ProjectedPayment_ARMLoanType_InterestOnly_Validation
+'@ Parameter: strRowID
+  '***************************************************************************************************
+Function BIZ_ProjectedPayment_ARMLoanType_InterestOnly_Validation(strRowID)
+	Dim objLoan,objData,intYearNum,dblPIMin,dblPIMax,dblMI,dblEstEscrow,strTotalPay,dblTotalPayMin,dblTotalPayMax
+	Dim intYearNum2,dblPIMin2,dblPIMax2,dblMI2,dblEstEscrow2,dblTotalPayMin2,dblTotalPayMax2
+	Dim intYearNum3,dblPIMin3,dblPIMax3,dblMI3,dblEstEscrow3,dblTotalPayMin3,dblTotalPayMax3
+	Dim intYearNum4From,intYearNum4To,dblPIMin4,dblPIMax4,dblMI4,dblEstEscrow4,dblTotalPayMin4,dblTotalPayMax4
+	
+	Set objLoan			=	SwfWindow("swfname:=MainForm").Page("micClass:=Page","index:=0")
+	Set objData     	= 	FRM_DS_GetTestData("Forms_LoanEstimatePage", "ProjectedPayments", strRowID)	
+	
+	'@ Handling Sync Issues
+	GUI_Object_WaitTillExistX objLoan.WebEdit("html id:=TextBox33"), 360
+	
+	'@ Year 1 Column Data
+	intYearNum			=	CInt( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox33"), "Value" ) )
+	dblPIMin			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox11"), "Value" ) )
+	dblPIMax			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox11"), "Value" ) )
+	dblMI				=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox59"), "Value" ) )
+	dblEstEscrow		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox58"), "Value" ) )
+	strTotalPay			=	CStr( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox39"), "Value" ) )
+	dblTotalPayMin		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox12"), "Value" ) )
+	dblTotalPayMax		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox12"), "Value" ) )
+	
+	'@ Validation Part Of Year 1 Column
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1","Year '"&intYearNum&"' Values Validation", Null
+	
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox33"), Trim(FRM_DS_GetValue(objData,"LE1.X41_Year")), "Column-1"
+	FRM_VerifyEqual dblPIMin, CDbl(FRM_DS_GetValue(objData, "LE1.X42_MinPI")),"Principal & Interest","Minimum Value Verification"
+	FRM_VerifyEqual dblPIMax, CDbl(FRM_DS_GetValue(objData, "LE1.X43_MaxPI")),"Principal & Interest","Maximum Value Verification"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox10_Ctrl"), FRM_DS_GetValue(objData, "LE1.X44_InterestOnly"), "Interest Only Checkbox Validation"
+	FRM_VerifyEqual dblMI, CDbl(FRM_DS_GetValue(objData, "LE1.X45_Mort.Insurance")),"Mortgage Insurance"," Value Verification"
+	FRM_VerifyEqual dblEstEscrow, CDbl(FRM_DS_GetValue(objData, "LE1.X46_Est.Escrow")),"Estimated Escrow","Estimated Escrow Value Verification"
+	FRM_VerifyEqual strTotalPay, FRM_DS_GetValue(objData, "3291_PaymentFrequency"),"Total Estimated Escrow","Total Est. EscrowValue Verification"
+	FRM_VerifyEqual dblTotalPayMin, CDbl(FRM_DS_GetValue(objData, "LE1.X47_MinEst.BiWeeklyorMonPay.")),"Total Estimated '"&strTotalPay&"' Payment ","Minimum Value Verification"
+	FRM_VerifyEqual dblTotalPayMax, CDbl(FRM_DS_GetValue(objData, "LE1.X48_MaxEst.BiWeeklyorMonPay.")),"Total Estimated '"&strTotalPay&"' Payment ","Maximum Value Verification"
+	
+	
+	'@ Year 2 Column Data
+	intYearNum2			=	CInt( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox34"), "Value" ) )
+	dblPIMin2			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox21"), "Value" ) )
+	dblPIMax2			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox21"), "Value" ) )
+	dblMI2				=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox52"), "Value" ) )
+	dblEstEscrow2		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox51"), "Value" ) )
+	dblTotalPayMin2		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox22"), "Value" ) )
+	dblTotalPayMax2		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox22"), "Value" ) )
+	
+	'@ Validation Part Of Year 2 Column
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1","Year '"&intYearNum2&"' Values Validation", Null
+	
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox34"), Trim(FRM_DS_GetValue(objData,"LE1.X49_Year")), "Column-2"
+	FRM_VerifyEqual dblPIMin2, CDbl(FRM_DS_GetValue(objData, "LE1.X51_MinPI")),"Principal & Interest","Minimum Value Verification"
+	FRM_VerifyEqual dblPIMax2, CDbl(FRM_DS_GetValue(objData, "LE1.X52_MaxPI")),"Principal & Interest","Maximum Value Verification"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox9_Ctrl"), FRM_DS_GetValue(objData, "LE1.X53_InterestOnly"), "Interest Only Checkbox Validation"
+	FRM_VerifyEqual dblMI2, CDbl(FRM_DS_GetValue(objData, "LE1.X54_Mort.Insurance")),"Mortgage Insurance"," Value Verification"
+	FRM_VerifyEqual dblEstEscrow2, CDbl(FRM_DS_GetValue(objData, "LE1.X55_Est.Escrow")),"Estimated Escrow","Estimated Escrow Value Verification"
+	FRM_VerifyEqual dblTotalPayMin2, CDbl(FRM_DS_GetValue(objData, "LE1.X56_MinEst.BiWeekMon")),"Total Estimated '"&strTotalPay&"' Payment ","Minimum Value Verification"
+	FRM_VerifyEqual dblTotalPayMax2, CDbl(FRM_DS_GetValue(objData, "LE1.X57_MaxEst.BiWeekMon")),"Total Estimated '"&strTotalPay&"' Payment ","Maximum Value Verification"
+	
+	
+	'@ Year 3 Column Data
+	intYearNum3			=	CInt( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox35"), "Value" ) )
+	dblPIMin3			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox31"), "Value" ) )
+	dblPIMax3			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox31"), "Value" ) )
+	dblMI3				=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox66"), "Value" ) )
+	dblEstEscrow3		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox65"), "Value" ) )
+	dblTotalPayMin3		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox32"), "Value" ) )
+	dblTotalPayMax3		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox32"), "Value" ) )
+	
+	'@ Validation Part Of Year 3 Column
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1","Year '"&intYearNum3&"' Values Validation", Null
+	
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox35"), Trim(FRM_DS_GetValue(objData,"LE1.X58_Years")), "Column-3"
+	FRM_VerifyEqual dblPIMin3, CDbl(FRM_DS_GetValue(objData, "LE1.X60_MinPI")),"Principal & Interest","Minimum Value Verification"
+	FRM_VerifyEqual dblPIMax3, CDbl(FRM_DS_GetValue(objData, "LE1.X61_MaxPI")),"Principal & Interest","Maximum Value Verification"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox11_Ctrl"), FRM_DS_GetValue(objData, "LE1.X62_InterestOnly"), "Interest Only Checkbox Validation"
+	FRM_VerifyEqual dblMI3, CDbl(FRM_DS_GetValue(objData, "LE1.X63_Mort.Insurance")),"Mortgage Insurance"," Value Verification"
+	FRM_VerifyEqual dblEstEscrow3, CDbl(FRM_DS_GetValue(objData, "LE1.X64_Est.Escrow")),"Estimated Escrow","Estimated Escrow Value Verification"
+	FRM_VerifyEqual dblTotalPayMin3, CDbl(FRM_DS_GetValue(objData, "LE1.X65_MinEstBiweekMonPay")),"Total Estimated '"&strTotalPay&"' Payment ","Minimum Value Verification"
+	FRM_VerifyEqual dblTotalPayMax3, CDbl(FRM_DS_GetValue(objData, "LE1.X66_EstBiweekMonPay")),"Total Estimated '"&strTotalPay&"' Payment ","Maximum Value Verification"
+	
+	
+	'@ Year 4 Column Data
+	intYearNum4From		=	CInt( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox84"), "Value" ) )
+	intYearNum4To		=	CInt( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox76"), "Value" ) )
+	dblPIMin4			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox41"), "Value" ) )
+	dblPIMax4			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox41"), "Value" ) )
+	dblMI4				=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox36"), "Value" ) )
+	dblEstEscrow4		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox37"), "Value" ) )
+	dblTotalPayMin4		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox42"), "Value" ) )
+	dblTotalPayMax4		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox42"), "Value" ) )
+	
+	'@ Validation Part Of Year 4 Column
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1","Year '"&intYearNum4From&"' To Year '"&intYearNum4To&"' Values Validation", Null
+	
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox84"), Trim(FRM_DS_GetValue(objData,"LE1.X67_Years")), "Column-4"
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox76"), Trim(FRM_DS_GetValue(objData,"LE1.X68_Years")), "Column-4"
+	FRM_VerifyEqual dblPIMin4, CDbl(FRM_DS_GetValue(objData, "LE1.X69_MinEst.BiWeekMon")),"Principal & Interest","Minimum Value Verification"
+	FRM_VerifyEqual dblPIMax4, CDbl(FRM_DS_GetValue(objData, "LE1.X70_MaxEst.BiWeekMon")),"Principal & Interest","Maximum Value Verification"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox12_Ctrl"), FRM_DS_GetValue(objData, "LE1.X71__InterestOnly"), "Interest Only Checkbox Validation"
+	FRM_VerifyEqual dblMI4, CDbl(FRM_DS_GetValue(objData, "LE1.X72_Mort.Insurance")),"Mortgage Insurance"," Value Verification"
+	FRM_VerifyEqual dblEstEscrow4, CDbl(FRM_DS_GetValue(objData, "LE1.X73_Est.Escrow")),"Estimated Escrow","Estimated Escrow Value Verification"
+	FRM_VerifyEqual dblTotalPayMin4, CDbl(FRM_DS_GetValue(objData, "LE1.X74_MinEstBiweekMonPay")),"Total Estimated '"&strTotalPay&"' Payment ","Minimum Value Verification"
+	FRM_VerifyEqual dblTotalPayMax4, CDbl(FRM_DS_GetValue(objData, "LE1.X75_MaxEstBiweekMonPay")),"Total Estimated '"&strTotalPay&"' Payment ","Maximum Value Verification"
+	
+	Set objLoan			=	Nothing
+	Set objData     	= 	Nothing	
+End Function
+
+
+
+''@**************************************************************************************************
+'@ Name: BIZ_ProjectedPayment_ARMLoanType_BalloonAndMITermination_InterestOnly_Validation
+'@ Parameter: strRowID
+  '***************************************************************************************************
+
+Function BIZ_ProjectedPayment_ARMLoanType_BalloonAndMITermination_InterestOnly_Validation(strRowID)
+
+	Dim objLoan,objData,intYearNum,dblPIMin,dblPIMax,dblMI,dblEstEscrow,strTotalPay,dblTotalPayMin,dblTotalPayMax
+	Dim intYearNum2,dblPIMin2,dblPIMax2,dblMI2,dblEstEscrow2,dblTotalPayMin2,dblTotalPayMax2
+	Dim intYearNum3From,intYearNum3To,dblPIMin3,dblPIMax3,dblMI3,dblEstEscrow3,dblTotalPayMin3,dblTotalPayMax3
+	Dim strYear4,dblPIMin4,dblPIMax4,dblMI4,dblEstEscrow4,dblTotalPayMin4,dblTotalPayMax4
+	
+	Set objLoan			=	SwfWindow("swfname:=MainForm").Page("micClass:=Page","index:=0")
+	Set objData     	= 	FRM_DS_GetTestData("Forms_LoanEstimatePage", "ProjectedPayments", strRowID)	
+	
+	'@ Handling Sync Issues
+	GUI_Object_WaitTillExistX objLoan.WebEdit("html id:=TextBox33"), 240
+	
+	'@ Year 1 Column Data
+	intYearNum			=	CInt( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox33"), "Value" ) )
+	dblPIMin			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox11"), "Value" ) )
+	dblPIMax			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox11"), "Value" ) )
+	dblMI				=	Round(CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox59"), "Value" ) ))
+	dblEstEscrow		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox58"), "Value" ) )
+	strTotalPay			=	CStr( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox39"), "Value" ) )
+	dblTotalPayMin		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox12"), "Value" ) )
+	dblTotalPayMax		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox12"), "Value" ) )
+	
+	'@ Validation Part Of Year 1 Column
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1","Year '"&intYearNum&"' Values Validation", Null
+	
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox33"), Trim(FRM_DS_GetValue(objData,"LE1.X41_Year")), "Column-1"
+	FRM_VerifyEqual dblPIMin, CDbl(FRM_DS_GetValue(objData, "LE1.X42_MinPI")),"Principal & Interest","Minimum Value Verification"
+	FRM_VerifyEqual dblPIMax, CDbl(FRM_DS_GetValue(objData, "LE1.X43_MaxPI")),"Principal & Interest","Maximum Value Verification"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox10_Ctrl"), FRM_DS_GetValue(objData, "LE1.X44_InterestOnly"), "Interest Only Checkbox Validation"
+	dblExpectedMI=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X45_Mort.Insurance")))
+	FRM_VerifyEqual dblMI,dblExpectedMI,"Mortgage Insurance"," Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance
+	dblExpectedEstEscrow=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X46_Est.Escrow")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedEstEscrow=dblExpectedEstEscrow+dblExpectedMI
+	FRM_VerifyEqual dblEstEscrow,dblExpectedEstEscrow ,"Estimated Escrow","Estimated Escrow Value Verification"
+	FRM_VerifyEqual strTotalPay, FRM_DS_GetValue(objData, "3291_PaymentFrequency"),"Total Estimated Escrow","Total Est. EscrowValue Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance	
+	dblExpectedTotalPayMin=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X47_MinEst.BiWeeklyorMonPay.")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedTotalPayMin=dblExpectedTotalPayMin+dblExpectedMI
+	FRM_VerifyEqual dblTotalPayMin,dblExpectedTotalPayMin ,"Total min. Estimated '"&strTotalPay&"' Payment ","Minimum Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance
+	dblExpectedTotalPayMax=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X48_MaxEst.BiWeeklyorMonPay.")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedTotalPayMax=dblExpectedTotalPayMax+dblExpectedMI	
+	FRM_VerifyEqual dblTotalPayMax,dblExpectedTotalPayMax ,"Total max. Estimated '"&strTotalPay&"' Payment ","Maximum Value Verification"
+	
+	
+	'@ Year 2 Column Data
+	intYearNum2			=	CInt( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox34"), "Value" ) )
+	dblPIMin2			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox21"), "Value" ) )
+	dblPIMax2			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox21"), "Value" ) )
+	dblMI2				=	Round(CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox52"), "Value" ) ))
+	dblEstEscrow2		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox51"), "Value" ) )
+	dblTotalPayMin2		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox22"), "Value" ) )
+	dblTotalPayMax2		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox22"), "Value" ) )
+	
+	'@ Validation Part Of Year 2 Column
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1","Year '"&intYearNum2&"' Values Validation", Null
+	
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox34"), Trim(FRM_DS_GetValue(objData,"LE1.X49_Year")), "Column-2"
+	FRM_VerifyEqual dblPIMin2, CDbl(FRM_DS_GetValue(objData, "LE1.X51_MinPI")),"Principal & Interest","Minimum Value Verification"
+	FRM_VerifyEqual dblPIMax2, CDbl(FRM_DS_GetValue(objData, "LE1.X52_MaxPI")),"Principal & Interest","Maximum Value Verification"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox9_Ctrl"), FRM_DS_GetValue(objData, "LE1.X53_InterestOnly"), "Interest Only Checkbox Validation"
+	dblExpectedMI2=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X54_Mort.Insurance")))
+	FRM_VerifyEqual dblMI2,dblExpectedMI2 ,"Mortgage Insurance"," Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance
+	dblExpectedEstEscrow2=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X55_Est.Escrow")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedEstEscrow2=dblExpectedEstEscrow2+dblExpectedMI2		
+	FRM_VerifyEqual dblEstEscrow2,dblExpectedEstEscrow2 ,"Estimated Escrow","Estimated Escrow Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance	
+	dblExpectedTotalPayMin2=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X56_MinEst.BiWeekMon")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedTotalPayMin2=dblExpectedTotalPayMin2+dblExpectedMI2	
+	FRM_VerifyEqual dblTotalPayMin2,dblExpectedTotalPayMin2,"Total min. Estimated '"&strTotalPay&"' Payment ","Minimum Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance
+	dblExpectedTotalPayMax2=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X57_MaxEst.BiWeekMon")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedTotalPayMax2=dblExpectedTotalPayMax2+dblExpectedMI2	
+	FRM_VerifyEqual dblTotalPayMax2,dblExpectedTotalPayMax2 ,"Total max. Estimated '"&strTotalPay&"' Payment ","Maximum Value Verification"
+	
+	
+	'@ Year 3 Column Data
+	intYearNum3From		=	CInt( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox83"), "Value" ) )
+	intYearNum3To		=	CInt( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox82"), "Value" ) )
+	dblPIMin3			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox31"), "Value" ) )
+	dblPIMax3			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox31"), "Value" ) )
+	dblMI3				=	Round(CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox66"), "Value" ) ))
+	dblEstEscrow3		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox65"), "Value" ) )
+	dblTotalPayMin3		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox32"), "Value" ) )
+	dblTotalPayMax3		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox32"), "Value" ) )
+	
+	'@ Validation Part Of Year 3 Column
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1","Year '"&intYearNum3From&"' To Year '"&intYearNum3To&"' Values Validation", Null
+	
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox83"), Trim(FRM_DS_GetValue(objData,"LE1.X58_Years")), "Column-3 Start"
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox82"), Trim(FRM_DS_GetValue(objData,"LE1.X59_Years")), "Column-3 End"
+	FRM_VerifyEqual dblPIMin3, CDbl(FRM_DS_GetValue(objData, "LE1.X60_MinPI")),"Principal & Interest","Minimum Value Verification"
+	FRM_VerifyEqual dblPIMax3, CDbl(FRM_DS_GetValue(objData, "LE1.X61_MaxPI")),"Principal & Interest","Maximum Value Verification"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox11_Ctrl"), FRM_DS_GetValue(objData, "LE1.X62_InterestOnly"), "Interest Only Checkbox Validation"
+	dblExpectedMI3=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X63_Mort.Insurance")))
+	FRM_VerifyEqual dblMI3,dblExpectedMI3 ,"Mortgage Insurance"," Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance
+	dblExpectedEstEscrow3=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X64_Est.Escrow")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedEstEscrow3=dblExpectedEstEscrow3+dblExpectedMI3	
+	FRM_VerifyEqual dblEstEscrow3,dblExpectedEstEscrow3 ,"Estimated Escrow","Estimated Escrow Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance	
+	dblExpectedTotalPayMin3=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X65_MinEstBiweekMonPay")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedTotalPayMin3=dblExpectedTotalPayMin3+dblExpectedMI3	
+	FRM_VerifyEqual dblTotalPayMin3,dblExpectedTotalPayMin3 ,"Total min. Estimated '"&strTotalPay&"' Payment ","Minimum Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance
+	dblExpectedTotalPayMax3=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X66_EstBiweekMonPay")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedTotalPayMax3=dblExpectedTotalPayMax3+dblExpectedMI3
+	FRM_VerifyEqual dblTotalPayMax3,dblExpectedTotalPayMax3 ,"Total max. Estimated '"&strTotalPay&"' Payment ","Maximum Value Verification"
+	
+	
+	'@ Year 4 Column Data
+	strYear4		 	=	CStr( GUI_Object_GetPropertyValue (objLoan.WebElement("html id:=Label4611"), "innerhtml") )
+	dblPIMin4			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox41"), "Value" ) )
+	dblPIMax4			=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox41"), "Value" ) )
+	strMI4				=	CStr( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox36"), "Value" ) )
+	dblMI4				=	CDbl( UTIL_String_ReplaceByPattern ("-",strMI4,Trim(0)))
+	strEstEscrow4		=	CStr( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox37"), "Value" ) )
+	dblEstEscrow4		=	CDbl( UTIL_String_ReplaceByPattern ("-",strEstEscrow4,Trim(0)))
+	dblTotalPayMin4		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox42"), "Value" ) )
+	dblTotalPayMax4		=	CDbl( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox42"), "Value" ) )
+	
+	'@ Validation Part Of Year 4 Column
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1"," '"&strYear4&"' Values Validation", Null
+	
+	GUI_Object_ValidateProperty objLoan.WebElement("html id:=Label4611"),"innertext", Trim(FRM_DS_GetValue(objData, "LE1.X67_Years")), "Last Column"
+	FRM_VerifyEqual dblPIMin4, CDbl(FRM_DS_GetValue(objData, "LE1.X69_MinEst.BiWeekMon")),"Principal & Interest","Minimum Value Verification"
+	FRM_VerifyEqual dblPIMax4, CDbl(FRM_DS_GetValue(objData, "LE1.X70_MaxEst.BiWeekMon")),"Principal & Interest","Maximum Value Verification"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox12_Ctrl"), FRM_DS_GetValue(objData, "LE1.X71__InterestOnly"), "Interest Only Checkbox Validation"
+	dblExpectedMI4=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X72_Mort.Insurance")))
+	FRM_VerifyEqual dblMI4,dblExpectedMI4 ,"Mortgage Insurance"," Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance
+	dblExpectedEstEscrow4=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X73_Est.Escrow")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedEstEscrow4=dblExpectedEstEscrow4+dblExpectedMI4		
+	FRM_VerifyEqual dblEstEscrow4,dblExpectedEstEscrow4 ,"Estimated Escrow","Estimated Escrow Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance	
+	dblExpectedTotalPayMin4=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X74_MinEstBiweekMonPay")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedTotalPayMin4=dblExpectedTotalPayMin4+dblExpectedMI4	
+	FRM_VerifyEqual dblTotalPayMin4,dblExpectedTotalPayMin4,"Total min. Estimated '"&strTotalPay&"' Payment ","Minimum Value Verification"
+	'---KBYO2 change CBIZ-14112; Now Escrow Calculations is updated to Include Mortgage Insurance
+	dblExpectedTotalPayMax4=Round(CDbl(FRM_DS_GetValue(objData, "LE1.X75_MaxEstBiweekMonPay")))
+	'----KBYO2 change; this got reverted back as per CBIZ-17156
+	'dblExpectedTotalPayMax4=dblExpectedTotalPayMax4+dblExpectedMI4
+	FRM_VerifyEqual dblTotalPayMax4,dblExpectedTotalPayMax4 ,"Total Estimated '"&strTotalPay&"' Payment ","Maximum Value Verification"
+	
+	Set objLoan			=	Nothing
+	Set objData     	= 	Nothing
+End Function
+
+
+
+
+
+'@************************************************************************************************** 
+'@ Name: BIZ_Validation_ProjectedPaymentTable_FromLEPage1
+'***************************************************************************************************
+Function BIZ_Validation_ProjectedPaymentTable_FromLEPage1()
+
+	Dim objLoan, intPeriod, intPrincipalAndInterest, boolOnlyInterest, intMortgageInsurance, intTotalMonthlyPayment
+	Set objLoan	=	SwfWindow("swfname:=MainForm").Page("micClass:=Page","index:=0")	
+	'@ Handling Sync Issues
+	GUI_Object_WaitTillExistX objLoan.WebEdit("html id:=TextBox62"), 240
+	
+	'@ Getting Values From Project Payments Column-1 From LE Page1
+	intPeriod1						=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox62"), "Value" ))
+	intPrincipalAndInterest1		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox11"), "Value" ))
+	intMortgageInsurance1			=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox59"), "Value" ))
+	intEstimatedEscrow1			=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox58"), "Value" ))
+	intTotalMonthlyPayment1		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMinBox12"), "Value" ))
+	
+	'@ Calculating P&I,MI & Escrow Amount In LE Page1 , Column 1
+	intAdd1 = CDbl (intPrincipalAndInterest1) + CDbl (intMortgageInsurance1) + CDbl (intEstimatedEscrow1)
+	
+	'@ Validation Part
+	FRM_VerifyEqual CDbl (intTotalMonthlyPayment1), Round (intAdd1), "Calculation Of P&I,MI & Escrow Amount In LE Page1 Column1 And Comparing With Total Est. Monthly Payment", "Both Values Should Match"
+	
+	'@ Validation Of Interest Only Check box in LE Page1, Column 1
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox10_Ctrl"),1, "Interest Only Checkbox Should Be Checked"
+	
+	'================Validating Column -2 values ===================	
+	'@ Getting Values From Project Payments Column-2 From LE Page1
+	intPeriod2						=	GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox80"), "Value" )
+	intPrincipalAndInterest2		=	GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox21"), "Value" )
+	intMortgageInsurance2			=	GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox52"), "Value" )
+	intMortgageInsurance2			=	UTIL_String_ReplaceByPattern ("-",intMortgageInsurance2,Trim(0))
+	intEstimatedEscrow2			=	GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox51"), "Value" )
+	intTotalMonthlyPayment2		=	GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox22"), "Value" )
+	
+	'@ Calculating P&I,MI & Escrow Amount In LE Page1 , Column 2
+	intAdd2 = CDbl (intPrincipalAndInterest2) + CDbl ( intMortgageInsurance2) + CDbl (intEstimatedEscrow2)
+	
+	'@ Validation Part
+	FRM_VerifyEqual Round (intTotalMonthlyPayment2), Round (intAdd2), "Calculation Of P&I,MI & Escrow Amount In LE Page1 Column2 And Comparing With Total Est. Monthly Payment", "Both Values Should Match"
+	
+	'@ Validation Of Interest Only Check box in LE Page1, Column 2
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox9_Ctrl"),0, "Interest Only Checkbox Should Not Be Checked"
+	
+	'================Validating Column - 3 values ===================
+	'@ Getting Values From Project Payments Column-1 From LE Page1
+	intPeriod3						=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox82"), "Value" ))
+	intPrincipalAndInterest3		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox31"), "Value" ))
+	intMortgageInsurance3			=	GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox66"), "Value" )
+	intMortgageInsurance3			=	UTIL_String_ReplaceByPattern ("-",intMortgageInsurance3,Trim(0))
+	intEstimatedEscrow3			=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox65"), "Value" ))
+	intTotalMonthlyPayment3		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox32"), "Value" ))
+	
+	'@ Calculating P&I,MI & Escrow Amount In LE Page1 , Column 1
+	intAdd3 = CDbl (intPrincipalAndInterest3) + CDbl (intMortgageInsurance3) + CDbl (intEstimatedEscrow3)
+	
+	'@ Validation Part
+	FRM_VerifyEqual CDbl (intTotalMonthlyPayment3), Round (intAdd3), "Calculation Of P&I,MI & Escrow Amount In LE Page1 Column1 And Comparing With Total Est. Monthly Payment", "Both Values Should Match"
+	
+	'@ Validation Of Interest Only Check box in LE Page1, Column 1
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox11_Ctrl"),0, "Interest Only Checkbox Should Not Be Checked"
+	
+	'================Validating Final Pament  Amortization Schedule Pop-up ===================
+	Set objAmortizationPopup	=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AmortSchDialog")
+	
+	'@ Getting Values From Project Payments Column-3 From LE Page1
+	intFinalyPaymentLEPage1		=	CDbl ( GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox42"), "Value" ) )	
+	GUI_WebButton_Click objLoan.WebButton("html id:=Button10","name:=View Payment Schedule")
+	
+	'Checking For Amortization Schedule Pop-up Existance
+	If GUI_Object_IsExist ( objAmortizationPopup ) Then
+	
+		intTotalNumberOfRowsInPopup = GUI_List_GetNumberofRows (objAmortizationPopup.SwfObject("swfname:=amortListview"))
+		intAmortizationPayment = CDbl ( (GUI_List_GetCellData (objAmortizationPopup.SwfObject("swfname:=amortListview"),intTotalNumberOfRowsInPopup-1,3)) )
+		
+		If Len ( intAmortizationPayment ) > 0 Then
+			FRM_Logger_ReportInfoEvent "Payment Value Retrieved From Amortization Schedule Pop-up","Value Retrieved From Payment Field : '"&intAmortizationPayment&"' ", Null
+		Else
+			FRM_Logger_ReportFailEvent "Payment Value Retrieved From Amortization Schedule Pop-up","No Value Retrieved From Payment Field ", Null
+		End If
+		
+		GUI_Window_Close objAmortizationPopup
+		
+	Else
+		FRM_Logger_ReportDebugEvent "Amortization Pop-up","Amortization Schedule Dialog Doesn't Exists", Null
+	End If
+	
+	'@ Validation Part
+	FRM_VerifyEqual CDbl(intFinalyPaymentLEPage1), CDbl (intAmortizationPayment) , "Final Payment In LE Page1 & From Amortization Schedule Pop-Up", "Both Should Match"
+	
+	'================Validations =====================	
+	BIZ_ValidateProjectedPaymentTable_FixedLoanType_Balloon_InterestOnly intPeriod1, intPrincipalAndInterest1, intMortgageInsurance1, intTotalMonthlyPayment1
+	BIZ_ValidateProjectedPaymentTable_FixedLoanType_Balloon_InterestOnly intPeriod2, intPrincipalAndInterest2, intMortgageInsurance2, intTotalMonthlyPayment2
+	BIZ_ValidateProjectedPaymentTable_FixedLoanType_Balloon_InterestOnly intPeriod3, intPrincipalAndInterest3, intMortgageInsurance3, intTotalMonthlyPayment3
+'
+End Function
+
+
+'@************************************************************************************************** 
+'@ Name: ProjectedPayment_FixedLoan_BalloonandMI_Termination
+'@ Parameter: strRowID
+'***************************************************************************************************
+Function ProjectedPayment_FixedLoan_BalloonandMI_Termination(strRowID)
+	
+	Dim objLoan, objAmortizationPopup, objProjectedPayments, objData 
+
+	ArrCheckBox					= 	Array("Escrowed")
+	Set objLoan					=	SwfWindow("swfname:=MainForm").Page("micClass:=Page","index:=0")
+	Set objAmortizationPopup	=	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=AmortSchDialog")
+	Set objProjectedPayments	=	SwfWindow("swfname:=MainForm").Page("micClass:=Page","index:=0").WebTable("html id:=","html tag:=TABLE","index:=3")
+	Set objData					= 	FRM_DS_GetTestData("Forms_LoanEstimatePage", "ProjectedPayments", strRowID)
+	
+	BIZ_Forms_Open "2015 Itemization"
+	BIZ_2015Itemization_Set1000Section strRowID
+	
+	'===== click on escrowed checkbox =====
+	BIZ_2015Itemization_FeeDetails_ClickCheckbox "1004",ArrCheckBox
+	'BIZ_Forms_Open "1003 Page 1"
+	'BIZ_1003Page1_ClickEditIconFor1045()
+	'BIZ_MIPDialog_SetDetails strRowID
+	'GUI_SwfButton_Click objLoan.SwfWindow("swfname:=MIPDialog").SwfButton("swfname:=okBtn")
+	
+	'===== Loan Estimate Page 1 Values Retrieval =====
+	BIZ_Forms_Open "Loan Estimate Page 1"
+	
+	'@ Handling Sync Issues
+	GUI_Object_WaitTillExistX objProjectedPayments.WebEdit("html id:=TextBox62"), 240
+	
+	'@ Getting Period Start & End Values For Column 1
+	strPeriod				=	CStr ((objProjectedPayments.WebElement("html id:=Label25","index:=0").GetROProperty("innertext")))
+	strPeriodStartForCol1	=	CStr (UTIL_String_ReplaceByPattern ("-", strPeriod, "" ))
+	intPeriodEndForCol1 	= 	CInt (GUI_Object_GetPropertyValue (objProjectedPayments.WebEdit("html id:=TextBox62"), "Value"))
+	
+	'@ Getting Values From Project Payments Column-1 From LE Page1
+	dblPeriod1					=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox62"), "Value" ))
+	dblPrincipalAndInterest1	=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox11"), "Value" ))
+	dblMortgageInsurance1		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox59"), "Value" ))
+	dblEstimatedEscrow1			=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox58"), "Value" ))
+	dblTotalMonthlyPayment1		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox12"), "Value" ))
+	
+	FRM_Logger_ReportInfoEvent "'Projected Payments' header validation Under column 1", "'Projected Payments' header validation Under column 1 From '"&strPeriodStartForCol1&"' To '"&intPeriodEndForCol1&"'", null
+	
+	'@ Calculating P&I,MI & Escrow Amount In LE Page1 , Column 1
+	GUI_Object_ValidateProperty objLoan.WebElement("html id:=Label25","index:=0"),"innertext", Trim(FRM_DS_GetValue(objData, "Start")), "Start Period"
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox62"), Trim(FRM_DS_GetValue(objData,"LE1.X41_Year")), "End Period"
+	dblAdd1 = CDbl(dblPrincipalAndInterest1) + CDbl(dblMortgageInsurance1) + CDbl(dblEstimatedEscrow1)
+	Wait g_TinyWaitSmall + g_TinyWaitSmall	'@ Handling Sync Related Issues
+	FRM_VerifyEqual Round(dblTotalMonthlyPayment1), Round(dblAdd1), "Calculation Of P&I,MI & Escrow Amount In LE Page1 Column1 And Comparing With Total Est. Monthly Payment", "Both Values Should Match"
+	
+	'@ Validation Of Interest Only Check box in LE Page1, Column 1
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox10_Ctrl"),0, "Interest Only Checkbox Should Not Be Checked"
+	BIZ_ValidateProjectedPaymentTable_FixedLoanType_Balloon dblPeriod1, dblPrincipalAndInterest1, dblMortgageInsurance1, dblTotalMonthlyPayment1
+	FRM_Logger_ReportInfoEvent "Estimated Escrow","Column 1 Is:'"&dblEstimatedEscrow1&"' ",Null
+	
+	'@ Getting Period Start & End Values For Column 2
+	intPeriodStartForCol2 	= 	CInt (GUI_Object_GetPropertyValue (objProjectedPayments.WebEdit("html id:=TextBox81"), "Value"))
+	intPeriodEndForCol2 	= 	CInt (GUI_Object_GetPropertyValue (objProjectedPayments.WebEdit("html id:=TextBox80"), "Value"))
+	
+	FRM_Logger_ReportInfoEvent "'Projected Payments' header validation Under column 2", "'Projected Payments' header validation Under column 2 From Years '"&intPeriodStartForCol2&"' To '"&intPeriodEndForCol2&"' ", null
+	
+	'@ Getting Values From Project Payments Column-2 From LE Page1
+	intPeriod2						=	CInt (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox80"), "Value" ))
+	dblPrincipalAndInterest2		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox21"), "Value" ))
+	strMortgageInsurance2			=	CStr (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox52"), "Value" ))
+	intMortgageInsurance2			=	Cint (UTIL_String_ReplaceByPattern ("-",strMortgageInsurance2,Trim(0)))
+	dblEstimatedEscrow2				=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox51"), "Value" ))
+	dblTotalMonthlyPayment2			=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox22"), "Value" ))
+	
+	'@ Calculating P&I,MI & Escrow Amount In LE Page1 , Column 2
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox81"), Trim(FRM_DS_GetValue(objData,"LE1.X49_Year")), "Start Period"
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox80"), Trim(FRM_DS_GetValue(objData,"LE1.X50_Year")), "End Period"
+	dblAdd2 = CDbl(dblPrincipalAndInterest2) + CDbl(intMortgageInsurance2) + CDbl(dblEstimatedEscrow2)
+	Wait g_TinyWaitSmall + g_TinyWaitSmall	'@ Handling Sync Related Issues
+	FRM_VerifyEqual Round(dblTotalMonthlyPayment2), Round(dblAdd2), "Calculation Of P&I,MI & Escrow Amount In LE Page1 Column2 And Comparing With Total Est. Monthly Payment", "Both Values Should Match"
+	
+	'@ Validation Of Interest Only Check box in LE Page1, Column 2
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox9_Ctrl"),0, "Interest Only Checkbox Should Not Be Checked"
+	BIZ_ValidateProjectedPaymentTable_FixedLoanType_Balloon intPeriod2, dblPrincipalAndInterest2, intMortgageInsurance2, dblTotalMonthlyPayment2
+	FRM_Logger_ReportInfoEvent "Estimated Escrow","Column 2 Is:'"&dblEstimatedEscrow2&"' ",Null
+	
+	'@ Getting Period Start & End Values For Column 3
+	strFinalCol	=	CStr ((objProjectedPayments.WebElement("html id:=Label4611","index:=0").GetROProperty("innertext")))
+	
+	FRM_Logger_ReportInfoEvent "'Projected Payments' header validation Under column 3", "'Projected Payments' header validation Under column '"&strFinalCol&"' ", null
+	
+	'@ Getting Values From Project Payments Column-3 From LE Page1
+	GUI_Object_ValidateProperty objProjectedPayments.WebElement("html id:=Label4611","index:=0"),"innertext", Trim(FRM_DS_GetValue(objData, "End")), "Final Period"
+	dblFinalyPaymentLEPage1		=	CDbl(GUI_Object_GetPropertyValue(objLoan.WebEdit("html id:=pjtMaxBox31"),"Value"))
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox66"), FRM_DS_GetValue(objData,"LE1.X63_Mort.Insurance"), "Mortgage Insurance"
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox65"), FRM_DS_GetValue(objData,"LE1.X64_Est.Escrow"), "Estimated Escrow"
+	'@ Validation Of Interest Only Check box in LE Page1, Column 1
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox11_Ctrl"),0, "Interest Only Checkbox Should Not Be Checked"
+	GUI_WebButton_Click objLoan.WebButton("html id:=Button10","name:=View Payment Schedule")
+	
+	'@ Checking For Amortization Schedule Pop-up Existance
+	If GUI_Object_IsExist ( objAmortizationPopup ) Then
+		intTotalNumberOfRowsInPopup = CInt (GUI_List_GetNumberofRows(objAmortizationPopup.SwfObject("swfname:=amortListview")))
+		dblAmortizationPayment = CDbl((GUI_List_GetCellData(objAmortizationPopup.SwfObject("swfname:=amortListview"),intTotalNumberOfRowsInPopup-1,3)))
+		If Len (dblAmortizationPayment) > 0 Then
+			FRM_Logger_ReportInfoEvent "Payment Value Retrieved From Amortization Schedule Pop-up","Value Retrieved From Payment Field : '"&dblAmortizationPayment&"' ", Null
+		Else
+			FRM_Logger_ReportFailEvent "Payment Value Retrieved From Amortization Schedule Pop-up","No Value Retrieved From Payment Field ", Null
+		End If
+		GUI_Window_Close objAmortizationPopup
+	Else
+		FRM_Logger_ReportDebugEvent "Amortization Pop-up","Amortization Schedule Dialog Doesn't Exists", Null
+	End If
+	
+	'@ Validation Part
+	FRM_VerifyEqual CDbl(dblFinalyPaymentLEPage1), CDbl(dblAmortizationPayment) , "Final Payment In LE Page1 & From Amortization Schedule Pop-Up", "Both Should Match"
+	
+	Set objLoan					=	Nothing
+	Set objAmortizationPopup	=	Nothing
+	Set objProjectedPayments	=	Nothing
+	Set objData					= 	Nothing
+End Function
+
+
+'This function is for validation of values from LE page1 with amortization pop-up
+'@code
+'    ValidateProjectedPaymentTable_FixedLoanType (intEndOfTimePeriodFromLEPage1, dblPrincipalAndInterest, dblMortgageInsurance, dblTotalMonthlyPayment)
+'@endcode
+'@param intEndOfTimePeriodFromLEPage1 - end period of time
+'@param dblPrincipalAndInterest - sum of principal and interest from LE Page1
+'@param dblMortgageInsurance - MI from LE Page1
+'@param dblTotalMonthlyPayment - Total Monthly Payment from LE Page1
+
+Function BIZ_ValidateProjectedPaymentTable_FixedLoanType_Balloon(intEndOfTimePeriodFromLEPage1, dblPrincipalAndInterest, dblMortgageInsurance, dblTotalMonthlyPayment)
+	
+	Dim dblTotalOfPrincipalAndInterest, dblMI
+	
+	dblTotalOfPrincipalAndInterest	=	BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( intEndOfTimePeriodFromLEPage1, "SumOfPrincipal&Interest" )
+	dblMI							=	BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( intEndOfTimePeriodFromLEPage1, "MI" )
+	
+	dblTotalOfPrincipalAndInterest 				   = CDBL(Trim(dblTotalOfPrincipalAndInterest))
+	dblMI					      				   = CDBL(Trim(dblMI))
+	
+	Wait g_TinyWaitSmall + g_TinyWaitSmall	'@ Handling Sync Related Issues
+	
+	'@ Validation Part
+	FRM_VerifyEqual Round(dblPrincipalAndInterest), Round(dblTotalOfPrincipalAndInterest), "Total Of Principal And Interest Present In LE Page 1 & Amortization Schedule Dialog", "Both The Values Should Match" 
+	FRM_VerifyEqual Round(dblMortgageInsurance), Round(dblMI), "Mortgage Insurance(MI) Present In LE Page 1 & Amortization Schedule Dialog", "Both The Values Should Match" 
+	
+End Function
+
+
+
+'This function is for validation of values from LE page1 with amortization pop-up
+'@code
+'    ValidateProjectedPaymentTable_FixedLoanType (intEndOfTimePeriodFromLEPage1, intPrincipalAndInterest, intMortgageInsurance, intTotalMonthlyPayment)
+'@endcode
+'@param: intEndOfTimePeriodFromLEPage1 - end period of time
+'@param: intPrincipalAndInterest - sum of principal and interest from LE Page1
+'@param: intMortgageInsurance - MI from LE Page1
+'@param: intTotalMonthlyPayment - Total Monthly Payment from LE Page1
+
+Function BIZ_ValidateProjectedPaymentTable_FixedLoanType_Balloon_InterestOnly(intEndOfTimePeriodFromLEPage1, intPrincipalAndInterest, intMortgageInsurance, intTotalMonthlyPayment)
+	
+	Dim intTotalOfPrincipalAndInterest, intMI, intPrincipal, intInterest
+	
+	intTotalOfPrincipalAndInterest	=	BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( intEndOfTimePeriodFromLEPage1, "SumOfPrincipal&Interest" )
+	intMI							=	BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( intEndOfTimePeriodFromLEPage1, "MI" )
+	intPrincipal					=	BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( intEndOfTimePeriodFromLEPage1, "Principal" )
+	intInterest						=	BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( intEndOfTimePeriodFromLEPage1, "Interest" )
+	
+	Wait g_TinyWaitSmall + g_TinyWaitSmall	'@ Handling Sync Related Issues
+	
+	'@ Validation Part
+	FRM_VerifyEqual Round(intPrincipalAndInterest), Round(intTotalOfPrincipalAndInterest), "Total Of Principal And Interest Present In LE Page 1 & Amortization Schedule Dialog", "Both The Values Should Match" 
+	FRM_VerifyEqual Round(intMortgageInsurance), Round(intMI), "Mortgage Insurance(MI) Present In LE Page 1 & Amortization Schedule Dialog", "Both The Values Should Match" 
+	
+End Function
+
+
+
+
+
+
+'@************************************************************************************************** 
+'@ Name: ProjectedPaymentTable_FixedLoanTypeInterestOnly
+'@ TestData: Parameter
+ 
+'***************************************************************************************************
+Function ProjectedPaymentTable_FixedLoanTypeInterestOnly(strRowID)
+	Dim objLoan, ArrCheckBox, objData
+
+	Set objData	= 	FRM_DS_GetTestData("Forms_LoanEstimatePage", "ProjectedPayments", strRowID)
+	Set objLoan	= SwfWindow("swfname:=MainForm").Page("micClass:=Page","index:=0")
+	
+	FRM_Logger_ReportInfoEvent "'Projected Payments' header validation Under column 1", "'Projected Payments' header validation Under column 1 started", null
+	
+	'@ Handling Sync Issues
+	GUI_Object_WaitTillExistX objLoan.WebEdit("html id:=TextBox62"), 240
+	
+	'@ Getting Values From Project Payments Column-1 From LE Page1
+	dblPeriod1					=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox62"), "Value" ))
+	dblPrincipalAndInterest1	=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox11"), "Value" ))
+	dblMortgageInsurance1		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox59"), "Value" ))
+	dblEstimatedEscrow1			=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox58"), "Value" ))
+	dblTotalMonthlyPayment1		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox12"), "Value" ))
+	
+	'@ Validation Of Interest Only Check box in LE Page1, Column 1
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1","Year-1 To '"&dblPeriod1&"' Values Validation", Null
+	GUI_Object_ValidateProperty objLoan.WebElement("html id:=Label25","index:=0"),"innertext", Trim(FRM_DS_GetValue(objData, "Start")), "Start Period"
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox62"), Trim(FRM_DS_GetValue(objData,"LE1.X41_Year")), "End Period"
+	
+	'@ Calculating P&I,MI & Escrow Amount In LE Page1 , Column 1
+	dblAdd1 = CDbl(dblPrincipalAndInterest1) + CDbl(dblMortgageInsurance1) + CDbl(dblEstimatedEscrow1)
+	Wait g_TinyWaitSmall + g_TinyWaitSmall	'@ Handling Sync Related Issues
+	FRM_VerifyEqual CDbl(dblTotalMonthlyPayment1), Round (dblAdd1), "Calculation Of P&I,MI & Escrow Amount In LE Page1 Column1 And Comparing With Total Est. Monthly Payment", "Both Values Should Match"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox10_Ctrl"),1, "Interest Only Checkbox Should Be Checked"
+	BIZ_ValidateProjectedPaymentTable_FixedLoanTypeInterestOnly dblPeriod1, dblPrincipalAndInterest1, dblMortgageInsurance1, dblTotalMonthlyPayment1
+	
+	FRM_Logger_ReportInfoEvent "'Projected Payments' header validation Under column 2", "'Projected Payments' header validation Under column 2 started", null
+	
+	'@ Getting Values From Project Payments Column-2 From LE Page1
+	intYearFrom						=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox81"), "Value" ))
+	intYearTo						=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox80"), "Value" ))
+	dblPeriod2						=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox80"), "Value" ))
+	dblPrincipalAndInterest2		=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox21"), "Value" ))
+	dblMortgageInsurance2			=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox52"), "Value" ))
+	dblEstimatedEscrow2				=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox51"), "Value" ))
+	dblTotalMonthlyPayment2			=	CDbl (GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox22"), "Value" ))
+	
+	Wait g_TinyWaitSmall + g_TinyWaitSmall	'@ Handling Sync Related Issues
+	
+	'@ Validation Of Interest Only Check box in LE Page1, Column 2
+	FRM_Logger_ReportInfoEvent "Projected Payment Table In LE Page-1","Years - '"&intYearFrom&"' To '"&intYearTo&"' Values Validation", Null
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox81"), Trim(FRM_DS_GetValue(objData,"LE1.X49_Year")), "Start Period"
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox80"), Trim(FRM_DS_GetValue(objData,"LE1.X50_Year")), "End Period"
+	'@ Calculating P&I,MI & Escrow Amount In LE Page1 , Column 2
+	dblAdd2 = CDbl(dblPrincipalAndInterest2) + CDbl(dblMortgageInsurance2) + CDbl(dblEstimatedEscrow2)
+	FRM_VerifyEqual CDbl(dblTotalMonthlyPayment2), Round(dblAdd2), "Calculation Of P&I, MI & Escrow Amount In LE Page1 Column2 And Comparing With Total Est. Monthly Payment", "Both Values Should Match"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox9_Ctrl"),0, "Interest Only Checkbox Should Not Be Checked"
+	BIZ_ValidateProjectedPaymentTable_FixedLoanTypeInterestOnly dblPeriod2, dblPrincipalAndInterest2, dblMortgageInsurance2, dblTotalMonthlyPayment2
+	
+	Set objLoan	=	Nothing
+	Set objData	=	Nothing
+End Function
+
+
+
+
+'@**************************************************************************************************
+'@ Name:BIZ_ProjectedPaymentTable_FixedLoanType
+'@ Parameter: strRowID
+'***************************************************************************************************
+
+Function BIZ_ProjectedPaymentTable_FixedLoanType(strRowID)
+
+	Dim objLoan, intPeriod, dblPrincipalAndInterest, boolOnlyInterest, intMortgageInsurance, dblTotalMonthlyPayment, objData
+	Set objLoan	=	SwfWindow("swfname:=MainForm").Page("micClass:=Page","index:=0")
+	Set objData	= 	FRM_DS_GetTestData("Forms_LoanEstimatePage", "ProjectedPayments", strRowID)
+	
+	'@ Handling Sync Issues
+	GUI_Object_WaitTillExistX objLoan.WebEdit("html id:=TextBox62"), 240
+	
+	'@ Getting Values From Project Payments Panel-1 From LE Page1
+	intPeriod					=	CInt(GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox62"), "Value" ))
+	dblPrincipalAndInterest		=	CDbl(GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox11"), "Value" ))
+	intMortgageInsurance		=	CInt(GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=TextBox59"), "Value" ))
+	dblTotalMonthlyPayment		=	CDbl(GUI_Object_GetPropertyValue ( objLoan.WebEdit("html id:=pjtMaxBox12"), "Value" ))
+	
+	'@ Validation Of Interest Only Check box in LE Page1, Column 1
+	GUI_Object_ValidateProperty objLoan.WebElement("html id:=Label25","index:=0"),"innertext", Trim(FRM_DS_GetValue(objData, "Start")), "Start Period"
+	GUI_Object_ValidateValue objLoan.WebEdit("html id:=TextBox62"), Trim(FRM_DS_GetValue(objData,"LE1.X41_Year")), "End Period"
+	GUI_Object_ValidateChecked objLoan.WebCheckBox("html id:=__cid_CheckBox10_Ctrl"), 0, "Interest Only Checkbox Should Not Be Checked"
+	Wait g_TinyWaitSmall + g_TinyWaitSmall	'@ Handling Sync Related Issues
+	BIZ_ValidateProjectedPaymentTable_FixedLoanType intPeriod, dblPrincipalAndInterest, intMortgageInsurance, dblTotalMonthlyPayment
+	    
+	Set objLoan	=	Nothing
+	Set objData	=	Nothing
+End Function
+
+
+Function BIZ_ValidateProjectedPaymentTable_FixedLoanType(intEndOfTimePeriodFromLEPage1, dblPrincipalAndInterest, intMortgageInsurance, dblTotalMonthlyPayment)
+	
+	Dim dblTotalOfPrincipalAndInterest, intMI, dblPayment
+	
+	dblTotalOfPrincipalAndInterest	=	BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( intEndOfTimePeriodFromLEPage1, "SumOfPrincipal&Interest" )
+	intMI							=	CInt (BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( intEndOfTimePeriodFromLEPage1, "MI" ))
+	dblPayment						=	BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( intEndOfTimePeriodFromLEPage1, "Payment" )
+	
+	Wait g_TinyWaitSmall + g_TinyWaitSmall	'@ Handling Sync Related Issues
+	
+	'@ Validation Part
+	FRM_VerifyEqual Cdbl(dblPrincipalAndInterest), Cdbl(dblTotalOfPrincipalAndInterest), "Total Of Principal And Interest Present In LE Page 1 & Amortization Schedule Dialog", "Both The Values Should Match" 
+	FRM_VerifyEqual Cdbl(intMortgageInsurance), Cdbl(intMI), "Mortgage Insurance(MI) Present In LE Page 1 & Amortization Schedule Dialog", "Both The Values Should Match" 
+	FRM_VerifyEqual Cdbl(dblTotalMonthlyPayment), Cdbl(dblPayment), "Total Estimated Monthly Payment Present In LE Page 1 & Amortization Schedule Dialog", "Both The Values Should Match" 
+	
+End Function
+
+Function BIZ_ValidateProjectedPaymentTable_FixedLoanTypeInterestOnly(dblEndOfTimePeriodFromLEPage1, dblPrincipalAndInterest, dblMortgageInsurance, dblTotalMonthlyPayment)
+	
+	Dim dblTotalOfPrincipalAndInterest, intMI
+	
+	dblTotalOfPrincipalAndInterest	=	BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( dblEndOfTimePeriodFromLEPage1, "SumOfPrincipal&Interest" )
+	intMI							=	CInt (BIZ_LoanEstimatePage1_GetDataFromAmortizationScheduleBasedOnTimePeriod ( dblEndOfTimePeriodFromLEPage1, "MI" ))
+	
+	Wait g_TinyWaitSmall + g_TinyWaitSmall	'@ Handling Sync Related Issues
+	
+	'@ Validation Part
+	FRM_VerifyEqual Cdbl(dblPrincipalAndInterest), Cdbl(dblTotalOfPrincipalAndInterest), "Validate Total Of Principal And Interest Present In LE Page 1 & Amortization Schedule Dialog", "Both The Values Should Match" 
+	FRM_VerifyEqual Cdbl(dblMortgageInsurance), Cdbl(intMI), "Validate Mortgage Insurance(MI) Present In LE Page 1 & Amortization Schedule Dialog", "Both The Values Should Match" 
+	
+End Function
+'@}

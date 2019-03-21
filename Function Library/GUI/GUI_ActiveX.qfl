@@ -1,0 +1,22 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup GUI_ActiveX GUI_ActiveX
+'
+'List of functions here
+'@code
+'Function GUI_ActiveX_SetTextInComobox (ActXObject  , Value2Set)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to set a value to the variable 
+'@code
+'    GUI_ActiveX_SetTextInComobox (ActXObject  , Value2Set)
+'@endcode
+'@param ActXObject The Active X Object 
+'@param Value2Set - Value the needs to be set for the variable
+
+Function GUI_ActiveX_SetTextInComobox (ActXObject  , Value2Set)
+	ActXObject.Text = Value2Set	
+End Function 
+
+'@}

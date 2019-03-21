@@ -1,0 +1,51 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_TransmittalSummary BIZ_Forms_TransmittalSummary
+'
+' List of functions here
+'@code
+'   Function BIZ_TransmittalSummary_SetProperty(strRowID)
+'   Function BIZ_TransmittalSummary_SetUnderwritingInformation(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for set property Information 
+'@code
+'    BIZ_TransmittalSummary_SetProperty(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_TransmittalSummary_SetProperty(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Transmittal Summary", "Set property data using Row Id '"&strRowID&"' in the Borrower datasheet", null
+
+    Set objTransmittalSummaryPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    
+    BIZ_Forms_Open "Transmittal Summary"
+
+    Set objData = FRM_DS_GetTestData("Forms_TransmittalSummary", "SetProperty", strRowID)
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1553_PropertyType")) Then
+        GUI_WebList_Select objTransmittalSummaryPage.WebList("html id:=DropdownBox1"), FRM_DS_GetValue(objData, "1553_PropertyType")
+    End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1553_PropertyType")) Then
+		objTransmittalSummaryPage.WebCheckBox("html id:=__cid_CheckBox26_Ctrl").Set "On"
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "5_RiskAssessment")) Then
+		objTransmittalSummaryPage.WebList("html id:=DropdownBox5").Select  FRM_DS_GetValue(objData, "5_RiskAssessment")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "6_PropertyReview")) Then
+		objTransmittalSummaryPage.WebList("html id:=DropdownBox6").Select  FRM_DS_GetValue(objData, "6_PropertyReview")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "7_PropertyFormType")) Then
+		objTransmittalSummaryPage.WebList("html id:=DropdownBox7").Select  FRM_DS_GetValue(objData, "7_PropertyFormType")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "l_1216_UnderwriterComments")) Then
+		objTransmittalSummaryPage.WebEdit("html id:=l_1216").Set FRM_DS_GetValue(objData, "l_1216_UnderwriterComments")
+	end if
+    
+    set objData = Nothing
+    Set objTransmittalSummaryPage = Nothing
+End Function
+
+'@}

@@ -1,0 +1,43 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Settings_eDisclosureFulfillment BIZ_Settings_eDisclosureFulfillment
+'
+' List of functions here
+' @code
+'	Function BIZ_eDisclosureFulfillment_Service(startOrStop)
+'	
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to start/stop eDisclosure Fulfillment Service.
+'@code
+'    BIZ_eDisclosureFulfillment_Service(startOrStop)
+'    BIZ_eDisclosureFulfillment_Service "Start"
+'@endcode
+'@param startOrStop - 'start' or 'stop'
+
+Function BIZ_eDisclosureFulfillment_Service(startOrStop)
+ 
+    FRM_Logger_ReportInfoEvent "eDisclosure Fulfillment Service", "'"&startOrStop&"' eDisclosure Fulfillment Service", null
+    
+	Dim objSettings, strSeviceStatus
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	strSeviceStatus = GUI_Object_GetPropertyValue(objSettings.SwfLabel("swfname:=statusLbl"), "text")
+    
+	If LCase(startOrStop) = "start" And strSeviceStatus = "- Stopped" Then
+        GUI_SwfButton_Click objSettings.SwfButton("swfname:=btnStartStopService")
+        GUI_WinButton_Click objSettings.Dialog("text:=Disclosure Fulfillment").WinButton("text:=OK")
+	End If
+    If LCase(startOrStop) = "stop" And strSeviceStatus = "- Running" Then
+        GUI_SwfButton_Click objSettings.SwfButton("swfname:=btnStartStopService")
+        GUI_WinButton_Click objSettings.Dialog("text:=Disclosure Fulfillment").WinButton("text:=&Yes")
+        GUI_WinButton_Click objSettings.Dialog("text:=Disclosure Fulfillment").WinButton("text:=OK")
+	End If
+    
+    Set objSettings = Nothing
+    
+End Function
+
+
+
+'@}

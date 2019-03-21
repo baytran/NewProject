@@ -1,0 +1,338 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_FHAManagement BIZ_Forms_FHAManagement
+'
+' List of functions here
+' @code
+'
+'   Function BIZ_FHAManagement_BasicInfo(strRowID)
+'   Function BIZ_FHAManagement_BasicFHAInfonew(strRowID)
+'   Function BIZ_FHAManagement_Prequalification_CalcUFMIP()
+'	Function BIZ_FHAManagement_SetFHA203k(strRowID)
+'	Function BIZ_FHAManagement_VerifyFHA203k(strRowID)
+'
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is to set FHA Management Details on Basic Info Tab
+'@code
+'    BIZ_FHAManagement_BasicInfo(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_FHAManagement_BasicInfo(strRowID)
+
+	FRM_Logger_ReportInfoEvent "FHA Management", "Set FHAManagement Basic Info tab using Row Id '"&strRowID&"' in the FHA Mgmt Details datasheet", null
+    
+    BIZ_Forms_Open "FHA Management"
+	Set objData = FRM_DS_GetTestData("Forms_FHAManagement", "BasicInfo", strRowID)
+    
+	Set objFHAManagementPage = SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0")
+    strPropertyType = FRM_DS_GetValue(objData, "PropertyType")
+    Select Case strPropertyType
+        Case "1 Unit"
+            GUI_WebCheckBox_Set objFHAManagementPage.Webcheckbox("html id:=__cid_CheckBox38_Ctrl"), "ON"
+        Case "2 Unit"
+            GUI_WebCheckBox_Set objFHAManagementPage.Webcheckbox("html id:=__cid_CheckBox39_Ctrl"), "ON"
+        Case "3 - 4 Units"
+            GUI_WebCheckBox_Set objFHAManagementPage.Webcheckbox("html id:=__cid_CheckBox40_Ctrl"), "ON"
+        Case "Condominium"
+            GUI_WebCheckBox_Set objFHAManagementPage.Webcheckbox("html id:=__cid_CheckBox41_Ctrl"), "ON"
+        Case "Cooperative"
+            GUI_WebCheckBox_Set objFHAManagementPage.Webcheckbox("html id:=__cid_CheckBox42_Ctrl"), "ON"
+        Case "Manufactured Housing"
+            GUI_WebCheckBox_Set objFHAManagementPage.Webcheckbox("html id:=__cid_CheckBox43_Ctrl"), "ON"
+        Case Else
+    End Select	
+	
+    val = FRM_DS_GetValue(objData, "LoanPurpose")
+	If UTIL_String_IsNotEmpty(val) Then 
+        Select Case val
+            Case "203K"    
+                GUI_WebCheckBox_Set objFHAManagementPage.Webcheckbox("html id:=__cid_CheckBox7_Ctrl"), "ON"
+			Case "StreamLineRefinanceWithAppraisal"    
+                GUI_WebCheckBox_Set objFHAManagementPage.Webcheckbox("html id:=__cid_CheckBox2_Ctrl"), "ON"
+            Case "Other"    
+                GUI_WebCheckBox_Set objFHAManagementPage.Webcheckbox("html id:=__cid_CheckBox14_Ctrl"), "ON"
+            Case Else
+        End Select	                
+	End If
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FHAStreamlineType")) Then
+		GUI_WebList_Select objFHAManagementPage.WebList("html id:=DropdownBox3"), FRM_DS_GetValue(objData, "FHAStreamlineType")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FirstTimeBuyer")) Then
+		SwfWindow("swfname:=MainForm").Page("index:=0").WebElement("innertext:=First-Time Homebuyer").Highlight
+		If(GUI_Object_IsExist(SwfWindow("swfname:=MainForm").Page("index:=0").WebButton("html id:=FieldLock1").Image("file name:=field-unlock.png")))Then 
+			SwfWindow("swfname:=MainForm").Page("index:=0").WebButton("html tag:=Button","type:=button","index:=11").Click
+		End If
+		If(GUI_Object_IsExist(objFHAManagementPage.WebList("html id:=l_934")))Then 
+			GUI_WebList_Select objFHAManagementPage.WebList("html id:=l_934"), FRM_DS_GetValue(objData, "FirstTimeBuyer")
+		End If
+		If(GUI_Object_IsExist(objFHAManagementPage.WebList("html id:=DropdownBox1")))Then 
+			GUI_WebList_Select objFHAManagementPage.WebList("html id:=DropdownBox1"), FRM_DS_GetValue(objData, "FirstTimeBuyer")
+		End If
+		
+	End If
+	'748_ClosingDate
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "748_ClosingDate")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=l_748"),FRM_DS_GetValue(objData, "748_ClosingDate") 
+	End If
+End Function
+
+
+
+'This function is to set FHA Management Details on Basic FHA Info Tab
+'@code
+'    BIZ_FHAManagement_BasicFHAInfonew(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_FHAManagement_BasicFHAInfonew(strRowID)
+
+	FRM_Logger_ReportInfoEvent "FHA Management", "Set FHAManagement Basic Info tab using Row Id '"&strRowID&"' in the FHA Mgmt Details datasheet", null
+
+	BIZ_Forms_Open "FHA Management"
+	
+	Dim objMIPPMIGuaranteeFeeCalPage
+    
+	Set objMIPPMIGuaranteeFeeCalPage = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog")
+	Set objData = FRM_DS_GetTestData("Forms_FHAManagement", "BasicInfo", strRowID)
+	Set objFHAManagementPage = SwfWindow("swfname:=MainForm").Page("index:=0")
+
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PropertyType")) Then
+		GUI_WebCheckbox_Set objFHAManagementPage.WebCheckbox("html id:=__cid_CheckBox38_Ctrl"),FRM_DS_GetValue(objData, "PropertyType") 
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FHACase")) Then
+	   GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox11"),FRM_DS_GetValue(objData, "FHACase") 
+	End If
+
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Chums")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox39"),FRM_DS_GetValue(objData, "Chums")
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FHALenderID")) Then
+	   GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox22"),FRM_DS_GetValue(objData, "FHALenderID")
+	End If
+
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "SOA")) Then	      
+		objFHAManagementPage.WebEdit("html id:=TextBox11").Click
+		GUI_WinEdit_Type objFHAManagementPage.WinEdit("nativeclass:=Edit","index:=0"), FRM_DS_GetValue(objData, "SOA")
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "SponderID")) Then
+	   GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox23"),FRM_DS_GetValue(objData, "SponderID")
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FundingDate")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox13"), FRM_DS_GetValue(objData, "FundingDate")
+	End If
+	
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControlForm"),"Prequalification"
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "UFMIP")) Then
+		SwfWindow("swfname:=MainForm").Page("index:=0").WebButton("html id:=StandardButton1").Image("name:=Image").Click
+	
+		GUI_SwfEdit_Set objMIPPMIGuaranteeFeeCalPage.SwfEdit("swfname:=rateFundingTxt"),FRM_DS_GetValue(objData, "UFMIP")
+		Wait g_ShortWaitMedium
+	
+		GUI_SwfButton_Click objMIPPMIGuaranteeFeeCalPage.SwfButton("swfname:=okBtn")
+		Wait g_TinyWaitSmall
+		GUI_SwfButton_Click objMIPPMIGuaranteeFeeCalPage.SwfButton("swfname:=cancelBtn")
+	End If
+End Function
+
+
+
+'This function is to calculate UFMIP on Prequalification Tab of FHA Management form
+'@code
+'    BIZ_FHAManagement_Prequalification_CalcUFMIP()
+'@endcode
+
+Function BIZ_FHAManagement_Prequalification_CalcUFMIP()
+
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControlForm"),"Prequalification"
+    'button next to UFMIP
+	GUI_WebButton_Click SwfWindow("swfname:=MainForm").Page("url:=.*","index:=0").WebButton("html id:=StandardButton1")
+
+	Dim objMIPPMIGuaranteeFeeCalPage
+	Set objMIPPMIGuaranteeFeeCalPage = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MIPDialog")
+
+	GUI_SwfButton_Click objMIPPMIGuaranteeFeeCalPage.SwfButton("swfname:=btnGetMI")
+	If objMIPPMIGuaranteeFeeCalPage.SwfWindow("swfname:=MIRecordsSelectForm").Exist(10) Then
+		GUI_SwfObject_ClickXY objMIPPMIGuaranteeFeeCalPage.SwfWindow("swfname:=MIRecordsSelectForm").SwfObject("swfname:=listViewMI"),25, 25
+		GUI_SwfButton_Click objMIPPMIGuaranteeFeeCalPage.SwfWindow("swfname:=MIRecordsSelectForm").SwfButton("swfname:=tbnSelect")
+	End If
+
+	GUI_SwfButton_Click objMIPPMIGuaranteeFeeCalPage.SwfButton("swfname:=okBtn") 
+
+End Function
+
+
+
+'This function is to set FHA Management Details on FHA 203k tab
+'@code
+'    BIZ_FHAManagement_SetFHA203k(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_FHAManagement_SetFHA203k(strRowID)
+
+	FRM_Logger_ReportInfoEvent "FHA Management", "Set FHAManagement FHA 203k tab using Row Id '"&strRowID&"' in the FHA203k datasheet", null
+    
+	Set objData = FRM_DS_GetTestData("Forms_FHAManagement", "SetFHA203k", strRowID)
+    
+	Set objFHAManagementPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControlForm"), "FHA 203k"
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX80_ConstructionCost")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox1"), FRM_DS_GetValue(objData, "MAX23KX80_ConstructionCost")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX80_ConstructionCostCashLoans")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=l_max23kx80"), FRM_DS_GetValue(objData, "MAX23KX80_ConstructionCostCashLoans")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX80_ConstructionCostLtdLoans")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox51"), FRM_DS_GetValue(objData, "MAX23KX80_ConstructionCostLtdLoans")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX19_ProfessionalFees")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=l_max23kx19"), FRM_DS_GetValue(objData, "MAX23KX19_ProfessionalFees")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX20_ConsultationlFees")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox4"), FRM_DS_GetValue(objData, "MAX23KX20_ConsultationlFees")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX113_InspectionFees")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=l_max23kx113"), FRM_DS_GetValue(objData, "MAX23KX113_InspectionFees")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX114_UpdateFees")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox54"), FRM_DS_GetValue(objData, "MAX23KX114_UpdateFees")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX113_InspectionFees1")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox3"), FRM_DS_GetValue(objData, "MAX23KX113_InspectionFees1")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX114_UpdateFees1")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox6"), FRM_DS_GetValue(objData, "MAX23KX114_UpdateFees1")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX21_PermitFees")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox5"), FRM_DS_GetValue(objData, "MAX23KX21_PermitFees")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX21_PermitFees1")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox53"), FRM_DS_GetValue(objData, "MAX23KX21_PermitFees1")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX81_FeasibilityStudy")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox7"), FRM_DS_GetValue(objData, "MAX23KX81_FeasibilityStudy")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX10_ContingencyReserves")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox12"), FRM_DS_GetValue(objData, "MAX23KX10_ContingencyReserves")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX10_ContingencyReserves1")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox62"), FRM_DS_GetValue(objData, "MAX23KX10_ContingencyReserves1")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX17_PaymentReserves")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox13"), FRM_DS_GetValue(objData, "MAX23KX17_PaymentReserves")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX26_DiscountPoints")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox61"), FRM_DS_GetValue(objData, "MAX23KX26_DiscountPoints")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX26_DiscountPoints1")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox11"), FRM_DS_GetValue(objData, "MAX23KX26_DiscountPoints1")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAXWPUR29_InducementToPurchase")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox20"), FRM_DS_GetValue(objData, "MAXWPUR29_InducementToPurchase")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX5_PropertyValue")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox18"), FRM_DS_GetValue(objData, "MAX23KX5_PropertyValue")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX5_PropertyValue1")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox19"), FRM_DS_GetValue(objData, "MAX23KX5_PropertyValue1")
+	End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX6_ImprovedValue")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox16"), FRM_DS_GetValue(objData, "MAX23KX6_ImprovedValue")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX6_ImprovedValue1")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox68"), FRM_DS_GetValue(objData, "MAX23KX6_ImprovedValue1")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX89_MortgageLimit")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox24"), FRM_DS_GetValue(objData, "MAX23KX89_MortgageLimit")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX8_ImprovementsAmount")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox35"), FRM_DS_GetValue(objData, "MAX23KX8_ImprovementsAmount")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX97_SystemActualCost")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox33"), FRM_DS_GetValue(objData, "MAX23KX97_SystemActualCost")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX95_BorrowersFunds")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox57"), FRM_DS_GetValue(objData, "MAX23KX95_BorrowersFunds")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX95_BorrowersFunds1")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox57"), FRM_DS_GetValue(objData, "MAX23KX95_BorrowersFunds1")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX91_MaterialCosts")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox42"), FRM_DS_GetValue(objData, "MAX23KX91_MaterialCosts")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX92_50PercentCosts")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox70"), FRM_DS_GetValue(objData, "MAX23KX92_50PercentCosts")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX92_50PercentCosts1")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox40"), FRM_DS_GetValue(objData, "MAX23KX92_50PercentCosts1")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "3052_ExistingDebtAmount")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox21"), FRM_DS_GetValue(objData, "3052_ExistingDebtAmount")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23K108_FeesWithLoans")) Then
+		GUI_WebEdit_Set objFHAManagementPage.WebEdit("html id:=TextBox19"), FRM_DS_GetValue(objData, "MAX23K108_FeesWithLoans")
+	End If
+End Function
+
+
+
+'This function is to Verify FHA Management Details on FHA 203k tab
+'@code
+'    BIZ_FHAManagement_VerifyFHA203k(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_FHAManagement_VerifyFHA203k(strRowID)
+
+	FRM_Logger_ReportInfoEvent "FHA Management", "Verify FHAManagement FHA 203k tab using Row Id '"&strRowID&"' in the FHA203k datasheet", null
+    
+	BIZ_Forms_Open "FHA Management"
+
+	Set objData = FRM_DS_GetTestData("Forms_FHAManagement", "VerifyFHA203k", strRowID)
+    
+	Set objFHAManagementPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX82_MortgageFeesTotal")) Then
+		GUI_Object_ValidateValue objFHAManagementPage.WebEdit("html id:=TextBox63"), FRM_DS_GetValue(objData, "MAX23KX82_MortgageFeesTotal"), "Mortgage Fees Total"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX44_OriginationFees")) Then
+		GUI_Object_ValidateValue objFHAManagementPage.WebEdit("html id:=l_X44_1"), FRM_DS_GetValue(objData, "MAX23KX44_OriginationFees"), "Origination Fees"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX27_DiscountPoints")) Then
+		GUI_Object_ValidateValue objFHAManagementPage.WebEdit("html id:=TextBox60"), FRM_DS_GetValue(objData, "MAX23KX27_DiscountPoints"), "Discount Points"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX84_PurchasePriceLessInducement")) Then
+		GUI_Object_ValidateValue objFHAManagementPage.WebEdit("html id:=l_X84"), FRM_DS_GetValue(objData, "MAX23KX84_PurchasePriceLessInducement"), "Purchase Price Less Inducement"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX30_AdjustedAsIsValue")) Then
+		GUI_Object_ValidateValue objFHAManagementPage.WebEdit("html id:=TextBox17"), FRM_DS_GetValue(objData, "MAX23KX30_AdjustedAsIsValue"), "Adjusted As-Is Value"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX7_2Fx110Percent")) Then
+		GUI_Object_ValidateValue objFHAManagementPage.WebEdit("html id:=l_X7"), FRM_DS_GetValue(objData, "MAX23KX7_2Fx110Percent"), "2F X 110%"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX93_InitialDrawClosingTotal")) Then
+		GUI_Object_ValidateValue objFHAManagementPage.WebEdit("html id:=TextBox66"), FRM_DS_GetValue(objData, "MAX23KX93_InitialDrawClosingTotal"), "Initial Draw Closing Total"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX44_OriginationFees_InitialDraw")) Then
+		GUI_Object_ValidateValue objFHAManagementPage.WebEdit("html id:=TextBox72"), FRM_DS_GetValue(objData, "MAX23KX44_OriginationFees_InitialDraw"), "Origination Fees"
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MAX23KX27_DiscountPoints_InitialDraw")) Then
+		GUI_Object_ValidateValue objFHAManagementPage.WebEdit("html id:=TextBox71"), FRM_DS_GetValue(objData, "MAX23KX27_DiscountPoints_InitialDraw"), "Discount points"
+	End If
+
+End Function
+
+
+
+'@}

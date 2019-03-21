@@ -1,0 +1,80 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@DEFGROUP BIZ_LoanTermsTable
+'List of functions here
+'@code
+'   Function BIZ_LoanTermsTable_FixedInterest_MonthlyPrincipalInterestBullets_Validate(strRowID,strInputForm,strValidateForm)
+'	Function BIZ_LoanTermsTable_LoanAmt_IntrstRate_MonthlyPrincipalInterest_ValidateDisabled()
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to validate the Monthly principal and Interest bullrets of Loan terms table in Loan forms
+'@code
+'    BIZ_LoanTermsTable_FixedInterest_MonthlyPrincipalInterestBullets_Validate(strRowID,strInputForm,strValidateForm)
+'@endcode
+'@param strRowID - row id of test data
+'@param strInputForm - form to set data
+'@param strValidateForm -form name to validate data
+
+Function BIZ_LoanTermsTable_FixedInterest_MonthlyPrincipalInterestBullets_Validate(strRowID,strInputForm,strValidateForm)
+
+	Dim objBorrowerPage,objData
+
+	Set objBorrowerPage  = SwfWindow("swfname:=MainForm").Page("micclass:=Page","index:=0")
+	Set objData			 = FRM_DS_GetTestData("LoanTermsTable", "VerifyLoanTermsTable", strRowID)
+
+	'Naviagte to BSO page
+	BIZ_Forms_Open strInputForm
+	 
+	'Set interest only period 	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1177_InterestOnly")) Then
+	   GUI_WebEdit_Set objBorrowerPage.WebEdit("html id:=l_1177"), FRM_DS_GetValue(objData, "1177_InterestOnly")
+	End If
+
+	FRM_Logger_ReportInfoEvent "Interest Only", "Interest only Period:'"&FRM_DS_GetValue(objData, "1177_InterestOnly")&"' months ", Null
+
+	'Navigate to LE Page 1
+	BIZ_Forms_Open strValidateForm
+	 
+	'Monthly principal interest Bullet 1 validation
+	GUI_Object_ValidateValue objBorrowerPage.WebList("html id:=l_X21_a"),FRM_DS_GetValue(objData,"LE1.X21_InterestFrequency"),"LE1.X21 Interest Frequency"
+	GUI_Object_ValidateValue objBorrowerPage.WebEdit("html id:=l_X22_a"),FRM_DS_GetValue(objData,"LE.X22_FirstAdjTime"),"LE1.X22 First Adjustment Time"
+
+	'Monthly principal interest Bullet 2 validation
+	GUI_Object_ValidateValue objBorrowerPage.WebList("html id:=DropdownBox30"),FRM_DS_GetValue(objData,"LE1.X23_CanGoorGoesTxt"),"Can goes"
+	GUI_Object_ValidateValue objBorrowerPage.WebEdit("html id:=l_X24"),FRM_DS_GetValue(objData,"LE.X24_MaxAdjAmt"),"LE1X.24 First Adjustment Amount" 
+	GUI_Object_ValidateValue objBorrowerPage.WebList("html id:=DropdownBox1"),FRM_DS_GetValue(objData,"LE1.X21_InterestFrequency"),"LE1X.88 Interest Frequency" 
+	GUI_Object_ValidateValue objBorrowerPage.WebEdit("html id:=l_X25"),FRM_DS_GetValue(objData,"LE.X22_FirstAdjTime"),"LE1.X25 Earliest Adjustment Time"
+
+	'Monthly principal interest Bullet 3 validation
+	GUI_Object_ValidateValue objBorrowerPage.WebList("html id:=DropdownBox3"),FRM_DS_GetValue(objData,"LE1.X21_InterestFrequency"),"LE1.X89 Interest Frequency"
+	GUI_Object_ValidateValue objBorrowerPage.WebEdit("html id:=l_X26"),FRM_DS_GetValue(objData,"LE.X22_FirstAdjTime"),"LE1.X25 Earliest Adjustment Time"
+
+	Set objBorrowerPage = Nothing
+	Set objData			= Nothing
+
+End Function
+
+
+
+'This function is used to validate disabled the Loan amount,interest rate,Monthly principal and interest
+'@code
+'   BIZ_LoanTermsTable_LoanAmt_IntrstRate_MonthlyPrincipalInterest_ValidateDisabled()
+'@endcode
+
+Function BIZ_LoanTermsTable_LoanAmt_IntrstRate_MonthlyPrincipalInterest_ValidateDisabled()
+	
+	Dim objBorrowerPage
+	Set objBorrowerPage = SwfWindow("swfname:=MainForm").Page("micclass:=Page","index:=0")
+
+	GUI_Object_ValidateDisabled objBorrowerPage.WebEdit("html id:=TextBox4"),"Loan Amount"
+	GUI_Object_ValidateDisabled objBorrowerPage.WebEdit("html id:=TextBox10"),"Interest Rate"
+	GUI_Object_ValidateDisabled objBorrowerPage.WebEdit("html id:=boxField5"),"Monthly Principal and Interest"
+
+	Set objBorrowerPage = Nothing  
+		
+End Function
+
+
+
+'@}

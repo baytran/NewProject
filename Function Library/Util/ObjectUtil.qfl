@@ -1,0 +1,44 @@
+'''''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: ObjectUtil UTIL_ObjectUtil
+' This is the function group for operating file
+' 
+' List Of functions here
+' @code
+'   Function UTIL_Object_IsBlank(val)
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'This script returns True if parameter val is Empty or NULL or Zero
+'@code
+'   UTIL_Object_IsBlank(0)
+'@endcode
+'@param val - parameter can be a string, null, 0
+
+Function UTIL_Object_IsBlank(val)
+	
+	UTIL_Object_IsBlank = False
+	'In batch mode, IsEmpty or IsNull triggers warning in QTP, change to use TypeName
+	If TypeName(objScrollBar)="Null" Or TypeName(objScrollBar)="Empty" Then
+	'If IsEmpty(val) or IsNull(val) Then
+		UTIL_Object_IsBlank = True
+	ElseIf VarType(val) = vbString Then
+		If val = "" Then
+			UTIL_Object_IsBlank = True
+		End If
+	ElseIf IsObject(val) Then
+		If val Is Nothing Then
+			UTIL_Object_IsBlank = True
+		End If
+	ElseIf IsNumeric(val) Then
+		If val = 0 Then
+			UTIL_Object_IsBlank = True
+		End If
+	End If
+	
+End Function
+
+
+'@}

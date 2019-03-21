@@ -1,0 +1,211 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: StringUtil UTIL_StringUtil
+' This is the function group for string util.
+' List of functions here
+' @code
+'	Function UTIL_String_IsNotEmpty(strText)
+'   Function UTIL_String_IsEmpty(strText)
+'   Function UTIL_String_IsMatch(strText, strPattern)
+'   Function UTIL_String_FirstMatch(strText, strPattern)
+'   Function UTIL_String_AllMatch(strText, strPattern)
+'   Function UTIL_String_ReplaceByPattern(strPattern, strText, strReplace)
+'   Function UTIL_String_UniReplace(strText)
+'   Function UTIL_String_EndsWith(strText, strEndsWith)
+'	Function UTIL_String_DblQuote(strValue)
+'	Function UTIL_String_EscapeChr(strVal)
+'   Function UTIL_String_RemoveCharacters(strText,arrCharactersToRemove)
+' @endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Checks if a string is not empty
+'@code
+'   UTIL_String_IsNotEmpty(strText)
+'@endcode
+'@param strText String value
+'@return returns true if string is not empty or null; returns false if it is
+Function UTIL_String_IsNotEmpty(strText)
+    UTIL_String_IsNotEmpty = (Not UTIL_String_IsEmpty(strText))
+End Function
+
+
+
+'Checks if a string is empty
+'@code
+'   Dim str1
+'   UTIL_String_IsEmpty(str1) returns True
+'   str2 = Empty
+'    UTIL_String_IsEmpty(str2) returns True
+'   str3 = ""
+'   UTIL_String_IsEmpty(str3) returns True
+'   str4 = Null
+'   UTIL_String_IsEmpty(str4) returns True
+'   str5 = "10"
+'   UTIL_String_IsEmpty(str5) returns False
+'@endcode
+'@param strText String value
+'@return returns true if string is empty or null; returns false if not
+Function UTIL_String_IsEmpty(strText)
+    UTIL_String_IsEmpty = (Len(strText) = 0 or IsEmpty(strText) or IsNull(strText))
+End Function
+
+
+
+'Returns true if the text matches pattern, false if not
+'@param strText Any character string
+'@param strPattern A regular expression or string.
+'@return true if match found, false if not
+Function UTIL_String_IsMatch(strText, strPattern)
+
+    UTIL_String_IsMatch = UTIL_String_IsNotEmpty( UTIL_String_FirstMatch(strText,strPattern) ) 
+    
+End Function
+
+
+
+'This function is for finding the first string matched a regular expression in a string.
+'@code
+'   retVal = UTIL_String_FirstMatch("abcyu4afg1","y.*g")  'return "yu4afg"
+'   retVal = UTIL_String_FirstMatch("12313003523068123","1[3|5]\d{9}")  'return "13003523068"
+'@endcode
+'@param strText Any character string
+'@param strPattern A regular expression or string.
+'@return the first string which is matched the regular expression or empty if not found match value
+'@see UTIL_String_AllMatch
+Function UTIL_String_FirstMatch(strText, strPattern)
+    retAry = UTIL_String_AllMatch(strText,strPattern)
+    Dim retVal
+    If Ubound(retAry)>-1 Then retVal = retAry(0)
+    UTIL_String_FirstMatch = retVal
+End Function
+
+
+
+'This function is for finding all strings which are matched a regular expression in a string.
+'@code
+'   retAry = UTIL_String_AllMatch("abcyu4afg1","y.*g")  'return "yu4afg"
+'   retAry = UTIL_String_AllMatch("1231300352306812312313003523068123","1[3|5]\d{9}")  'return an array(12313003523068,12313003523068)
+'@endcode
+'@param strText Any character string
+'@param strPattern A regular expression or string.
+'@return all strings (in an array) which are matched the regular expression or empty array if not found match value
+Function UTIL_String_AllMatch(strText, strPattern)
+    Dim regEx, Matches, strTemp 
+    Set regEx = New RegExp   
+    regEx.Pattern = strPattern
+    regEx.IgnoreCase = True   
+    regEx.Global = True   
+    Set Matches = regEx.Execute(strText)
+    
+    retAry = Array()
+    If Matches.Count >0 Then
+        For idx=0 To Matches.Count-1
+            retAry = UTIL_Array_InsertAtEnd(retAry,Matches.item(idx).value)
+        Next
+    End If
+
+    UTIL_String_AllMatch = retAry
+End Function
+
+
+
+'Match a regular expression and replace the matched string to another string.It's case insensitive.
+'@code
+'   UTIL_String_ReplaceByPattern "dev","impact Dev1","qa" , return "impact qa1". 
+'   UTIL_String_ReplaceByPattern "d.*","impact dev1","2" , return "impact 2"
+'   UTIL_String_ReplaceByPattern ".*","impact dev1","2" , return "2"
+'@endcode
+'@param strPattern A regular expression or string.
+'@param strText String for matching by regular expression"strPattern".
+'@param strReplace String for replacing the matched string.
+'@return a string which is matched the regular expression.
+
+Function UTIL_String_ReplaceByPattern(strPattern, strText, strReplace)
+    Dim regEx
+    Set regEx = New RegExp               
+    regEx.Pattern = strPattern               
+    regEx.IgnoreCase = True
+    UTIL_String_ReplaceByPattern = regEx.Replace(strText, strReplace)  
+End Function
+
+
+
+'Replace the special characters to a blank space if the character is not ASCII code. 
+'@code
+'   UTIL_String_UniReplace "β@β#β$β%βpβ"; return " @ # $ % p "
+'   UTIL_String_UniReplace "asdfd"; return "asdfd"
+'@endcode
+'@param strText Any character string
+'@return string without any special characters(character's unicode value is greater than 128 or less than 0)
+Function UTIL_String_UniReplace(strText)
+    Dim strChr
+    For j = 1 to  Len(strText)
+        strChr = mid(strText,j,1)
+        If ascw(strChr) > 128 or  ascw(strChr) < 0 Then
+            strText = replace(strText,strChr," ")
+        End If
+    Next
+    UTIL_String_UniReplace = strText
+
+End Function
+
+
+
+'Finds if a string ends with certain text
+'@code
+'   UTIL_String_EndsWith "Test", "st"
+'@endcode
+'@param strText Any character string
+'@param strEndsWith string to search for
+'@return True if string ends with provided string, false if not
+Function UTIL_String_EndsWith(strText, strEndsWith)
+    UTIL_String_EndsWith = (strEndsWith = Right(strText, Len(strEndsWith)))
+End Function
+
+
+
+'Add double quote to string
+'@code
+'   UTIL_String_DblQuote(strValue)
+'@endcode
+'@param strValue 
+Function UTIL_String_DblQuote(strValue)
+	UTIL_String_DblQuote = Chr( 34 ) & strValue & Chr( 34 )	
+End Function
+
+
+
+'Escape specical characters in a string: "&", "<", ">", " "
+'@code
+'   UTIL_String_EscapeChr(strVal)
+'@endcode
+'@param strVal 
+Function UTIL_String_EscapeChr(strVal)
+	If (Not UTIL_String_IsEmpty(strVal)) Then
+		strVal = replace(strVal,"&","&amp;")
+		strVal = replace(strVal,"<","&lt;")
+		strVal = replace(strVal,">","&gt;")
+		strVal = replace(strVal," ","&nbsp;")
+		UTIL_String_EscapeChr = strVal
+	End If    
+End Function
+
+
+
+'Remove characters listed in the array from given text
+'@code
+'   UTIL_String_RemoveCharacters "(718) 615-3030" ,array("-","(",")"," ")  , returns "7186153030"
+'@endcode
+'@param strText String where remove 
+'@param arrCharactersToRemove array of characters to remove
+
+Function UTIL_String_RemoveCharacters(strText,arrCharactersToRemove)
+	For i = 0 to UBound(arrCharactersToRemove)
+		strText = Replace(strText,arrCharactersToRemove(i),"")
+	Next
+    UTIL_String_RemoveCharacters = strText
+End Function
+
+	
+' @}

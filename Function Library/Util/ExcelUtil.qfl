@@ -1,0 +1,455 @@
+''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: ExcelUtil UTIL_ExcelUtil
+' This is a Util Excel function group
+' 
+' List of functions:
+' @code
+'	UTIL_Excel_SheetExistsInWorkbook(objWorkbook, strSheetName)
+'   UTIL_Excel_GetCellValues( strExcelFilePath, strSheetName, strColumnName) 
+'   UTIL_Excel_GetCellValueSearchByColumn(strExcelFilePath, strSheetName, strSearchByColumn, strSearchByValue, strColumnName) 
+'   UTIL_Excel_GetColumnIndexByName( strExcelFilePath, strSheetName, strColumnName )
+'   UTIL_Excel_GetRowIndexByColumnValue(strExcelFilePath, strSheetName, strColumnName, strColumnValue)
+'   UTIL_Excel_Save(localPath)
+'   UTIL_Excel_GetHeader(strExcelFilePath, strSheetName)
+'	UTIL_Excel_GetCellData(strExcelFilePath, strSheetName, strRowNumOrIndex, strColumnNumOrIndex)
+'	UTIL_Excel_Opened_File_Save(strExcelFileName)
+'	UTIL_Excel_Opened_File_Delete(strFileNameWithPath)
+' @endcode
+'
+'@{
+''''''''''''''''''''''''''''''''''''''''''
+
+'Checks to see if datasheet exists in the excel workbook
+'@param strExcelFilePath the full path to the excel workbook including file name
+'@param objWorkbook excel workbook object
+'@return True if datasheet exists; False if doesn't
+
+Function UTIL_Excel_SheetExistsInWorkbook(objWorkbook, strSheetName)
+
+    On Error Resume Next
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)	
+    If Err.Number <> 0 Then
+        UTIL_Excel_SheetExistsInWorkbook = False
+	Else
+        UTIL_Excel_SheetExistsInWorkbook = True
+    End If
+	Err.Clear
+	On Error GoTO 0
+	
+    Set objWorksheet = Nothing
+	
+End Function
+
+'Returns an array of values of a column of all rows in an excelsheet.  
+'             The values are returned in an array
+'@code
+'	strCellsList = UTIL_Excel_GetCellValues( "c:\MyDate.xls", "CustomerData", "Last Name") 
+'@endcode
+'@param strExcelFilePath the full path to the file including file name
+'@param strSheetName the name sheet/tab from excel document
+'@param strColumnName the the column name in the sheet
+'@return a zero-based, one-dimensional array that contains values from all rows for the given column <br>
+'        if file or column can't be found, returns an empty array
+
+Function UTIL_Excel_GetCellValues( strExcelFilePath, strSheetName, strColumnName ) 
+
+    UTIL_Excel_GetCellsValues = Array("") 
+    boolFileFound = UTIL_File_FileExists(strExcelFilePath)    
+	If Not boolFileFound Then			
+        Exit Function 
+    End If
+    
+    intTargetColumnNumber = UTIL_Excel_GetColumnIndexByName(strExcelFilePath, strSheetName, strColumnName)
+    If intTargetColumnNumber = -1 Then
+        UTIL_AssertTrue False, "UTIL_Excel_GetCellValues", _
+        "Check '"& strColumnName & "' exists in '"&  strSheetName & "' of " & strExcelFilePath
+        Exit Function
+    End If 
+    
+    strData = ""
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 
+
+    For i=1 to intRowCount
+        On Error Resume Next  
+        If strData = "" Then
+            strData =  trim(objWorksheet.Cells(i, intTargetColumnNumber).value) 
+        Else
+            If not trim(objWorksheet.Cells(i, intTargetColumnNumber).value) = "" Then
+              strData =  strData & "~" & trim(objWorksheet.Cells(i, intTargetColumnNumber).value)     
+	        End If                          
+        End if
+        If Err.Number <> 0  Then
+		   UTIL_AssertTrue False,"UTIL_Excel_GetCellValues", Err.Number & "," & Err.Description 
+           Err.Clear
+        End If
+    Next
+
+    UTIL_Excel_GetCellValues = Split(strData, "~")
+    objWorkbook.Close
+	objExcel.Quit
+
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+
+End Function
+
+
+
+'This function Loops through all the rows in the excel sheet, 
+'             locates the cell in the provided column that contains the provided ell value, 
+'             then retrieves the cell value of the another column in the same row             
+'@code
+'	strCellValueFound = UTIL_Excel_GetCellValueSearchByColumn("c:\mydata.xls", "Scenarios", "ScenarioID", "126", "UW Actions") 
+'@endcode
+'@param strExcelFilePath the full path to the file including file name
+'@param strSheetName the name sheet/tab from excel document
+'@param strSearchByColumn the name of column in which cell value should match a given value and row found
+'@param strSearchByValue the value by which row in column will be found
+'@param strColumnName the target column name in the sheet where cell value needs to be retrieved
+'@return value from the target column 
+
+Function UTIL_Excel_GetCellValueSearchByColumn(strExcelFilePath, strSheetName, strSearchByColumn, strSearchByValue, strColumnName) 
+
+    UTIL_Excel_GetCellValueSearchByColumn = ""
+	boolFileFound = True
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    boolFileFound = UTIL_AssertTrue (objFSO.FileExists(strExcelFilePath),"UTIL_Excel_GetCellValueSearchByColumn", _ 
+        "Check '"& strExcelFilePath & "' exists." )
+    Set objFSO = Nothing        
+    If Not boolFileFound Then
+        Exit Function 
+    End If
+
+    strData = ""
+    intTargetColumnNumber = UTIL_Excel_GetColumnIndexByName(strExcelFilePath, strSheetName, strColumnName)
+    intSearchByColumnNumber = UTIL_Excel_GetColumnIndexByName(strExcelFilePath, strSheetName, strSearchByColumn)
+    If intTargetColumnNumber = -1 Then
+        strErrorColumn = strColumnName
+    End If
+    If intSearchByColumnNumber = -1 Then
+        strErrorColumn = strSearchByColumn
+    End If    
+    If intTargetColumnNumber = -1 Or intSearchByColumnNumber = -1 Then
+        UTIL_AssertTrue False, "UTIL_Excel_GetCellValueSearchByColumn", _
+        "Check '"& strErrorColumn & "' exists in '"&  strSheetName & "' of " & strExcelFilePath 
+        Exit Function
+    End If 
+    
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 
+	  	
+    On Error Resume Next    
+    For n = 1 to intRowCount                       'get value from "target" column                                                        
+        If  trim(objWorksheet.Cells(n, intSearchByColumnNumber).value)  = trim(strSearchByValue) Then
+	        On Error Resume Next  
+            strData = Trim( objWorksheet.Cells(n, intTargetColumnNumber).value )
+	        If Err.Number <> 0  Then 
+			    UTIL_AssertTrue False,"UTIL_Excel_GetCellValueSearchByColumn",Err.Number & "," & Err.Description
+                strData = "ERROR:"& Err.Number & "," & Err.Description 
+                Err.Clear
+            End If
+            On Error GoTo 0
+	        Exit for
+        End If
+    Next 
+
+    UTIL_Excel_GetCellValueSearchByColumn = strData   
+    objWorkbook.Close
+	objExcel.Quit
+
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+
+End Function
+
+
+
+'Finds the index of a column that has the provided column header 
+'@code
+'	intColIndex = UTIL_Excel_GetColumnIndexByName( "c:\MyDate.xls", "CustomerData", "Last Name") 
+'@endcode
+'@param strExcelFilePath the full path to the file including file name
+'@param strSheetName the name sheet/tab from excel document
+'@param strColumnName the the column name in the sheet
+'@return the index of a column that has the provided column header if found; -1 if column not found
+
+Function UTIL_Excel_GetColumnIndexByName( strExcelFilePath, strSheetName, strColumnName )
+
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+    intTargetColumnNumber = -1
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 
+
+    For n = 1 to intColumnCount    'find "target" column number
+	    If  trim(objWorksheet.Cells(1, n).value) = trim(strColumnName)  Then
+		    intTargetColumnNumber = n
+		    Exit for
+	    End If
+    Next
+	
+    objWorkbook.Close
+    objExcel.Quit
+
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+
+    UTIL_Excel_GetColumnIndexByName = intTargetColumnNumber
+    
+End Function
+
+
+
+'Get row index with column name and column value .
+'@code
+'	intColIndex = UTIL_Excel_GetRowIndexByColumnValue( "c:\MyDate.xls", "sheetName", "Last Name", "Jim") 
+'@endcode
+'@param strExcelFilePath the full path to the file including file name
+'@param strSheetName the name sheet/tab from excel document
+'@param strColumnNameOrIndex the the column name or column index in the sheet
+'@param strColumnValue the column value with the column name in the sheet
+'@return the row index with strColumnNameOrIndex and strColumnValue .
+
+Function UTIL_Excel_GetRowIndexByColumnValue(strExcelFilePath, strSheetName, strColumnNameOrIndex, strColumnValue) 
+
+    UTIL_Excel_GetRowIndexByColumnValue = -1
+	boolFileFound = True
+    boolFileFound = UTIL_File_FileExists(strExcelFilePath)
+	If Not boolFileFound Then
+		Exit Function
+	End If
+    
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+
+    intRowCount = objWorksheet.UsedRange.Rows.count        'get rows count
+    intColumnCount = objWorksheet.UsedRange.Columns.count  'get columns count 
+	
+	If IsNumeric(strColumnNameOrIndex) Then
+		For intRowIndex = 2 to intRowCount
+			strValue = objWorksheet.Cells(intRowIndex, strColumnNameOrIndex).value
+			If Trim(strValue) = Trim(strColumnValue) Then
+				UTIL_Excel_GetRowIndexByColumnValue = intRowIndex
+				Exit For
+			End If
+		Next
+	Else
+		intColumnIndex = UTIL_Excel_GetColumnIndexByName(strExcelFilePath, strSheetName, strColumnNameOrIndex)
+		For intRowIndex = 2 to intRowCount
+			strValue = objWorksheet.Cells(intRowIndex, intColumnIndex).value
+			If Trim(strValue) = Trim(strColumnValue) Then
+				UTIL_Excel_GetRowIndexByColumnValue = intRowIndex
+				Exit For
+			End If
+		Next
+	End If
+ 
+    objWorkbook.Close
+	objExcel.Quit
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+
+End Function
+
+
+
+'Save the opened excel
+'@code
+'   UTIL_Excel_Save(localPath)
+'@endcode
+'@param localPath - the generated excel file will save to this local path
+
+Function UTIL_Excel_Save(localPath)
+
+	Dim objExcel, objWorkbook, objWorksheet
+	Set objExcel = CreateObject("Excel.Application")
+	objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWshShell = CreateObject("Wscript.Shell")
+
+	objWshShell.SendKeys "^s"
+    
+    If Dialog("text:=Save As").WinButton("text:=.*Save").Exist Then
+        
+        strLength = Len(Dialog("text:=Save As").WinEdit("micClass:=WinEdit", "index:=0").GetROProperty("text"))
+        Dialog("text:=Save As").WinEdit("micClass:=WinEdit", "index:=0").Click
+		
+		'========= Delete existing text and set file path, directly Set path in WinEdit doesn't work ======
+		'Dialog("text:=Save As").WinEdit("micClass:=WinEdit", "index:=0").Set localPath
+        For n = 1 To strLength
+        	objWshShell.SendKeys "{BACKSPACE}"
+        Next        
+        objWshShell.SendKeys localPath
+        Dialog("text:=Save As").WinButton("text:=.*Save").Click
+        If Dialog("text:=Confirm Save As").WinButton("text:=.*Yes").Exist Then
+            Dialog("text:=Confirm Save As").WinButton("text:=.*Yes").Click
+        End If
+    End If
+	
+    UTIL_Win_CloseExcel() 
+    Set objExcel = Nothing
+    Set objWshShell = Nothing
+
+End Function
+
+
+
+'open the excel and get the title of each column
+'@code
+'   UTIL_Excel_GetHeader(strExcelFilePath, strSheetName)
+'@endcode
+'@param strExcelFilePath - the path of excel file
+'@param strSheetName - the worksheet name in workbook
+
+Function UTIL_Excel_GetHeader(strExcelFilePath, strSheetName)
+
+	'if not found the excel file, exit function
+	UTIL_Excel_GetHeader = Array("") 
+    boolFileFound = UTIL_File_FileExists(strExcelFilePath)    
+	If Not boolFileFound Then			
+        Exit Function 
+    End If
+
+	Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    Set objWorkbook = objExcel.Workbooks.Open(strExcelFilePath)
+    
+    'Check if worksheet exist in workbook
+	boolExcelExist = UTIL_Excel_SheetExistsInWorkbook(objWorkbook, strSheetName)
+	If Not boolExcelExist Then			
+        Exit Function 
+    End If
+
+	Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+	aTitle = Array()
+    intColumnCount = objWorksheet.UsedRange.Columns.count
+	ReDim aTitle(intColumnCount)
+    For iCount = 1 To intColumnCount
+        aTitle(iCount-1) = objWorksheet.Cells(1,iCount).Value
+    Next
+    UTIL_Excel_GetHeader = aTitle
+	UTIL_Win_CloseExcel()
+ 
+    Set objExcel = Nothing
+    Set objWorkbook = Nothing
+    Set objWorksheet = Nothing
+
+End Function
+
+'This function will return the cell value corresponding to the row and column num/Index
+'@code
+'	strCellValue = UTIL_Excel_GetCellData("c:\mydata.xls", "Scenarios", "1", "1") 
+'@endcode
+'@param strExcelFilePath - Full path to the file including file name
+'@param strSheetName - Name sheet/tab from excel document
+'@param strRowNumOrIndex - Row number 
+'@param strColumnNumOrIndex - Column number
+'@return cell value
+
+Function UTIL_Excel_GetCellData(strExcelFilePath, strSheetName, strRowNumOrIndex, strColumnNumOrIndex)
+	
+	Dim objExcel, objWorkbook, objWorksheet, strCellValue
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.DisplayAlerts = False
+    
+    Set objWorkbook = objExcel.Workbooks.Open( strExcelFilePath )
+    Set objWorksheet = objWorkbook.Worksheets(strSheetName)
+    
+    strCellValue = objWorksheet.Cells(strRowNumOrIndex, strColumnNumOrIndex).value
+
+	objWorkbook.Close
+    objExcel.Quit
+    Set objWorksheet = Nothing    
+    Set objWorkbook = Nothing    
+    Set objExcel = Nothing
+	
+	UTIL_Excel_GetCellData = strCellValue
+	
+End Function
+
+
+'This function is used to Save Opened Excel File to Local
+'@code
+'    UTIL_Excel_Opened_File_Save(strFileNameWithPath)
+'@endcode
+'@Param strFileNameWithPath - Name of Excel with Full path
+
+Function UTIL_Excel_Opened_File_Save(strFileNameWithPath)
+    
+    FRM_Logger_ReportInfoEvent "Save Opened excel", "Save Loan Data To Excel At '"&strFileNameWithPath&"'", null
+	
+    Dim myxl, strFilename
+	Wait g_ShortWaitMedium 'Explicit wait added due to sync
+    Execute "set myxl =GetObject(,""Excel.Application"")"
+    myxl.DisplayAlerts = False
+    myxl.ActiveWorkbook.SaveAs  strFileNameWithPath 
+    
+    Set myxl = Nothing
+    
+End Function
+
+'This function is used to Delete Excel File
+'@code
+'    UTIL_Excel_Opened_File_Delete(strFileNameWithPath)
+'@endcode
+'@Param strFileNameWithPath - Name of Excel File to delete with Full path
+
+Function UTIL_Excel_Opened_File_Delete(strFileNameWithPath)
+    
+    FRM_Logger_ReportInfoEvent "Delete excel", "Delete Excel File from '"&strFileNameWithPath&"'", null
+	
+    Dim fs,strExcelFilePath
+    
+    'Close Excel process
+    UTIL_Win_CloseProcesses "EXCEL.EXE"
+	'wait 3 seconds
+	Dim dteWait
+	dteWait = DateAdd("s", 3, Now())
+	Do Until (Now() > dteWait)
+	Loop
+	
+    Set fs = CreateObject("Scripting.FileSystemObject")            
+    'Deleted Excel file
+	On ERROR Resume Next
+    IF fs.FileExists(strFileNameWithPath) Then	 
+       fs.DeleteFile strFileNameWithPath,True
+    End IF
+    If Err.Number <> 0 Then
+        UTIL_Excel_Opened_File_Delete = False	
+	Else
+        UTIL_Excel_Opened_File_Delete = True
+    End If
+	Err.Clear
+    
+    Set fs = Nothing
+
+End Function
+
+'@}

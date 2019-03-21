@@ -1,0 +1,621 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Settings_Persona BIZ_Settings_Persona
+'
+' List of functions here
+' @code
+'	Function BIZ_Persona_Loan_FinishMilestones (strPersonaName, arrMilestones)
+'	Function BIZ_Persona_Loan_AssignLoanTeamMembers(strPersonaName, arrRoles)
+'	Function BIZ_Personas_FormsTools_AccessRight(strPersonaName, arrFormsTools)
+'	Function BIZ_Personas_eFolder_General_AccessRight(strPersonaName, arrGenerals)
+'	Function BIZ_Personas_eFolder_Conditions_AccessRight(strPersonaName, arrConditions)
+'	Function BIZ_Persona_Loan_AcceptFiles(strPersonaName, arrMilestones)
+'	Function BIZ_Personas_Loan_Other_AccessRight(strPersonaName, arrGenerals)
+'   Function BIZ_Settings_Personas_SelectPersona(strPersonaName)
+'   Function BIZ_Settings_Personas_Loan_CheckItemizationFeeItems(arrFeeManagementItems)
+'   Function BIZ_Settings_Personas_Loan_UncheckItemizationFeeItems(arrFeeManagementItems)
+'   Function BIZ_Settings_Personas_CreatePersona(strPersonaName,boolIsAccessToAll)
+'   Function BIZ_Settings_Personas_DeletePersona(strPersonaName)
+'   Function BIZ_Settings_Personas_GetPersonaType(strPersonaName)
+'	Function BIZ_Personas_Settings_CompanySettings_AccessRight(strPersonaName, arrSelection())
+'   Function BIZ_Settings_Personas_CreateExternalPersona(strPersonaName,boolIsAccessToAll)
+'   Function BIZ_Settings_Personas_CreatePersona_WithTypes(strRowID,boolTPOFlagPresent)
+'	Function BIZ_Settings_Personas_RenamePersona(strRowID)
+'	Function BIZ_Settings_CompanyUserSetup_CreatePersona(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to set FinishMilestones for persona
+'@code
+'    BIZ_Persona_Loan_FinishMilestones (strPersonaName, arrMilestones)
+'@endcode
+'@param strPersonaName - persona name
+'@param arrMilestones - milestone array list
+
+Function BIZ_Persona_Loan_FinishMilestones (strPersonaName, arrMilestones)
+
+    FRM_Logger_ReportInfoEvent "Set FinishMilestones", "Set FinishMilestones for persona '"&strPersonaName&"'", null
+
+	Dim objSettingWindow, objAvailableMilestones, objScrollBar
+	Set objSettingWindow = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")	
+	GUI_SwfList_Select objSettingWindow.SwfListView("swfname:=lvPersona"), strPersonaName
+	GUI_SwfTab_Click objSettingWindow.SwfTab("swfname:=tabControl1"), "Loan"
+	GUI_Object_WaitTillExist objSettingWindow.SwfObject("swfname:=gcPersona", "text:=.*Define access for the "&strPersonaName&" persona.")	
+	GUI_SwfLabel_Click objSettingWindow.SwfLabel("swfname:=lblFinsihMilestoneSelect")
+
+	Set objAvailableMilestones = objSettingWindow.SwfWindow("swfname:=MilestoneSelectionDialog").SwfObject("swfname:=gvMilestone")
+	Set objScrollBar = objSettingWindow.SwfWindow("swfname:=MilestoneSelectionDialog").SwfScrollBar("swfname:=vPanelScrollBar")
+	For  i = LBound(arrMilestones) To UBound(arrMilestones)
+		GUI_List_ClickCheckbox objAvailableMilestones, objScrollBar, arrMilestones(i), 1, True, False, "Single", True
+	Next
+	GUI_SwfButton_Click objSettingWindow.SwfWindow("swfname:=MilestoneSelectionDialog").SwfButton("swfname:=btnOK")
+
+	If GUI_Object_IsEnabled(objSettingWindow.SwfObject("swfname:=stdIconBtnSave")) Then
+		GUI_SwfObject_Click objSettingWindow.SwfObject("swfname:=stdIconBtnSave")
+	End If
+
+	Set objSettingWindow = nothing
+	Set objAvailableMilestones = nothing
+	Set objScrollBar = nothing
+End Function
+
+
+
+'This function is used to set Assign Loan Team Member for persona
+'@code
+'    BIZ_Persona_Loan_AssignLoanTeamMembers(strPersonaName, arrRoles)
+'@endcode
+'@param strPersonaName - persona name
+'@param arrRoles- role array list
+
+Function BIZ_Persona_Loan_AssignLoanTeamMembers(strPersonaName, arrRoles)
+
+    FRM_Logger_ReportInfoEvent "Set AssignLoanTeamMember", "Set AssignLoanTeamMember for persona '"&strPersonaName&"'", null
+
+	SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfListView("swfname:=lvPersona").Select strPersonaName
+	GUI_Object_WaitTillExist SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfObject("swfname:=gcPersona","regexpwndtitle:=.*Define access for.*")
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfTab("swfname:=tabControl1"), "Loan"
+
+	GUI_SwfLabel_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfLabel("text:=Assign Loan Team Members")
+	GUI_Object_WaitTillExist SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfWindow("swfname:=MilestoneSelectionDialog").SwfObject("swfname:=gvMilestone")
+	Dim objAvailableRoles, objSelectRoleScrollBar
+	Set objSelectRolesWin = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfWindow("swfname:=MilestoneSelectionDialog")
+	Set objAvailableRoles = objSelectRolesWin.SwfObject("swfname:=gvMilestone")
+	Set objSelectRoleScrollBar = objSelectRolesWin.SwfScrollBar("swfname:=vPanelScrollBar")
+	For i = LBound(arrRoles) To UBound(arrRoles)
+		GUI_List_ClickCheckbox objAvailableRoles, objSelectRoleScrollBar, arrRoles(i),"1",True,False,"Single",True
+	Next
+	GUI_SwfButton_Click objSelectRolesWin.SwfButton("swfname:=btnOK")
+
+	If GUI_Object_IsEnabled(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfObject("swfname:=stdIconBtnSave")) Then
+		GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").SwfObject("swfname:=stdIconBtnSave")
+	End If
+End Function
+
+
+
+'This function is used to set the access right to tools->Disclosure Tracking for persona
+'@code
+'    BIZ_Personas_FormsTools_AccessRight(strPersonaName, arrFormsTools)
+'@endcode
+'@param strPersonaName - persona name
+'@param arrFormsTools - Forms or Tools array list
+
+Function BIZ_Personas_FormsTools_AccessRight(strPersonaName, arrFormsTools)
+
+    FRM_Logger_ReportInfoEvent "Set AccessRight", "Set tools->Disclosure Tracking access right for persona '"&strPersonaName&"'", null
+	
+    Dim objSettings, objFormsToolsTreeView
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+    Set objFormsToolsTreeView = objSettings.SwfTreeView("swfname:=treeViewTabs","swfname path:=.*Tools.*","index:=0")
+    
+	objSettings.SwfListView("swfname:=lvPersona").Select strPersonaName
+    GUI_SwfTab_Click objSettings.SwfTab("swfname:=tabControl1"), "Forms/Tools"
+	
+	GUI_Object_WaitTillExistX objFormsToolsTreeView, 60
+	
+	For i = LBound(arrFormsTools) To UBound(arrFormsTools)
+        GUI_TreeView_ClickCheckBox objFormsToolsTreeView, arrFormsTools(i), True
+	Next
+
+	If GUI_Object_IsEnabled(objSettings.SwfObject("swfname:=stdIconBtnSave")) Then
+		GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnSave")
+	End If
+End Function
+
+
+
+'This function is used to set general eFolder access right for persona
+'@code
+'    BIZ_Personas_eFolder_General_AccessRight(strPersonaName, arrGenerals)
+'@endcode
+'@param strPersonaName - persona name
+'@param arrGenerals - Generals array list
+
+Function BIZ_Personas_eFolder_General_AccessRight(strPersonaName, arrGenerals)
+
+    FRM_Logger_ReportInfoEvent "Set General Access Right", "Set General eFolder access right for persona '"&strPersonaName&"'", null
+	
+    Dim objSettings, objGeneralTreeView
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+    Set objGeneralTreeView = objSettings.SwfTreeView("swfname:=treeViewTabs","index:=3")
+    
+	objSettings.SwfListView("swfname:=lvPersona").Select strPersonaName
+    GUI_SwfTab_Click objSettings.SwfTab("swfname:=tabControl1"), "eFolder"
+	
+	GUI_Object_WaitTillExistX objGeneralTreeView, 60
+	
+	For i = LBound(arrGenerals) To UBound(arrGenerals)
+		GUI_TreeView_ClickCheckBox objGeneralTreeView, arrGenerals(i), True
+	Next
+	
+	If GUI_Object_IsEnabled(objSettings.SwfObject("swfname:=stdIconBtnSave")) Then
+		GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnSave")
+	End If
+End Function
+
+
+'This function is used to set conditions eFolder access right for persona
+'@code
+'    BIZ_Personas_eFolder_Conditions_AccessRight(strPersonaName, arrConditions)
+'@endcode
+'@param strPersonaName - persona name
+'@param arrConditions - Conditions array list
+
+Function BIZ_Personas_eFolder_Conditions_AccessRight(strPersonaName, arrConditions)
+
+    FRM_Logger_ReportInfoEvent "Set Conditions Access Right", "Set Conditions eFolder access right for persona '"&strPersonaName&"'", null
+
+	Dim objSettingWindow, objConditionTreeView, i
+	Set objSettingWindow = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objConditionTreeView =objSettingWindow.SwfTreeView("swfname:=treeViewTabs","index:=5")
+
+	GUI_SwfList_Select objSettingWindow.SwfListView("swfname:=lvPersona"), strPersonaName
+    GUI_SwfTab_Click objSettingWindow.SwfTab("swfname:=tabControl1"), "eFolder"
+	GUI_Object_WaitTillExist objConditionTreeView
+
+	For i = LBound(arrConditions) To UBound(arrConditions)
+		GUI_TreeView_ClickCheckBox objConditionTreeView, arrConditions(i), True
+	Next
+	
+	If GUI_Object_IsEnabled(objSettingWindow.SwfObject("swfname:=stdIconBtnSave")) Then
+		GUI_SwfObject_Click objSettingWindow.SwfObject("swfname:=stdIconBtnSave")
+	End If
+
+	Set objSettingWindow = Nothing
+	Set objConditionTreeView = Nothing
+
+End Function
+
+
+'This function is used to set the access right to Loan -> Other for persona
+'@code
+'    BIZ_Personas_Loan_Other_AccessRight(strPersonaName, arrGenerals)
+'@endcode
+'@param strPersonaName - persona name
+'@param arrOthers - Other array list
+
+Function BIZ_Personas_Loan_Other_AccessRight(strPersonaName, arrOthers)
+
+    FRM_Logger_ReportInfoEvent "Set Other Access Right", "Set Loan -> Other access right for persona '"&strPersonaName&"'", null
+	
+    Dim objSettings, objOtherTreeView
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+    Set objOtherTreeView = objSettings.SwfTreeView("swfname:=treeViewTabs","swfname path:=.*ClosingPage.*","index:=0")
+    
+	'objSettings.SwfListView("PersonaList").Select strPersonaName
+	objSettings.SwfListView("swfname:=lvPersona").Select strPersonaName
+    GUI_SwfTab_Click objSettings.SwfTab("swfname:=tabControl1"), "Loan"
+	
+	For i = LBound(arrOthers) To UBound(arrOthers)
+		GUI_TreeView_ClickCheckBox objOtherTreeView, arrOthers(i), True
+	Next
+	
+	If GUI_Object_IsEnabled(objSettings.SwfObject("swfname:=stdIconBtnSave")) Then
+		GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnSave")
+	End If
+
+End Function
+
+
+
+'This function is used to select a persona which name is strPersonaName
+'@code
+'    BIZ_Settings_Personas_SelectPersona(strPersonaName)
+'@endcode
+'@param strPersonaName - persona name
+
+Function BIZ_Settings_Personas_SelectPersona(strPersonaName)
+    FRM_Logger_ReportInfoEvent "Select a Persona", "Select the Persona: '"&strPersonaName, null
+	
+	BIZ_Nav_Settings_Personas
+    
+	Dim objSettings,objPersonasList
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+    Set objPersonasList = objSettings.SwfListView("swfname:=lvPersona")
+           
+    GUI_List_Select objPersonasList,strPersonaName
+   
+    Set objSettings = Nothing
+    Set ObjPersonasList = Nothing
+    
+End Function
+
+
+
+'This function is used to Check the items on Loan->Itemization Fee Management for the persona
+'@code
+'    BIZ_Settings_Personas_Loan_CheckItemizationFeeItems(arrFeeManagementItems)
+'@endcode
+'@param arrFeeManagementItems - The array of Fee Management Items
+
+Function BIZ_Settings_Personas_Loan_CheckItemizationFeeItems(arrFeeManagementItems)
+    FRM_Logger_ReportInfoEvent "Check Fee Management Items", "Check Fee Management Items on Persona->Loan tab",null
+
+	Dim objSettings, objFeeMangementTreeView
+    
+    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer") 
+    Set objFeeManagementTreeView = objSettings.SwfTreeView("swfname:=treeViewTabs","swfname path:=.*pnlFeeItms.*")
+    
+  	For i = LBound(arrFeeManagementItems) To UBound(arrFeeManagementItems)
+        GUI_TreeView_ClickCheckBox objFeeManagementTreeView, arrFeeManagementItems(i), True
+	Next 
+
+	If GUI_Object_IsEnabled(objSettings.SwfObject("swfname:=stdIconBtnSave")) Then
+		GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnSave")
+	End If
+	
+	Set objSettings = Nothing
+	Set objFeeManagementTreeView = Nothing
+End Function
+
+
+
+'This function is used to Create a persona
+'@code
+'    BIZ_Settings_Personas_CreatePersona(strPersonaName,boolIsAccessToAll)
+'@endcode
+'@param strPersonaName - persona name
+'@param boolIsAccessToAll - Whether "Access To All" is checked
+
+Function BIZ_Settings_Personas_CreatePersona(strPersonaName,boolIsAccessToAll)
+	    FRM_Logger_ReportInfoEvent "Create a Persona", "Create a Persona: '"&strPersonaName&"'"&" and it's 'Access to All' is "&boolIsAccessToAll, null
+	    
+		Dim objSettings,objPersonasList,objScrollBar,isExisted
+	    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	    Set objPersonasList = objSettings.SwfListView("swfname:=lvPersona")	    
+	    
+        isExisted = False
+        For i = 0 to objPersonasList.GetItemsCount -1
+            If objPersonasList.GetItem(i)=strPersonaName Then
+            	isExisted = True
+            	Exit FOr
+            End If       	
+        Next
+	    	    
+	    'if the Persona doesn't exist,add the persona
+	    If not isExisted Then
+	    	GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnAdd")
+		    GUI_SwfEdit_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfEdit("swfname:=textBoxPersonaName"),strPersonaName
+            If boolIsAccessToAll Then
+        	    GUI_SwfRadioButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfRadioButton("swfname:=rbtnAccessToAll")
+            End If
+            If GUI_Object_IsExistX(objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"),2) Then
+                GUI_SwfCheckbox_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"),True
+            End If
+            GUI_SwfButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfButton("swfname:=btnOK")
+	    End If
+		
+
+        Set objSettings = Nothing
+        Set objPersonasList = Nothing
+		
+		BIZ_Settings_Personas_CreatePersona = strPersonaName
+	End Function
+
+    
+    
+'This function is used to Create a persona
+'@code
+'    BIZ_Settings_Personas_CreateExternalPersona(strPersonaName,boolIsAccessToAll)
+'@endcode
+'@param strPersonaName - persona name
+'@param boolIsAccessToAll - Whether "Access To All" is checked
+
+Function BIZ_Settings_Personas_CreateExternalPersona(strPersonaName,boolIsAccessToAll)
+	    FRM_Logger_ReportInfoEvent "Create a Persona", "Create a Persona: '"&strPersonaName&"'"&" and it's 'Access to All' is "&boolIsAccessToAll, null
+	    
+		Dim objSettings,objPersonasList,objScrollBar,isExisted
+	    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	    Set objPersonasList = objSettings.SwfListView("swfname:=lvPersona")	    
+	    
+        isExisted = False
+        For i = 0 to objPersonasList.GetItemsCount -1
+            If objPersonasList.GetItem(i)=strPersonaName Then
+            	isExisted = True
+            	Exit FOr
+            End If       	
+        Next
+	    	    
+	    'if the Persona doesn't exist,add the persona
+	    If not isExisted Then
+	    	GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnAdd")
+		    GUI_SwfEdit_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfEdit("swfname:=textBoxPersonaName"),strPersonaName
+            If boolIsAccessToAll Then
+        	    GUI_SwfRadioButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfRadioButton("swfname:=rbtnAccessToAll")
+            End If
+            If GUI_Object_IsExistX(objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"),2) Then
+                GUI_SwfCheckbox_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"),True
+            End If
+            GUI_SwfButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfButton("swfname:=btnOK")
+	    End If
+		
+
+        Set objSettings = Nothing
+        Set objPersonasList = Nothing
+	End Function
+
+    
+
+
+'This function is used to Create a persona of Type Internal, External or Both
+'@code
+'    BIZ_Settings_Personas_CreatePersona_WithTypes(strRowID,boolTPOFlagPresent)
+'@endcode
+'@param strRowID - RowID of the datasheet containing Persona details
+'@param boolTPOFlagPresent - TPO flag passed as True if Set On 
+
+Function BIZ_Settings_Personas_CreatePersona_WithTypes(strRowID,boolTPOFlagPresent)
+	FRM_Logger_ReportInfoEvent "Create a Persona", " Creating a Persona Type As "&strRowID, null
+	    
+    Dim objSettings,objPersonasList,objScrollBar,isExisted
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objPersonasList = objSettings.SwfListView("swfname:=lvPersona")	    
+	    
+	Set objData = FRM_DS_GetTestData("Setttings_CompanyUserSetup", "Persona_CreatePersona", strRowID)
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PersonaName")) Then
+	    strPersonaName = FRM_DS_GetValue(objData, "PersonaName")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AccessToAllFeatures")) Then
+	    strAccessToAll = FRM_DS_GetValue(objData, "AccessToAllFeatures")
+	    If strAccessToAll = "Yes" Then
+            boolIsAccessToAll = True 
+	    Else
+	        boolIsAccessToAll = False  
+	    End If
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PersonaType")) Then
+	    strPersonaType = FRM_DS_GetValue(objData, "PersonaType")
+	End If
+	    
+    isExisted = False
+    For i = 0 to objPersonasList.GetItemsCount -1
+        If objPersonasList.GetItem(i)=strPersonaName Then
+            isExisted = True
+            Exit FOr
+        End If       	
+    Next
+	    	    
+	'if the Persona doesn't exist,add the persona
+	If NOT isExisted Then
+	    GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnAdd")
+	    If objSettings.SwfWindow("swfname:=PersonaNameDlg").Exist(1)  Then
+	    	FRM_Logger_ReportPassEvent "Persona Creation Window ", "Persona Window Pop-Up Dialog Box appears", null
+	    Else
+		    FRM_Logger_ReportFailEvent "Persona Creation Window ", "Persona Window Pop-Up Dialog Box Doesnt appear", null
+	    End If	
+	    	
+		GUI_SwfEdit_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfEdit("swfname:=textBoxPersonaName"),strPersonaName
+        If boolIsAccessToAll Then
+        	GUI_SwfRadioButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfRadioButton("swfname:=rbtnAccessToAll")
+        End If
+        FRM_Logger_ReportStepEvent "Validating The Label in Persona Dialog Box","Label should contain Start with",Null      
+        GUI_Object_ValidateText objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfLabel("swfname:=label2"),"Start with:","Label Should Match"
+            
+            
+        If boolTPOFlagPresent Then
+            FRM_Logger_ReportStepEvent "Validating the Persona Type Section"," Persona Type Section should appear below Start With Section",Null 
+            GUI_Object_ValidateText objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfLabel("swfname:=label4","Location:={X=9,Y=6}"),"Persona Type:","Persona Type Section should appear below Start with section"
+                
+            FRM_Logger_ReportStepEvent "Validating the Persona Type Checkboxes"," Internal Checkbox and Internal Text should appear",Null 
+            GUI_Object_ValidateExists objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"),2,"Internal Checkbox Should Exist"
+            GUI_Object_ValidateText objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"),"Internal","Internal Text Should Be Displayed"
+            
+            FRM_Logger_ReportStepEvent "Validating the Persona Type Checkboxes"," External Checkbox and External Text should appear",Null 
+            GUI_Object_ValidateExists objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"),2,"External Checkbox Should Exist"
+            GUI_Object_ValidateText objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"),"External","External Text Should Be Displayed"
+                
+            FRM_Logger_ReportStepEvent "Validating the Default Value of Persona Type Checkboxes","External Checkbox and Internal Checkbox should be unchecked by default",Null    
+            GUI_Object_ValidateChecked objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"),False,"External Checkbox should be unchecked by default"
+            GUI_Object_ValidateChecked objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"),False,"Internal Checkbox should be unchecked by default"             
+                
+            If strPersonaType = "Internal" Then
+                GUI_SwfCheckbox_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"),True
+            ElseIf strPersonaType = "External" Then    
+                GUI_SwfCheckbox_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"),True
+            ElseIf strPersonaType = "Both" Then    
+                GUI_SwfCheckbox_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"),True
+                GUI_SwfCheckbox_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"),True
+            End If
+            GUI_SwfButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfButton("swfname:=btnOK")
+            If objSettings.SwfWindow("swfname:=PersonaNameDlg").Dialog("text:=Encompass").Exist(1) Then
+                FRM_Logger_ReportStepEvent "Validate When No Persona Type is Selected and User Should Click on OK","Error Pop Up Message Should Be Displayed",Null 
+                BIZ_BR_LoanActionCompletion_ValidateContent objSettings.SwfWindow("swfname:=PersonaNameDlg").Dialog("text:=Encompass").Static("micClass:=Static","height:=15"),"Please select a persona type."
+                GUI_WinButton_Click SwfWindow("swfname:=PersonaNameDlg").Dialog("text:=Encompass").WinButton("text:=OK")
+                GUI_SwfButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfButton("swfname:=button1")
+            End If
+        Else
+            FRM_Logger_ReportStepEvent "Validating the Persona Type Section if TPOAdminAccess Flag is Set to False"," Persona Type Section Should Not appear below Start With Section",Null 
+            GUI_Object_ValidateNotExists objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"),2,"External Checkbox Should Not Be Present"
+            GUI_Object_ValidateNotExists objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"),2,"Internal Checkbox Should Not Be Present"                    
+            GUI_SwfButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfButton("swfname:=button1")
+        End If
+                 
+	End If
+	Set objSettings = Nothing
+    Set objPersonasList = Nothing    
+        
+End Function
+
+
+
+ 'This function is used to delete a persona
+'@code
+'    BIZ_Settings_Personas_DeletePersona(strPersonaName)
+'@endcode
+'@param strPersonaName - persona name
+
+Function BIZ_Settings_Personas_DeletePersona(strPersonaName)
+
+	    FRM_Logger_ReportInfoEvent "Delete a Persona", "Delete a Persona: '"&strPersonaName, null
+	    
+		Dim objSettings,objPersonasList,isExisted
+	    Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	    Set objPersonasList = objSettings.SwfListView("swfname:=lvPersona")	    
+	    
+        isExisted = False
+        For i = 0 to objPersonasList.GetItemsCount -1
+            If objPersonasList.GetItem(i)=strPersonaName Then
+            	isExisted = True
+            	Exit FOr
+            End If       	
+        Next
+        
+        If isExisted Then
+        	GUI_List_Select objPersonasList,strPersonaName
+        	GUI_Object_Click objSettings.SwfObject("swfname:=stdIconBtnDelete"),"SwfObject","Swfobject to delete existing persona"
+        	If objSettings.SwfWindow("swfname:=DeletePersonaDlg").Exist Then
+        		GUI_SwfButton_Click objSettings.SwfWindow("swfname:=DeletePersonaDlg").SwfButton("swfname:=btnOK")	
+        	End If
+        	GUI_DialogObject_Encompass_Yes SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer").Dialog("index:=0"), "Are you sure you want to delete the persona"
+        End If
+
+ End Function
+ 
+ 
+
+' This function is for creating the persona.
+'@code
+'   BIZ_Settings_CompanyUserSetup_CreatePersona(strRowID) 
+'@endcode
+'@param strRowID - rowID for data
+
+Function BIZ_Settings_CompanyUserSetup_CreatePersona(strRowID)
+
+	FRM_Logger_ReportInfoEvent "BIZ_Settings_CompanyUserSetup_CreatePersona", " Create a Persona using rowid "&strRowID, null
+
+    Dim objSettings, objPersonasList, objData, strPersonaName, strStartWith, strInternalType, strExternalType
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objPersonasList = objSettings.SwfListView("swfname:=lvPersona")	    
+	Set objData = FRM_DS_GetTestData("Setttings_CompanyUserSetup", "Persona", strRowID)
+	
+	strPersonaName 	= FRM_DS_GetValue(objData, "PersonaName")
+	strStartWith 	= FRM_DS_GetValue(objData, "Startwith")
+	strInternalType = FRM_DS_GetValue(objData, "InternalType")
+	strExternalType = FRM_DS_GetValue(objData, "ExternalType")
+	
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnAdd")
+	
+	If UTIL_String_IsNotEmpty(strPersonaName) Then
+		GUI_SwfEdit_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfEdit("swfname:=textBoxPersonaName"), strPersonaName
+	End If
+
+	If UTIL_String_IsNotEmpty(strStartWith) Then
+		If strStartWith = "Access to No Features" Then
+			GUI_SwfRadioButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfRadioButton("swfname:=rbtnAccessToNone")
+		ElseIf strStartWith = "Access to All Features" Then
+			GUI_SwfRadioButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfRadioButton("swfname:=rbtnAccessToAll")
+		End If
+	End If
+	
+	If UTIL_String_IsNotEmpty(strInternalType) And GUI_Object_IsExistX(objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"),2) Then
+		GUI_SwfCheckbox_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkInternal"), strInternalType
+	End If
+
+	If UTIL_String_IsNotEmpty(strExternalType) And GUI_Object_IsExistX(objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"),2) Then
+		GUI_SwfCheckbox_Set objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfCheckBox("swfname:=chkExternal"), strExternalType
+	End If
+	
+	GUI_SwfButton_Click objSettings.SwfWindow("swfname:=PersonaNameDlg").SwfButton("swfname:=btnOK")
+		
+	Set objSettings 	= Nothing
+	Set objPersonasList = Nothing
+	Set objData 		= Nothing
+
+	BIZ_Settings_CompanyUserSetup_CreatePersona = strPersonaName
+	
+End Function
+
+
+' This function is for Rename the persona.
+' @code
+'   BIZ_Settings_Personas_RenamePersona(strRowID) 
+' @endcode
+' @param strRowID - RowID of the datasheet containing Persona details
+' @param strPersonaName - Persona name
+
+Function BIZ_Settings_Personas_RenamePersona(strRowID,strPersonaName)
+
+	FRM_Logger_ReportInfoEvent "Rename Persona","Rename Persona by right click", Null
+				
+	Dim objSettings,objData
+	
+	Set objSettings	= SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objData 	= FRM_DS_GetTestData("Setttings_CompanyUserSetup", "Persona", strRowID)
+	Set objPersonaProgramList = objSettings.SwfListView("swfname:=lvPersona")
+	
+	strRenPersona = CStr(FRM_DS_GetValue(objData, "PersonaRename")) 
+	GUI_Object_WaitTillExistX objPersonaProgramList, 300
+	
+	'Due to right click operation is not working for this scenario so that we used below code
+	objPersonaProgramList.Select strPersonaName, micRightBtn
+	objPersonaProgramList.WinMenu("menuobjtype:=3").Select "Rename"
+	
+	If UTIL_String_IsNotEmpty(strRenPersona) Then
+		GUI_WinEdit_Set objSettings.winedit("Index:=0"),strRenPersona
+	End If
+	objPersonaProgramList.click
+	
+				
+	Set objData            		= Nothing
+	Set objSettings        		= Nothing
+	
+	BIZ_Settings_Personas_RenamePersona = strRenPersona
+		
+End Function
+
+
+
+' This function is for duplicating the persona.
+'@code
+'   BIZ_Settings_Personas_DuplicatePersona(NewPersona) 
+'@endcode
+'@param NewPersona - persona used to duplicate
+
+Function BIZ_Settings_Personas_DuplicatePersona(NewPersona)
+
+	FRM_Logger_ReportInfoEvent "Create Persona","Verification of duplicating the persona", Null
+			
+	Dim objSettings, objPersonaProgramList,boolExist,strDuplicatePersona
+	
+	Set objSettings 		  = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SetUpContainer")
+	Set objPersonaProgramList = objSettings.SwfListView("swfname:=lvPersona")
+		
+	GUI_Object_WaitTillExistX objPersonaProgramList, 300
+	GUI_SwfList_Select objPersonaProgramList,NewPersona
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=stdIconBtnDuplicate") 
+	Wait g_TinyWaitSmall 'Explicit Wait Added Due to Sync	
+	GUI_SwfObject_Click objPersonaProgramList
+	
+	strDuplicatePersona = "Copy of " & NewPersona
+	
+	Set objSettings        		= Nothing
+	Set objPersonaProgramList   = Nothing
+	
+	BIZ_Settings_Personas_DuplicatePersona = strDuplicatePersona
+			
+End Function
+
+
+
+'@}

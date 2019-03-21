@@ -1,0 +1,13 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_203kMaxMortgageWS BIZ_Forms_203kMaxMortgageWS
+'
+' List of functions here
+' @code
+'   Function BIZ_203kMaxMortgageWS_SetBorrowser(strRowID)
+'   Function BIZ_203kMaxMortgageWS_SetPropertyInfo(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+'@}

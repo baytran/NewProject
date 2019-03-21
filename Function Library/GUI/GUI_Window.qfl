@@ -1,0 +1,28 @@
+''''''''''''''''''''''''''''''''''''''''''
+'@defgroup GUI_Window GUI_Window
+'
+' List of functions here
+'
+' @code
+'
+'   Function GUI_Window_Close(objMainView)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for Close the Window 
+'@code
+'    GUI_Window_Close(objMainView)
+'@endcode
+'@param objMainView The object path
+
+Function GUI_Window_Close(objMainView)
+
+    GUI_Object_WaitTillEnabled objMainView
+    objMainView.Close
+End Function
+
+
+
+
+'@}

@@ -1,0 +1,221 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Tools_UnderwriterSummary BIZ_Tools_UnderwriterSummary
+'
+' List of functions here
+'@code
+'	BIZ_UnderwriterSummary_UWP2_SetHeaderData(strRowID)
+'	BIZ_UnderwriterSummary_SetAppraisalAUSDetails(strRowID)
+'	BIZ_UnderwriterSummary_SetUnderWriterDetails(strRowID)
+'@endcode
+'
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for set Header Data in Tools->Underwriter Summary ->UW P2 page
+'@code
+'    BIZ_UnderwriterSummary_UWP2_SetHeaderData(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_UnderwriterSummary_UWP2_SetHeaderData(strRowID)
+	FRM_Logger_ReportInfoEvent "Underwriter Summary Page 2 Set Header Data", "Set Data for Lock Request using Row Id '"&strRowID&"' in the SetData datasheet", null	
+
+    Dim ObjUWP2,objData
+    GUI_SwfLabel_Click SwfWindow("swfname:=MainForm").SwfLabel("text:=UW P2")
+
+    Set ObjUWP2 = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_UnderwriterSummary", "UWP2_SetHeaderData", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2299_ResubmittedToUnderwritting")) Then
+        GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox3"), FRM_DS_GetValue(objData, "2299_ResubmittedToUnderwritting")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2304_UnderwriterSignOff")) Then
+        GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox8"), FRM_DS_GetValue(objData, "2304_UnderwriterSignOff")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2305_ClearToClose")) Then
+        GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox9"), FRM_DS_GetValue(objData, "2305_ClearToClose")
+    End If 
+    
+        If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2314_SignOffDate")) Then
+        GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox20"), FRM_DS_GetValue(objData, "2314_SignOffDate")
+    End If 
+
+    Set objUWP2 = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is for set Underwriter details in Tools->Underwriter Summary ->UW P1 page
+'@code
+'    BIZ_UnderwriterSummary_SetUnderWriterDetails(strRowID
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_UnderwriterSummary_SetUnderWriterDetails(strRowID)
+	FRM_Logger_ReportInfoEvent "Underwriter Summary - Set Under Writer Details", "Details are set in the Underwriter screen", null	
+	Set ObjUWP1 = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_UnderwriterSummary", "UWP1_SetUnderWriterDetails", strRowID)
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2981_Date")) Then
+		ObjUWP1.WebEdit("html id:=TextBox1").Set FRM_DS_GetValue(objData, "2981_Date")
+	End if
+	'ApprovedBy
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2284_ApprovedBy")) Then
+		ObjUWP1.WebEdit("html id:=TextBox27").Set FRM_DS_GetValue(objData, "2284_ApprovedBy")
+	End if
+	'Approved Date
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2301_ApprovedDate")) Then
+		ObjUWP1.WebEdit("html id:=TextBox28").Set FRM_DS_GetValue(objData, "2301_ApprovedDate")
+	End if
+	'Approval Expires
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2302_ApprovalExpiresOn")) Then
+		ObjUWP1.WebEdit("html id:=TextBox29").Set FRM_DS_GetValue(objData, "2302_ApprovalExpiresOn")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "3878_UnderwritingContractualAgreement")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox17_Ctrl").Set FRM_DS_GetValue(objData, "3878_UnderwritingContractualAgreement")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X338_MonthlyCoveredLoanPayment")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox2_Ctrl").Set FRM_DS_GetValue(objData, "X338_MonthlyCoveredLoanPayment")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X341_DebtObligations")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox8_Ctrl").Set FRM_DS_GetValue(objData, "X341_DebtObligations")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X344_CurrentEmployementStatus")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox11_Ctrl").Set FRM_DS_GetValue(objData, "X344_CurrentEmployementStatus")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X345_CurrentExpectedIncome")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox12_Ctrl").Set FRM_DS_GetValue(objData, "X345_CurrentExpectedIncome")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X346_CurrentExpectedAssets")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox13_Ctrl").Set FRM_DS_GetValue(objData, "X346_CurrentExpectedAssets")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X347_CreditHistory")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox14_Ctrl").Set FRM_DS_GetValue(objData, "X347_CreditHistory")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X348_DebtIncomeRatio")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox15_Ctrl").Set FRM_DS_GetValue(objData, "X348_DebtIncomeRatio")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "X349_ResidualIncome")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox16_Ctrl").Set FRM_DS_GetValue(objData, "X349_ResidualIncome")
+	End if
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"ImpoundsRequired")) Then
+		GUI_WebList_Select ObjUWP1.WebList("html id:=DropdownBox6"), FRM_DS_GetValue(objData,"ImpoundsRequired")
+	End If
+	'Set Employee Loan checkbox
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4181_EmployeeLoan")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_CheckBox20_Ctrl").Set FRM_DS_GetValue(objData, "4181_EmployeeLoan")
+	End If	
+	'Set HMDA Income checkbox
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "HMDA.X99_HMDAIncome")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_chkhmdaincome_Ctrl").Set FRM_DS_GetValue(objData, "HMDA.X99_HMDAIncome")		 
+	End If	
+	'Set HMDA CLTV checkbox
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "HMDA.X98_HMDACLTV")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_chkhmdacltv_Ctrl").Set FRM_DS_GetValue(objData, "HMDA.X98_HMDACLTV")		 
+	End If		
+	'Set HMDA DTI checkbox
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "HMDA.X98_HMDADTI")) Then
+		ObjUWP1.WebCheckBox("html id:=__cid_chkhmdadti_Ctrl").Set FRM_DS_GetValue(objData, "HMDA.X98_HMDADTI")		 
+	End If	
+End Function
+
+
+
+'This function is for set Underwriter details in Tools->Underwriter Summary ->UW P2 page
+'@code
+'    BIZ_UnderwriterSummary_SetAppraisalAUSDetails(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_UnderwriterSummary_SetAppraisalAUSDetails(strRowID)
+	FRM_Logger_ReportInfoEvent "Underwriter Summary - Set Appraisal AUS Details", "Details are set in the Appraisal AUS Details Screen", null	
+	SwfWindow("swfname:=MainForm").SwfLabel("text:=UW P2").Click
+	Set objData = FRM_DS_GetTestData("Tools_UnderwriterSummary", "UWP2_SetHeaderData", strRowID)
+	Set ObjUWP2 = SwfWindow("swfname:=MainForm").Page("index:=0")		
+    'Underwriting submitted date
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2298_SubmittedToUnderWriting")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox2"), FRM_DS_GetValue(objData, "2298_SubmittedToUnderWriting")
+    End if
+	'Credit Approval Date
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2300_CreditApprovalDate")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox4"), FRM_DS_GetValue(objData, "2300_CreditApprovalDate")
+    End if
+	'AUS Underwriting Source 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2312_AUSSource")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox17"), FRM_DS_GetValue(objData, "2312_AUSSource")
+    End if
+	'AUS Number
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2316_AUSNumber")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox22"), FRM_DS_GetValue(objData, "2316_AUSNumber")
+    End if
+	'AUS Recommendation
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1544_AUSRecommendataion")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox67"), FRM_DS_GetValue(objData, "1544_AUSRecommendataion")
+    End if
+	'AUS Run Date
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2313_DateAUSRun")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox19"), FRM_DS_GetValue(objData, "2313_DateAUSRun")
+    End if
+	
+	'Strength
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2319_Strengths")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=MultilineTextBox2"), FRM_DS_GetValue(objData, "2319_Strengths")
+    End if
+	'Concern 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2320_Concerns")) Then
+		 GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=MultilineTextBox3"), FRM_DS_GetValue(objData, "2320_Concerns")
+    End if
+	'Credit
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2321_Credit")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=MultilineTextBox3"), FRM_DS_GetValue(objData, "2321_Credit")
+    End if
+	'Appraisal
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2322_Appraisal")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=MultilineTextBox4"), FRM_DS_GetValue(objData, "2322_Appraisal")
+    End if
+	'Exception
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2323_Exceptions")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=MultilineTextBox5"), FRM_DS_GetValue(objData, "2323_Exceptions")
+    End if
+	'AppraisalType
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "AppraisalType")) Then
+		ObjUWP2.WebElement("innerhtml:=Appraisal Information","html tag:=TD").Highlight
+		ObjUWP2.WinEdit("Location:=0","nativeclass:=Edit").Highlight
+		ObjUWP2.WebEdit("html id:=TextBox55").Highlight
+		GUI_WebEdit_Set ObjUWP2.WinEdit("Location:=0","nativeclass:=Edit"), FRM_DS_GetValue(objData, "AppraisalType")
+		ObjUWP2.WinEdit("Location:=0","nativeclass:=Edit").Type micTab
+	End if
+	'Appraisal Order Date
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2352_AppraisalOrderDate")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox56"), FRM_DS_GetValue(objData, "2352_AppraisalOrderDate")
+	End if
+	'Appraisal Completed data
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2353_AppraisalCompletedDate")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox57"), FRM_DS_GetValue(objData, "2353_AppraisalCompletedDate")
+	End if
+	'Original Appraisal Value
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2355_AppraisalValue")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox59"), FRM_DS_GetValue(objData, "2355_AppraisalValue")	
+	End if
+	'Appraisal Expires On
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2354_AppraisalExpires")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox58"), FRM_DS_GetValue(objData, "2354_AppraisalExpires")
+	End if
+	'Flood Company Name
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1500_CompanyName")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox47"), FRM_DS_GetValue(objData, "1500_CompanyName")
+	End if
+	'Determination Date
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2365_DeterminationDate")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox62"), FRM_DS_GetValue(objData, "2365_DeterminationDate")
+	End if
+	'Cert #
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2363_Cert#")) Then
+		GUI_WebEdit_Set ObjUWP2.WebEdit("html id:=TextBox48"), FRM_DS_GetValue(objData, "2363_Cert#")
+	End if
+End Function
+
+'@}

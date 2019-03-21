@@ -1,0 +1,122 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup Section 32(UI changes)
+'List of functions here
+'@code
+'	Function BIZ_Section32_UIChanges_Section32PreValidation(strRowID)
+'	Function BIZ_Section32_LoanCreation(strRowID)
+'	Function BIZ_Section32_UIChanges_Section32_ApplicationDatePostValidation(strRowID)
+'	Function BIZ_Section32_UIChanges_Section32_ClosingDateAndApplicationDatePostValidation(strRowID)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is Used for validate Section32 page
+'@code
+'    BIZ_Section32_UIChanges_Section32PreValidation(strRowID)
+'@endcode
+'@param strRowID - RowID for data
+
+Function BIZ_Section32_UIChanges_Section32PreValidation(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Section32 PreValidation","Section32 page Prevalidation", Null
+    
+    Dim objData,strSelectItem,strItemizationForm,strPreText
+    
+    Set objData      	= FRM_DS_GetTestData("Section32", "UIChanges", strRowID)
+    strSelectItem    	= Cstr(Trim(FRM_DS_GetValue(objData, "SelectItem")))
+    strItemizationForm  = CStr(Trim(FRM_DS_GetValue(objData, "SelectForm")))
+    strPreText   		= Trim(FRM_DS_GetValue(objData, "PreValidation"))
+    
+    BIZ_Nav_SelectPipelineTab()
+    Wait g_TinyWaitMedium 'Explicit Wait Added Due to Sync
+    BIZ_Loan_AddNewBlankLoanUnderSelectedLoanFolder "Super Administrator - Default View","My Pipeline"
+    
+    If UTIL_String_IsNotEmpty(strSelectItem) Then
+	   BIZ_Loan_SwitchFormVersion strSelectItem
+    End If
+    
+    If UTIL_String_IsNotEmpty(strItemizationForm) Then
+	   BIZ_Forms_Open strItemizationForm
+    End If
+       
+    Wait g_LongWaitMedium 'Explicit Wait Added Due to Sync
+		
+	If UTIL_String_IsNotEmpty(strPreText) Then
+	   GUI_Object_ValidateProperty SwfWindow("swfname:=MainForm").Page("index:=0").WebElement("html id:=Label86","html tag:=SPAN"),"innertext", strPreText ,"Validate text"
+	End If
+	      
+    Set objData  = Nothing
+        
+End Function
+
+
+
+'This function is used for Loan Creation for Section32
+'@code
+'    BIZ_Section32_LoanCreation(strRowID)
+'@endcode
+'@Param strRowID RowID for Data
+
+Function BIZ_Section32_LoanCreation(strRowID)						
+	
+	FRM_Logger_ReportInfoEvent "Loan Creation","Loan creation using RowID @' "&strRowID, Null
+	BIZ_BorrowerSummaryOrigination_SetBorrower strRowID
+	BIZ_BorrowerSummaryOrigination_SetTransactionDetails strRowID
+    BIZ_BorrowerSummaryOrigination_SetProperty strRowID
+ 
+End Function
+
+
+
+'This function is Used to validate Section32 page after loan creation
+'@code
+'    BIZ_Section32_UIChanges_Section32_ApplicationDatePostValidation(strRowID)
+'@endcode
+'@param strRowID - RowID for data
+
+Function BIZ_Section32_UIChanges_Section32_ApplicationDatePostValidation(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Section32","Validate Application date Post validation using RowID @' "&strRowID, Null
+    
+    Dim objData,strText
+    Set objData      = FRM_DS_GetTestData("Section32", "UIChanges", strRowID)
+    strText   		 = Trim(FRM_DS_GetValue(objData, "PostApplicationDateValidation"))
+    
+    Wait g_LongWaitMedium ' Explicit wait used to handle sync issues
+		
+	If UTIL_String_IsNotEmpty(strText) Then
+	   GUI_Object_ValidateProperty SwfWindow("swfname:=MainForm").Page("index:=0").WebElement("html id:=Label1","html tag:=SPAN"),"innertext", strText ,"Validate text"
+	End If
+	      
+    Set objData  = Nothing
+        
+End Function
+
+
+
+'This function is Used for validate Section32 page after closing date
+'@code
+'    BIZ_Section32_UIChanges_Section32_ClosingDateAndApplicationDatePostValidation(strRowID)
+'@endcode
+'@param strRowID - RowID for data
+
+Function BIZ_Section32_UIChanges_Section32_ClosingDateAndApplicationDatePostValidation(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Section32","ClosingDate and ApplicationDate PostValidation using RowID @' "&strRowID, Null
+    
+    Dim objData,strPostText
+    Set objData      = FRM_DS_GetTestData("Section32", "UIChanges", strRowID)
+    strPostText      = Trim(FRM_DS_GetValue(objData, "ClosingdteValidation"))
+    
+    Wait g_LongWaitMedium ' Explicit wait used to handle sync issues
+		
+	If UTIL_String_IsNotEmpty(strPostText) Then
+	   GUI_Object_ValidateProperty SwfWindow("swfname:=MainForm").Page("index:=0").WebElement("html id:=Label86","html tag:=SPAN"),"innertext", strPostText ,"Validate text"
+	End If
+	      
+    Set objData  = Nothing
+        
+End Function
+
+
+'@}

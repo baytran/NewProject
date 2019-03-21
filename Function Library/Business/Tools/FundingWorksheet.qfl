@@ -1,0 +1,422 @@
+''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Tools_FundingWorkSheet BIZ_Tools_FundingWorkSheet
+'
+' List of functions here
+' @code
+'
+'	Function BIZ_FundingWorksheet_SelectTemplate(strFundingTemplate)
+'   Function BIZ_FundingWorksheet_SetFundingClosing(strRowID)
+'   Function BIZ_FundingWorksheet_SetFundingSource(strRowID)
+'   Function BIZ_FundingWorksheet_SetWireInformation(strRowID)
+'   Function BIZ_FundingWorksheet_CheckFeeLines()
+'	Function BIZ_WorkFlow2015Itemization_OverWireAmtNull_FundingBalancingWorkSheet_Credits_Validate(strRowID)
+'	Function BIZ_WorkFlow2015Itemization_FundingBalancingWorksheet_Debits_Validate(strRowID)
+'	Function BIZ_FundingWorksheet_FundingFeeTable_FeeDetails_Validate(strRowID)
+'	Function BIZ_WorkFlow2015Itemization_FundingBalancingWorksheet_Credits_Validate(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+' Added by Sameer Gupta as of 12th Jan 2016
+'This function is used to select existing Funding Template row from the list
+'@code
+'    Function BIZ_FundingWorksheet_SelectTemplate(strFundingTemplate)
+'@endcode
+'@param strFundingTemplate - Funding Template name
+
+Function BIZ_FundingWorksheet_SelectTemplate(strFundingTemplate)
+
+	FRM_Logger_ReportInfoEvent "Select Funding Template", "Select Funding Template with name: " & strFundingTemplate & "", null
+
+	Dim objFundingTemplateList, scrollbarFundingTemplate
+	Set objFundingTemplateList = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=PurchaseAdviceTemplateSelector").SwfObject("swfname:=gvDirectory")
+	Set scrollbarFundingTemplate = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=PurchaseAdviceTemplateSelector").SwfScrollBar("swfname:=vPanelScrollBar")
+
+	boolExists = GUI_List_ClickRow (objFundingTemplateList, scrollbarFundingTemplate, "Name", strFundingTemplate, True, False, False, "Single")
+	
+	Set objFundingTemplateList = Nothing
+	Set scrollbarFundingTemplate = Nothing
+	
+	If boolExists Then
+		BIZ_FundingWorksheet_SelectTemplate = True
+	Else
+		BIZ_FundingWorksheet_SelectTemplate = False
+	End If
+
+End Function
+
+
+
+'This function is used to set data for Funding Closing section on Funding Worksheet page
+'@code
+'    Function BIZ_FundingWorksheet_SetFundingClosing(strRowID)
+'@endcode
+'@param strRowID - The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_FundingWorksheet_SetFundingClosing(strRowID)
+    FRM_Logger_ReportInfoEvent "Set Funding Closing data", "Set Funding Closing data using Row Id '"&strRowID&"' in the SetFundingClosing datasheet", null
+
+    Dim objFundingWorksheetPage, objData
+    Set objFundingWorksheetPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Tools_FundingWorkSheet", "SetFundingClosing", strRowID)
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1991_Funder")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox1"), FRM_DS_GetValue(objData, "1991_Funder")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1992_SentToFunder")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox2"), FRM_DS_GetValue(objData, "1992_SentToFunder")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1993_FundingType")) Then
+		GUI_WinEdit_Set objFundingWorksheetPage.WinEdit("window id:=1001","nativeclass:=Edit"), FRM_DS_GetValue(objData, "1993_FundingType")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1994_ClearToClose")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox7"), FRM_DS_GetValue(objData, "1994_ClearToClose")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1995_ClearedBy")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox8"), FRM_DS_GetValue(objData, "1995_ClearedBy")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1996_FundsOrdered")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox9"), FRM_DS_GetValue(objData, "1996_FundsOrdered")
+	End If
+    
+	
+    Set objFundingWorksheetPage = Nothing
+    Set objData = Nothing	
+		
+End Function
+
+
+
+'This function is used to set data for Funding Source section on Funding Worksheet page
+'@code
+'    Function BIZ_FundingWorksheet_SetFundingSource(strRowID)
+'@endcode
+'@param strRowID - The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_FundingWorksheet_SetFundingSource(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Funding Source data", "Set Funding Source data using Row Id '"&strRowID&"' in the SetFundingClosing datasheet", null
+
+    Dim objFundingWorksheetPage, objData
+    Set objFundingWorksheetPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Tools_FundingWorkSheet", "SetFundingSource", strRowID)
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX200_FundingSource")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox6"), FRM_DS_GetValue(objData, "VENDX200_FundingSource")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2011_FunderURL")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox40"), FRM_DS_GetValue(objData, "2011_FunderURL")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1997_FundsSent")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox10"), FRM_DS_GetValue(objData, "1997_FundsSent")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1998_CollateralSent")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox14"), FRM_DS_GetValue(objData, "1998_CollateralSent")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1999_FundsReleased")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox11"), FRM_DS_GetValue(objData, "1999_FundsReleased")
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2000_Release#")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox12"), FRM_DS_GetValue(objData, "2000_Release#")
+	End If
+    
+	
+    Set objFundingWorksheetPage = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to set data for Wire Information section on Funding Worksheet page
+'@code
+'    Function BIZ_FundingWorksheet_SetWireInformation(strRowID)
+'@endcode
+'@param strRowID - The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_FundingWorksheet_SetWireInformation(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Wire Information data", "Set Wire Information data using Row Id '"&strRowID&"' in the SetFundingClosing datasheet", null
+
+    Dim objFundingWorksheetPage, objData
+    Set objFundingWorksheetPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    Set objData = FRM_DS_GetTestData("Tools_FundingWorkSheet", "SetWireInformation", strRowID)
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "186_Escrow#")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox13"), FRM_DS_GetValue(objData, "186_Escrow#")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "187_Title#")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox28"), FRM_DS_GetValue(objData, "187_Title#")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2001_WireToCheckbox")) Then
+		GUI_WebCheckBox_Set objFundingWorksheetPage.WebCheckBox("html id:=__cid_CheckBox1_Ctrl"), FRM_DS_GetValue(objData, "2001_WireToCheckbox")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX396_ABANumber")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox24"), FRM_DS_GetValue(objData, "VENDX396_ABANumber")
+	End If
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX397_AccountNumber")) Then
+		GUI_WebEdit_Set objFundingWorksheetPage.WebEdit("html id:=TextBox25"), FRM_DS_GetValue(objData, "VENDX397_AccountNumber")
+	End If
+    
+	
+    Set objFundingWorksheetPage = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to select all the fee lines on Funding Worksheet page
+'@code
+'    Function BIZ_FundingWorksheet_CheckFeeLines()
+'@endcode
+
+Function BIZ_FundingWorksheet_CheckFeeLines()
+    FRM_Logger_ReportInfoEvent "Check Fee Lines", "Check the checkbox for every fee line on Funding Worksheet page", null
+
+    Dim objFeeList
+	Set objLoanPage = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").Swfwindow("swfname:=LoanPage")
+    Set objFeeList = objLoanPage.SwfObject("swfname:=gridFees2015")
+    For i = 0 To objFeeList.Object.Items.Count-1
+        GUI_List_SelectCheckBoxinCell objFeeList, 0, i  
+    Next
+
+	strTotalDeduction = GUI_Object_GetPropertyValue(objLoanPage.SwfEdit("Swfname:=textBoxDeduction"), "text")
+    
+	If(Len(strTotalDeduction) > 0) Then 
+		FRM_Logger_ReportPassEvent "Select all the checkboxes under CD line", "Total deductions value is populate when you select all check boxes under CD line", null
+	End If
+    Set objFeeList = Nothing
+	Set objLoanPage = Nothing
+End Function
+
+
+'This function is used to Validate items in Debit Grid of FundingBalancing Worksheet
+'@code
+'    BIZ_WorkFlow2015Itemization_FundingBalancingWorksheet_Debits_Validate(strRowID)
+'@endcode
+'@param strRowID - RowId of test data in Excel spread sheet
+
+Function BIZ_WorkFlow2015Itemization_FundingBalancingWorksheet_Debits_Validate(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Verify Debits side of the Funding Balancing WorkSheet","Verify Total Loan Amount and Debits",Null
+	
+	Dim  objData
+	
+	Set objData = FRM_DS_GetTestData("Tools_FundingBalancingWorKSheet", "ValidateDebits", strRowID)
+	
+	If GUI_List_VerifyItemExists(SwfWindow("swfname:=MainForm").SwfList("swfname:=emToolMenuBox", "index:=0"),"Funding Balancing Worksheet") Then
+		BIZ_Tools_Open "Funding Balancing Worksheet"
+		
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"Debits_TotalLoanAmt")) Then
+		'Validate Total Loan Amount
+		If GUI_List_TextExists(SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridDebit"),"Debit Description","Total Loan Amount") Then
+			intRowIndex = GUI_List_GetRowIndex(SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridDebit"), "Debit Description", "Total Loan Amount")
+			GUI_List_ValidateCellData SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridDebit"), intRowIndex, "Amount", FRM_DS_GetValue(objData,"Debits_TotalLoanAmt")
+		Else
+			FRM_Logger_ReportFailEvent "Verify Total Loan Amount","Column name doesn't exits to find Total Loan Amount",Null
+		End If
+	End If 
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"Debits_TotalDebits")) Then
+		'Validate Total Debits
+		GUI_Object_ValidateText SwfWindow("swfname:=MainForm").SwfEdit("swfname:=boxDebits"), FRM_DS_GetValue(objData,"Debits_TotalDebits"),"Total Debits"
+	End If 
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"Debits_LenderCredits")) Then
+		'Validate Lender Credits Amount
+		If GUI_List_TextExists(SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridDebit"),"Debit Description","Lender Credits") Then
+			intRowIndex = GUI_List_GetRowIndex(SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridDebit"), "Debit Description", "Lender Credits")
+			GUI_List_ValidateCellData SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridDebit"), intRowIndex, "Amount", FRM_DS_GetValue(objData,"Debits_LenderCredits")
+		Else
+			FRM_Logger_ReportFailEvent "Verify Lender Credits Amount","Column name doesn't exits to find Lender Credits Amount",Null
+		End If
+	End If 
+	Else
+		FRM_Logger_ReportFailEvent "Verify the 'Funding Balancing Worksheet' form under tools tab","Required form doesn't exists",Null
+	End If
+	
+	Set objData = Nothing
+	
+End Function 
+
+
+
+
+'This function is to validate the fee details in funding fee table in fundingworksheet
+'@code
+'   BIZ_FundingWorksheet_FundingFeeTable_FeeDetails_Validate(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_FundingWorksheet_FundingFeeTable_FeeDetails_Validate(strRowID)
+	
+	FRM_Logger_ReportInfoEvent "Validate the WorkFlow of Fee Details from 2015 Itemization to Funding Worksheet","Verify using the "&strRowID&" data in sheet VerifyFeeDetails",Null
+	
+	Dim objFundingWSTbl,intItemsCount,arrFundingWrksheetColumnNames,intRowCount,intColumnCount,strColumnNames,strCDLine,strItemizationLine,strFeeDescription,strPaidBy,strPaidTo,intAmount,intPACBroker,intPACLender,intPACOther,intPOCLender,intPOCOther,intPOCBroker,arrRowId
+	
+	Set objFundingWSTbl = SwfWindow("swfname:=MainForm").SwfObject("swfname:=borderPanel1").SwfObject("swfname:=gridFees2015")
+	Set objDataFund 	= FRM_DS_GetTestData("Tools_FundingWorkSheet", "VerifyFeeDetails", strRowID)
+	
+	GUI_List_Select SwfWindow("swfname:=MainForm").SwfTab("swfname:=toolsFormsTabControl"), "Tools"
+	 
+	If GUI_List_VerifyItemExists(SwfWindow("swfname:=MainForm").SwfList("swfname:=emToolMenuBox", "index:=0"),"Funding Worksheet") Then
+		BIZ_Tools_Open "Funding Worksheet"
+	Else
+		FRM_Logger_ReportFailEvent "Verify the 'Funding Worksheet' form under tools tab","Required form doesn't  exists",Null
+	End If
+
+	intRowCount = GUI_List_GetNumberofRows(objFundingWSTbl)
+	arrRowId  = Split(FRM_DS_GetValue(objDataFund, "FundingSheet_RowIDs"),";")
+	
+	If intRowCount = Ubound(arrRowId)+1  Then
+	
+		For intItemsCount = 0 to intRowCount-1 Step 1 
+			Set objData = FRM_DS_GetTestData("Tools_FundingWorkSheet", "VerifyFeeDetails", arrRowId(intItemsCount))
+			
+			strColumnNames 		= FRM_DS_GetValue(objData, "FundingWrkSheetColName")
+			strCDLine	   		= FRM_DS_GetValue(objData, "CD_Line")
+			strItemizationLine  = FRM_DS_GetValue(objData, "Itemization_Line")
+			strFeeDescription   = FRM_DS_GetValue(objData, "Fee_Description")
+			strPaidBy           = FRM_DS_GetValue(objData, "PaidBy")
+			strPaidTo			= FRM_DS_GetValue(objData, "PaidTo")
+			intAmount			= FRM_DS_GetValue(objData, "Amount")
+			intPACBroker		= FRM_DS_GetValue(objData, "PACBroker")
+			intPACLender		= FRM_DS_GetValue(objData, "PACLender")
+			intPACOther			=  FRM_DS_GetValue(objData, "PACOther")
+			intPOCLender	    = FRM_DS_GetValue(objData, "POCLender")
+			intPOCOther		    = FRM_DS_GetValue(objData, "POCOther")
+			intPOCBroker		= FRM_DS_GetValue(objData, "POCBroker")
+			
+			arrFundingWrksheetColumnNames =Split(strColumnNames,";")
+			
+			For intColumnCount = 0 To UBound(arrFundingWrksheetColumnNames) Step 1
+				Select Case arrFundingWrksheetColumnNames(intColumnCount)
+					Case "CD Line #"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CD_Line")) Then
+					  	GUI_List_ValidateCellData objFundingWSTbl, intItemsCount,"CD Line #", strCDLine
+					  End If
+					Case "Itemization Line #"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Itemization_Line")) Then
+					  	GUI_List_ValidateCellData objFundingWSTbl,intItemsCount,"Itemization Line #", strItemizationLine
+					  End If 
+					Case "Fee Description"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Fee_Description")) Then
+					  	GUI_List_ValidateCellData objFundingWSTbl,intItemsCount,"Fee Description", strFeeDescription
+					  End If
+					Case "Paid By"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PaidBy")) Then
+					 	 GUI_List_ValidateCellData objFundingWSTbl,intItemsCount,"Paid By",strPaidBy
+					  End If 
+					Case "Paid To"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PaidTo")) Then
+					     GUI_List_ValidateCellData objFundingWSTbl,intItemsCount,"Paid To", strPaidTo
+					  End If 
+					Case "Amount"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Amount")) Then
+					  	GUI_List_ValidateCellData objFundingWSTbl,intItemsCount,"Amount", intAmount
+					  End If 
+					Case "POC Broker"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "POCBroker")) Then
+					 	 GUI_List_ValidateCellData objFundingWSTbl,intItemsCount, "POC Broker",intPOCBroker
+					  End If
+					Case "POC Lender"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "POCLender"))  Then
+					 	 GUI_List_ValidateCellData objFundingWSTbl,intItemsCount,"POC Lender", intPOCLender
+					  End If
+					Case "POC Other"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "POCOther")) Then
+					  	GUI_List_ValidateCellData objFundingWSTbl,intItemsCount,"POC Other", intPOCOther
+					  End If 
+					Case "PAC Broker"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PACBroker")) Then
+					  	GUI_List_ValidateCellData objFundingWSTbl,intItemsCount,"PAC Broker",intPACBroker
+					  End If 
+					Case "PAC Lender"
+					  If UTIL_String_IsNotEmpty( FRM_DS_GetValue(objData, "PACLender")) Then
+					  	GUI_List_ValidateCellData objFundingWSTbl,intItemsCount,"PAC Lender",intPACLender
+					  End If 
+					Case "PAC Other"
+					  If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "PACOther")) Then
+					  	GUI_List_ValidateCellData objFundingWSTbl, intItemsCount, "PAC Other", intPACOther
+					  End If
+					Case Else
+					 FRM_Logger_ReportFailEvent "Validate the Cell value in Funding sheet","No column name found",Null
+				End Select 
+			 Next			
+		Next
+	Else
+		FRM_Logger_ReportFailEvent "Validate the Cell value in Funding sheet","Data in Excel spread sheet and UI mismatch",Null	
+	End If
+	
+	Set objFundingWSTbl = Nothing
+	Set objData 		= Nothing
+	Set objDataFund     = Nothing
+	
+End Function
+
+
+
+'This function is used to Validate Debits side of Funding Balancing WorkSheet
+'@code
+'    BIZ_WorkFlow2015Itemization_FundingBalancingWorksheet_Credits_Validate(strRowID)
+'@endcode
+'@param strRowID - RowId of test data in Excel spread sheet
+
+Function BIZ_WorkFlow2015Itemization_FundingBalancingWorksheet_Credits_Validate(strRowID)
+	
+	FRM_Logger_ReportInfoEvent "Verify Credit side Wire Transfer Amount and Total Credits","Verification of WireTransfer amount and Total credits for OverWire Amt 50 in Funding Balancing Worksheet",Null
+	
+	Dim objData,objCreditGrid
+
+	Set objData 	  = FRM_DS_GetTestData("Tools_FundingBalancingWorKSheet", "ValidateCredits", strRowID)
+	Set objCreditGrid = SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridCredit")
+
+	If GUI_List_TextExists(objCreditGrid,"Credit Description","Wire Transfer Amount") Then
+		intRowIndex = GUI_List_GetRowIndex(objCreditGrid, "Credit Description","Wire Transfer Amount")
+		FRM_Logger_ReportInfoEvent "Verify Credits Side Wire Transfer Amount","Verify Wire Transfer Amount",Null
+		GUI_List_ValidateCellData objCreditGrid, intRowIndex, "Amount",FRM_DS_GetValue(objData,"WireTransferAmount")
+	Else
+		FRM_Logger_ReportFailEvent "Verify Credits Side of Sheet","Verify Wire Transfer Amount",Null
+	End If
+
+	'Validate Total Credits
+	GUI_Object_ValidateText  SwfWindow("swfname:=MainForm").SwfEdit("swfname:=boxCredits"),FRM_DS_GetValue(objData,"TotalCredits"),"Total Credits"
+	
+	Set objData 	  = Nothing
+	Set objCreditGrid = Nothing
+	
+End Function
+
+
+
+'This function is used to Validate the Credit items in grid of Funding Balancing WorkSheet for OveWire amount Null
+'@code
+'    BIZ_WorkFlow2015Itemization_OverWireAmtNull_FundingBalancingWorkSheet_Credits_Validate(strRowID)
+'@endcode
+'@param strRowID - RowId of test data in Excel spread sheet
+	
+Function BIZ_WorkFlow2015Itemization_OverWireAmtNull_FundingBalancingWorkSheet_Credits_Validate(strRowID)
+	
+	FRM_Logger_ReportPassEvent "Verify Credit grid items for OverWire Amount Null in Funding Balancing WorkSheet","Verify using the data in "&strRowID&" of sheet 'ValidateCredits' in excel spreadsheet'",Null
+	
+	Set objData = FRM_DS_GetTestData("Tools_FundingBalancingWorKSheet", "ValidateCredits", strRowID)
+	
+	If GUI_List_VerifyItemExists(SwfWindow("swfname:=MainForm").SwfList("swfname:=emToolMenuBox", "index:=0"),"Funding Balancing Worksheet") Then
+		BIZ_Tools_Open "Funding Balancing Worksheet"
+	
+		'Validate Total Credits
+		GUI_Object_ValidateText SwfWindow("swfname:=MainForm").SwfEdit("swfname:=boxCredits"),FRM_DS_GetValue(objData,"Credits_TotalCredits_Null"),"Total Credits"
+	
+		If GUI_List_TextExists(SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridCredit"),"Credit Description","Wire Transfer Amount") Then
+			intRowIndex = GUI_List_GetRowIndex(SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridCredit"), "Credit Description","Wire Transfer Amount")
+			GUI_List_ValidateCellData SwfWindow("swfname:=MainForm").SwfObject("swfname:=gridCredit"), intRowIndex, "Amount",FRM_DS_GetValue(objData,"Wiretransfer_Amt_Null")
+		Else
+			FRM_Logger_ReportFailEvent "Verify Credits Side of Sheet","Verify Wire Transfer Amount",Null
+		End If
+	Else
+		FRM_Logger_ReportFailEvent "Verify the 'Funding Worksheet' form under tools tab","Required form doesn't exists",Null
+	End If
+	
+	Set objData = Nothing
+	
+End Function
+
+'@}

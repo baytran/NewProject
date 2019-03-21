@@ -1,0 +1,507 @@
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Tools_ShippingDetail BIZ_Tools_ShippingDetail
+'
+' List of functions here
+' @code
+'
+'   Function BIZ_ShippingDetail_SetShippingDetail(strRowID)
+'   Function BIZ_ShippingDetail_SetShipTo(strRowID)
+'   Function BIZ_ShippingDetail_SetCustomerService(strRowID)
+'   Function BIZ_ShippingDetail_SetPostClosingTrailingDocs(strRowID)
+'   Function BIZ_ShippingDetail_SetPayment(strRowID)
+'   Function BIZ_ShippingDetail_SetInsurance(strRowID)
+'   Function BIZ_ShippingDetail_SetNoteDelivery(strRowID)
+'   Function BIZ_ShippingDetail_SetTaxesNotice(strRowID)
+'   Function BIZ_ShippingDetail_SetMersRegistration(strRowID)
+'   Function BIZ_ShippingDetail_SetPhysicalFileStorage(strRowID)
+'	Function BIZ_ShippingDetail_SelectAllCopyFromShipToButtons()
+'   
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+' Added by Emily Cheng as of 21st Mar 2016
+'This function is used to set Shipping Detail section data on Shipping Detail page
+'@code
+'    Function BIZ_ShippingDetail_SetShippingDetail(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetShippingDetail(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Shipping Detail Data", "Set Shipping Detail Data using Row Id '"&strRowID&"' in the SetShippingDetail datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetShippingDetail", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2012_InvestorDeliveryDate")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox1"), FRM_DS_GetValue(objData, "2012_InvestorDeliveryDate")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2013_TargetDeliveryDate")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox2"), FRM_DS_GetValue(objData, "2013_TargetDeliveryDate")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2014_ActualShipDate")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox3"), FRM_DS_GetValue(objData, "2014_ActualShipDate")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX263_Investor")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox4"), FRM_DS_GetValue(objData, "VENDX263_Investor")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX276_InvestorLoanNumber")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox5"), FRM_DS_GetValue(objData, "VENDX276_InvestorLoanNumber")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2015_RecordingNumber")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox6"), FRM_DS_GetValue(objData, "2015_RecordingNumber")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4020_PoolID")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox28"), FRM_DS_GetValue(objData, "4020_PoolID")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "4021_PoolNumber")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox48"), FRM_DS_GetValue(objData, "4021_PoolNumber")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2016_ShipmentMethod")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox7"), FRM_DS_GetValue(objData, "2016_ShipmentMethod")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2019_ShipperName")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox10"), FRM_DS_GetValue(objData, "2019_ShipperName")
+    End If 
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "996_CommitmentNumber")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox19"), FRM_DS_GetValue(objData, "996_CommitmentNumber")
+    End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2017_Carrier")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox8"), FRM_DS_GetValue(objData, "2017_Carrier")
+    End If	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2018_PackageTrackingNumber")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox9"), FRM_DS_GetValue(objData, "2018_PackageTrackingNumber")
+    End If
+    
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function 
+
+
+
+'This function is used to set Ship To section data on Shipping Detail page
+'@code
+'    Function BIZ_ShippingDetail_SetShipTo(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetShipTo(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Ship To Data", "Set Ship to Data on Ship Detail Page using Row Id '"&strRowID&"' in the SetShipTo datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetShipTo", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX369_Name")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox11"), FRM_DS_GetValue(objData, "VENDX369_Name")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX370_Address")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox12"), FRM_DS_GetValue(objData, "VENDX370_Address")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX371_City")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox13"), FRM_DS_GetValue(objData, "VENDX371_City")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX372_State")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox14"), FRM_DS_GetValue(objData, "VENDX372_State")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX373_Zip")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=l_x373"), FRM_DS_GetValue(objData, "VENDX373_Zip")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX374_Attention")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox15"), FRM_DS_GetValue(objData, "VENDX374_Attention")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX375_Phone")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox16"), FRM_DS_GetValue(objData, "VENDX375_Phone")
+    End If 
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX376_Email")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox18"), FRM_DS_GetValue(objData, "VENDX376_Email")
+    End If
+
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX377_Fax")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox26"), FRM_DS_GetValue(objData, "VENDX377_Fax")
+    End If
+       
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to set Customer Service section data on Shipping Detail page
+'@code
+'    Function BIZ_ShippingDetail_SetCustomerService(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetCustomerService(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Customer Service Data", "Set Customer Service Data on Ship Detail Page using Row Id '"&strRowID&"' in the SetCustomerService datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetCustomerService", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX378_Name")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=l_x378"), FRM_DS_GetValue(objData, "VENDX378_Name")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX379_Address")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox20"), FRM_DS_GetValue(objData, "VENDX379_Address")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX380_City")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox22"), FRM_DS_GetValue(objData, "VENDX380_City")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX381_State")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox23"), FRM_DS_GetValue(objData, "VENDX381_State")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX382_Zip")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=l_x382"), FRM_DS_GetValue(objData, "VENDX382_Zip")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX383_Attention")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox25"), FRM_DS_GetValue(objData, "VENDX383_Attention")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX384_Phone")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox24"), FRM_DS_GetValue(objData, "VENDX384_Phone")
+    End If 
+       
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to set Post Closing Trailing Docs section data on Shipping Detail page
+'@code
+'    Function BIZ_ShippingDetail_SetPostClosingTrailingDocs(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetPostClosingTrailingDocs(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Post Closing Trailing Docs Data", "Set Post Closing Trailing Docs Data on Ship Detail Page using Row Id '"&strRowID&"' in the SetPostClosingTrailingDocs datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetPostClosingTrailingDocs", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX387_Name")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=l_x387"), FRM_DS_GetValue(objData, "VENDX387_Name")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX388_Address")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox29"), FRM_DS_GetValue(objData, "VENDX388_Address")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX389_City")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox31"), FRM_DS_GetValue(objData, "VENDX389_City")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX390_State")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox32"), FRM_DS_GetValue(objData, "VENDX390_State")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX391_Zip")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=l_x391"), FRM_DS_GetValue(objData, "VENDX391_Zip")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX392_Attention")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox34"), FRM_DS_GetValue(objData, "VENDX392_Attention")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX393_Phone")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox33"), FRM_DS_GetValue(objData, "VENDX393_Phone")
+    End If 
+       
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to set Payment section data on Shipping Detail page
+'@code
+'    Function BIZ_ShippingDetail_SetPayment(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetPayment(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Payment Data", "Set Payment Data on Ship Detail Page using Row Id '"&strRowID&"' in the SetPayment datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetPayment", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX529_Name")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=l_x529"), FRM_DS_GetValue(objData, "VENDX529_Name")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX530_Address")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox21"), FRM_DS_GetValue(objData, "VENDX530_Address")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX532_City")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox30"), FRM_DS_GetValue(objData, "VENDX532_City")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX533_State")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox37"), FRM_DS_GetValue(objData, "VENDX533_State")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX534_Zip")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox46"), FRM_DS_GetValue(objData, "VENDX534_Zip")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX535_Attention")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox43"), FRM_DS_GetValue(objData, "VENDX535_Attention")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX536_Phone")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox42"), FRM_DS_GetValue(objData, "VENDX536_Phone")
+    End If 
+       
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to set Insurance section data on Shipping Detail page
+'@code
+'    Function BIZ_ShippingDetail_SetInsurance(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetInsurance(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Insurance Data", "Set Insurance Data on Ship Detail Page using Row Id '"&strRowID&"' in the SetInsurance datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetInsurance", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX539_Name")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=l_x539"), FRM_DS_GetValue(objData, "VENDX539_Name")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX540_Address")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox47"), FRM_DS_GetValue(objData, "VENDX540_Address")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX542_City")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox49"), FRM_DS_GetValue(objData, "VENDX542_City")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX543_State")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox50"), FRM_DS_GetValue(objData, "VENDX543_State")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX544_Zip")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox55"), FRM_DS_GetValue(objData, "VENDX544_Zip")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX545_Attention")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox52"), FRM_DS_GetValue(objData, "VENDX545_Attention")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX546_Phone")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox51"), FRM_DS_GetValue(objData, "VENDX546_Phone")
+    End If 
+       
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to set Note Delivery section data on Shipping Detail page
+'@code
+'    Function BIZ_ShippingDetail_SetNoteDelivery(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetNoteDelivery(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Note Delivery Data", "Set Note Delivery Data on Ship Detail Page using Row Id '"&strRowID&"' in the SetNoteDelivery datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetNoteDelivery", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX549_Name")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=l_x549"), FRM_DS_GetValue(objData, "VENDX549_Name")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX550_Address")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox56"), FRM_DS_GetValue(objData, "VENDX550_Address")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX552_City")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox58"), FRM_DS_GetValue(objData, "VENDX552_City")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX553_State")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox59"), FRM_DS_GetValue(objData, "VENDX553_State")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX554_Zip")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox64"), FRM_DS_GetValue(objData, "VENDX554_Zip")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX555_Attention")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox62"), FRM_DS_GetValue(objData, "VENDX555_Attention")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX556_Phone")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox61"), FRM_DS_GetValue(objData, "VENDX556_Phone")
+    End If 
+       
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to set Taxes Notice section data on Shipping Detail page
+'@code
+'    Function BIZ_ShippingDetail_SetTaxesNotice(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetTaxesNotice(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Taxes Notice Data", "Set Taxes Notice Data on Ship Detail Page using Row Id '"&strRowID&"' in the SetTaxesNotice datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetTaxesNotice", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX559_Name")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=l_x559"), FRM_DS_GetValue(objData, "VENDX559_Name")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX560_Address")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox65"), FRM_DS_GetValue(objData, "VENDX560_Address")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX562_City")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox67"), FRM_DS_GetValue(objData, "VENDX562_City")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX563_State")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox68"), FRM_DS_GetValue(objData, "VENDX563_State")
+    End If 
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX564_Zip")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox73"), FRM_DS_GetValue(objData, "VENDX564_Zip")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX565_Attention")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox70"), FRM_DS_GetValue(objData, "VENDX565_Attention")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "VENDX566_Phone")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox69"), FRM_DS_GetValue(objData, "VENDX566_Phone")
+    End If 
+       
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to set Mers Registration section data on Shipping Detail page
+'@code
+'    Function BIZ_ShippingDetail_SetMersRegistration(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetMersRegistration(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Mers Registration Data", "Set Mers Registration Data on Ship Detail Page using Row Id '"&strRowID&"' in the SetMersRegistration datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetMersRegistration", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "1051_ConfirmationNumber")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox38"), FRM_DS_GetValue(objData, "1051_ConfirmationNumber")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2023_RegistrationDate")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox39"), FRM_DS_GetValue(objData, "2023_RegistrationDate")
+    End If 
+           
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to set Physical File Storage section data on Shipping Detail page
+'@code
+'    BIZ_ShippingDetail_SetPhysicalFileStorage(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SetPhysicalFileStorage(strRowID)
+	FRM_Logger_ReportInfoEvent "Set Physical File Storage Data", "Set Physical File Storage Data on Ship Detail Page using Row Id '"&strRowID&"' in the SetPhysicalFileStorage datasheet", null	
+
+    Dim ObjShippingDetail,objData
+    
+    Set ObjShippingDetail = SwfWindow("swfname:=MainForm").Page("index:=0")	
+	Set objData = FRM_DS_GetTestData("Tools_ShippingDetail", "SetPhysicalFileStorage", strRowID)
+
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2020_Location")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox40"), FRM_DS_GetValue(objData, "2020_Location")
+    End If 
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2021_ID")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=TextBox41"), FRM_DS_GetValue(objData, "2021_ID")
+    End If 
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "2022_Comments")) Then
+        GUI_WebEdit_Set ObjShippingDetail.WebEdit("html id:=MultilineTextBox1"), FRM_DS_GetValue(objData, "2022_Comments")
+    End If 
+           
+    Set ObjShippingDetail = Nothing
+    Set objData = Nothing
+End Function
+
+
+
+'This function is used to click on all "Copy From Ship To" buttons
+'@code
+'    BIZ_ShippingDetail_SelectAllCopyFromShipToButtons()
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_ShippingDetail_SelectAllCopyFromShipToButtons()
+
+Dim intButtonNumber
+
+FRM_Logger_ReportInfoEvent "Selects All Copy From Ship To Buttons", "Clicks on All Copy From Ship To Buttons", null	
+
+	For intButtonNumber = 0 To 13 Step 1
+		GUI_SwfButton_Click SwfWindow("swfname:=MainForm").Page("index:=0").WebButton("name:=Copy From Ship To","index:="&intButtonNumber)
+	Next
+	
+End Function
+
+
+'@}

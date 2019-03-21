@@ -1,0 +1,516 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_SelfEmployedIncome BIZ_Forms_SelfEmployedIncome
+'
+' List of functions here
+' @code
+'   Function BIZ_SelfEmployedIncome_SetForm1040(strRowID)
+'	Function BIZ_Common_SelfEmplyedIncome_SetForm1040(objParentObject, strRowID)
+'   Function BIZ_SelfEmployedIncome_SetForm1065(strRowID)
+'	Function BIZ_Common_SelfEmplyedIncome_SetForm1065(objParentObject, strRowID)
+'   Function BIZ_SelfEmployedIncome_SetForm1120S(strRowID)
+'	Function BIZ_Common_SelfEmplyedIncome_SetForm1120S(objParentObject, strRowID)
+'   Function BIZ_SelfEmployedIncome_SetForm1120(strRowID)
+'	Function BIZ_Common_SelfEmplyedIncome_SetForm1120(objParentObject, strRowID)
+'   Function BIZ_SelfEmployedIncome_SetBusiness(strRowID)
+'	Function BIZ_Common_SelfEmplyedIncome_SetBusiness(objParentObject, strRowID)
+'   Function BIZ_SelfEmployedIncome_VerifyBusiness(strRowID)
+
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for set For 1040 
+'@code
+'    BIZ_SelfEmployedIncome_SetForm1040(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_SelfEmployedIncome_SetForm1040(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Self-Employed income 1084", "Set Form 1040 using Row Id '"&strRowID&"' in the Borrower datasheet", null
+
+	Set objSummaryPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    
+	BIZ_Forms_Open "Self-Employed Income 1084"
+	BIZ_Common_SelfEmployedIncome_SetForm1040 objSummaryPage, strRowID
+	
+	Set objSummaryPage = Nothing
+End Function
+
+
+
+'This function is for set Form 1040 
+'@code
+'    BIZ_Common_SelfEmployedIncome_SetForm1040(objParentObject, strRowID)
+'@endcode
+'@param objParentObject parent object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_SelfEmployedIncome_SetForm1040(objParentObject, strRowID)
+
+	Set objData = FRM_DS_GetTestData("Forms_SelfEmployedIncome", "SetForm1040", strRowID)
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X6_IncomeTaxReturnYear")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X6"), FRM_DS_GetValue(objData, "FM1084X6_IncomeTaxReturnYear")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X50_IncomeTaxReturnYear")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X50"), FRM_DS_GetValue(objData, "FM1084X50_IncomeTaxReturnYear")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X7_W2Income")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=textBox3"), FRM_DS_GetValue(objData, "FM1084X7_W2Income")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X51_W2Income")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox4"), FRM_DS_GetValue(objData, "FM1084X51_W2Income")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X23_InterestIncome")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox5"), FRM_DS_GetValue(objData, "FM1084X23_InterestIncome")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X66_InterestIncome")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox8"), FRM_DS_GetValue(objData, "FM1084X66_InterestIncome")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X24_Dividends")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox7"), FRM_DS_GetValue(objData, "FM1084X24_Dividends")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X67_Dividends")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox9"), FRM_DS_GetValue(objData, "FM1084X67_Dividends")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X178_NetProfit")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X178"), FRM_DS_GetValue(objData, "FM1084X178_NetProfit")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X179_NetProfit")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X179"), FRM_DS_GetValue(objData, "FM1084X179_NetProfit")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X25_NonRecurring")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X8"), FRM_DS_GetValue(objData, "FM1084X25_NonRecurring")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X68_NonRecurring")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X52"), FRM_DS_GetValue(objData, "FM1084X68_NonRecurring")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X26_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X9"), FRM_DS_GetValue(objData, "FM1084X26_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X69_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X53"), FRM_DS_GetValue(objData, "FM1084X69_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X27_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X10"), FRM_DS_GetValue(objData, "FM1084X27_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X70_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X54"), FRM_DS_GetValue(objData, "FM1084X70_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X28_NondeductibleMeals")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X11"), FRM_DS_GetValue(objData, "FM1084X28_NondeductibleMeals")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X71_NondeductibleMeals")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X55"), FRM_DS_GetValue(objData, "FM1084X71_NondeductibleMeals")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X29_BusinessUse")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X12"), FRM_DS_GetValue(objData, "FM1084X29_BusinessUse")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X72_BusinessUse")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X56"), FRM_DS_GetValue(objData, "FM1084X72_BusinessUse")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X30_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X13"), FRM_DS_GetValue(objData, "FM1084X30_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X73_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X57"), FRM_DS_GetValue(objData, "FM1084X73_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X31_RecurringCapitalGains")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X14"), FRM_DS_GetValue(objData, "FM1084X31_RecurringCapitalGains")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X74_RecurringCapitalGains")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X58"), FRM_DS_GetValue(objData, "FM1084X74_RecurringCapitalGains")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X34_RoyaltiesReceived")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X15"), FRM_DS_GetValue(objData, "FM1084X34_RoyaltiesReceived")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X77_RoyaltiesReceived")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X59"), FRM_DS_GetValue(objData, "FM1084X77_RoyaltiesReceived")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X35_TotalExpenses")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X16"), FRM_DS_GetValue(objData, "FM1084X35_TotalExpenses")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X78_TotalExpenses")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X60"), FRM_DS_GetValue(objData, "FM1084X78_TotalExpenses")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X36_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X17"), FRM_DS_GetValue(objData, "FM1084X36_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X79_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X61"), FRM_DS_GetValue(objData, "FM1084X79_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X180_NetFarmProfit")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox10"), FRM_DS_GetValue(objData, "FM1084X180_NetFarmProfit")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X181_NetFarmProfit")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox16"), FRM_DS_GetValue(objData, "FM1084X181_NetFarmProfit")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X38_NontaxPortion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox11"), FRM_DS_GetValue(objData, "FM1084X38_NontaxPortion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X81_NontaxPortion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox17"), FRM_DS_GetValue(objData, "FM1084X81_NontaxPortion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X39_NonrecurringOtherLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox12"), FRM_DS_GetValue(objData, "FM1084X39_NonrecurringOtherLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X82_NonrecurringOtherLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox18"), FRM_DS_GetValue(objData, "FM1084X82_NonrecurringOtherLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X40_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox13"), FRM_DS_GetValue(objData, "FM1084X40_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X83_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox21"), FRM_DS_GetValue(objData, "FM1084X83_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X41_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox14"), FRM_DS_GetValue(objData, "FM1084X41_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X84_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox22"), FRM_DS_GetValue(objData, "FM1084X84_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X42_BusinessUse")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox15"), FRM_DS_GetValue(objData, "FM1084X42_BusinessUse")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X85_BusinessUse")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox23"), FRM_DS_GetValue(objData, "FM1084X85_BusinessUse")  
+	End If
+	
+	Set objData = Nothing		
+End Function
+
+
+
+'This function is for set For 1065
+'@code
+'    BIZ_SelfEmployedIncome_SetForm1065(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_SelfEmployedIncome_SetForm1065(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Self-Employed income 1084", "Set Form 1065 using Row Id '"&strRowID&"' in the Borrower datasheet", null
+
+	Set objSummaryPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    
+	BIZ_Common_SelfEmployedIncome_SetForm1065 objSummaryPage, strRowID
+	
+	Set objSummaryPage = Nothing
+End Function
+
+
+
+'This function is for set Form 1065
+'@code
+'    BIZ_Common_SelfEmployedIncome_SetForm1065(objParentObject, strRowID)
+'@endcode
+'@param objParentObject parent object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_SelfEmployedIncome_SetForm1065(objParentObject, strRowID)
+
+	Set objData = FRM_DS_GetTestData("Forms_SelfEmployedIncome", "SetForm1065", strRowID)
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X96_IncomeTaxReturnYear")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X6"), FRM_DS_GetValue(objData, "FM1084X96_IncomeTaxReturnYear")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X134_IncomeTaxReturnYear")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_FM1084X50"), FRM_DS_GetValue(objData, "FM1084X134_IncomeTaxReturnYear")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X44_OrdinaryIncome")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=textBox3"), FRM_DS_GetValue(objData, "FM1084X44_OrdinaryIncome")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X87_OrdinaryIncome")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox18"), FRM_DS_GetValue(objData, "FM1084X87_OrdinaryIncome")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X45_NetRental")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox4"), FRM_DS_GetValue(objData, "FM1084X45_NetRental")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X88_NetRental")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox21"), FRM_DS_GetValue(objData, "FM1084X88_NetRental")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X46_GuaranteedPayments")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox5"), FRM_DS_GetValue(objData, "FM1084X46_GuaranteedPayments")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X89_GuaranteedPayments")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox22"), FRM_DS_GetValue(objData, "FM1084X89_GuaranteedPayments")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X97_OrdinaryLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox7"), FRM_DS_GetValue(objData, "FM1084X97_OrdinaryLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X135_OrdinaryLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox23"), FRM_DS_GetValue(objData, "FM1084X135_OrdinaryLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X98_NonRecurringOtherLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox8"), FRM_DS_GetValue(objData, "FM1084X98_NonRecurringOtherLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X136_NonRecurringOtherLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox24"), FRM_DS_GetValue(objData, "FM1084X136_NonRecurringOtherLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X99_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox9"), FRM_DS_GetValue(objData, "FM1084X99_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X137_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox25"), FRM_DS_GetValue(objData, "FM1084X137_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X100_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox10"), FRM_DS_GetValue(objData, "FM1084X100_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X138_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox26"), FRM_DS_GetValue(objData, "FM1084X138_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X101_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox11"), FRM_DS_GetValue(objData, "FM1084X101_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X139_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox27"), FRM_DS_GetValue(objData, "FM1084X139_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X102_MortgageNotesPayable")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox12"), FRM_DS_GetValue(objData, "FM1084X102_MortgageNotesPayable")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X140_MortgageNotesPayable")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox28"), FRM_DS_GetValue(objData, "FM1084X140_MortgageNotesPayable")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X103_NondeductibleTravel")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox13"), FRM_DS_GetValue(objData, "FM1084X103_NondeductibleTravel")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X141_NondeductibleTravel")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox29"), FRM_DS_GetValue(objData, "FM1084X141_NondeductibleTravel")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X105_MultipliedBy")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox16"), FRM_DS_GetValue(objData, "FM1084X105_MultipliedBy")  
+	End If
+	
+	Set objData = Nothing		
+End Function
+
+
+
+'This function is for set For 1120S
+'@code
+'    BIZ_SelfEmployedIncome_SetForm1120S(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_SelfEmployedIncome_SetForm1120S(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Self-Employed income 1084", "Set Form 1120S using Row Id '"&strRowID&"' in the Borrower datasheet", null
+
+	Set objSummaryPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    
+	BIZ_Common_SelfEmployedIncome_SetForm1120S objSummaryPage, strRowID
+	
+	Set objSummaryPage = Nothing
+End Function
+
+
+
+'This function is for set Form 1120S
+'@code
+'    BIZ_Common_SelfEmployedIncome_SetForm1120S(objParentObject, strRowID)
+'@endcode
+'@param objParentObject parent object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_SelfEmployedIncome_SetForm1120S(objParentObject, strRowID)
+
+	Set objData = FRM_DS_GetTestData("Forms_SelfEmployedIncome", "SetForm1120S", strRowID)
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X47_OrdinaryIncome")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox33"), FRM_DS_GetValue(objData, "FM1084X47_OrdinaryIncome")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X90_OrdinaryIncome")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox35"), FRM_DS_GetValue(objData, "FM1084X90_OrdinaryIncome")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X48_NetRental")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=textBox34"), FRM_DS_GetValue(objData, "FM1084X48_NetRental")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X91_NetRental")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox36"), FRM_DS_GetValue(objData, "FM1084X91_NetRental")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X107_NonrecurringOtherLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox41"), FRM_DS_GetValue(objData, "FM1084X107_NonrecurringOtherLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X144_NonrecurringOtherLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox48"), FRM_DS_GetValue(objData, "FM1084X144_NonrecurringOtherLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X108_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox42"), FRM_DS_GetValue(objData, "FM1084X108_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X145_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox49"), FRM_DS_GetValue(objData, "FM1084X145_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X109_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox43"), FRM_DS_GetValue(objData, "FM1084X109_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X146_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox50"), FRM_DS_GetValue(objData, "FM1084X146_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X110_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox44"), FRM_DS_GetValue(objData, "FM1084X110_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X147_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox51"), FRM_DS_GetValue(objData, "FM1084X147_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X111_MortgageNotesPayable")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox45"), FRM_DS_GetValue(objData, "FM1084X111_MortgageNotesPayable")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X148_MortgageNotesPayable")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox52"), FRM_DS_GetValue(objData, "FM1084X148_MortgageNotesPayable")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X112_NondeductibleTravel")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox46"), FRM_DS_GetValue(objData, "FM1084X112_NondeductibleTravel")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X149_NondeductibleTravel")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox53"), FRM_DS_GetValue(objData, "FM1084X149_NondeductibleTravel")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X114_MultipliedBy")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox37"), FRM_DS_GetValue(objData, "FM1084X114_MultipliedBy")  
+	End If
+	
+	Set objData = Nothing		
+End Function
+
+
+
+'This function is for set For 1120
+'@code
+'    BIZ_SelfEmployedIncome_SetForm1120(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_SelfEmployedIncome_SetForm1120(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Self-Employed income 1084", "Set Form 1120 using Row Id '"&strRowID&"' in the Borrower datasheet", null
+
+	Set objSummaryPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    
+	BIZ_Common_SelfEmployedIncome_SetForm1120 objSummaryPage, strRowID
+	
+	Set objSummaryPage = Nothing
+End Function
+
+
+
+'This function is for set Form 1120
+'@code
+'    BIZ_Common_SelfEmployedIncome_SetForm1120(objParentObject, strRowID)
+'@endcode
+'@param objParentObject parent object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_SelfEmployedIncome_SetForm1120(objParentObject, strRowID)
+
+	Set objData = FRM_DS_GetTestData("Forms_SelfEmployedIncome", "SetForm1120", strRowID)
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X116_TaxableIncome")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox62"), FRM_DS_GetValue(objData, "FM1084X116_TaxableIncome")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X152_TaxableIncome")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox69"), FRM_DS_GetValue(objData, "FM1084X152_TaxableIncome")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X117_TotalTax")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=textBox61"), FRM_DS_GetValue(objData, "FM1084X117_TotalTax")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X153_TotalTax")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox68"), FRM_DS_GetValue(objData, "FM1084X153_TotalTax")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X118_NonrecurringLosses")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox60"), FRM_DS_GetValue(objData, "FM1084X118_NonrecurringLosses")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X154_NonrecurringLosses")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox67"), FRM_DS_GetValue(objData, "FM1084X154_NonrecurringLosses")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X119_NonrecurringOtherLosses")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox59"), FRM_DS_GetValue(objData, "FM1084X119_NonrecurringOtherLosses")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X155_NonrecurringOtherLosses")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox66"), FRM_DS_GetValue(objData, "FM1084X155_NonrecurringOtherLosses")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X120_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox58"), FRM_DS_GetValue(objData, "FM1084X120_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X156_Depreciation")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox65"), FRM_DS_GetValue(objData, "FM1084X156_Depreciation")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X121_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox57"), FRM_DS_GetValue(objData, "FM1084X121_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X157_Depletion")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox64"), FRM_DS_GetValue(objData, "FM1084X157_Depletion")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X122_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox38"), FRM_DS_GetValue(objData, "FM1084X122_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X158_AmortizationLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox63"), FRM_DS_GetValue(objData, "FM1084X158_AmortizationLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X123_NetOperatingLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox74"), FRM_DS_GetValue(objData, "FM1084X123_NetOperatingLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X159_NetOperatingLoss")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox81"), FRM_DS_GetValue(objData, "FM1084X159_NetOperatingLoss")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X124_MortgageNotesPayable")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox75"), FRM_DS_GetValue(objData, "FM1084X124_MortgageNotesPayable")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X160_MortgageNotesPayable")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox80"), FRM_DS_GetValue(objData, "FM1084X160_MortgageNotesPayable")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X125_NondeductibleTravel")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox73"), FRM_DS_GetValue(objData, "FM1084X125_NondeductibleTravel")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X161_NondeductibleTravel")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox79"), FRM_DS_GetValue(objData, "FM1084X161_NondeductibleTravel")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X129_Dividends")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox71"), FRM_DS_GetValue(objData, "FM1084X129_Dividends")  
+	End If
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X164_Dividends")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox77"), FRM_DS_GetValue(objData, "FM1084X164_Dividends")  
+	End If
+
+	Set objData = Nothing		
+End Function
+
+
+
+'This function is for set Business Name
+'@code
+'    BIZ_SelfEmployedIncome_SetBusiness(strRowID)
+'@endcode
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_SelfEmployedIncome_SetBusiness(strRowID)
+
+    FRM_Logger_ReportInfoEvent "Self-Employed income 1084", "Set Business name using Row Id '"&strRowID&"' in the Borrower datasheet", null
+
+	Set objSummaryPage = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+    
+	BIZ_Common_SelfEmployedIncome_SetBusiness objSummaryPage, strRowID
+	
+	Set objSummaryPage = Nothing
+End Function
+
+
+
+'This function is for set Business Name
+'@code
+'    BIZ_Common_SelfEmployedIncome_SetBusiness(objParentObject, strRowID)
+'@endcode
+'@param objParentObject parent object
+'@param strRowID The numeric or string unique ID that used to find the line in the data spreadsheet
+
+Function BIZ_Common_SelfEmployedIncome_SetBusiness(objParentObject, strRowID)
+
+	Set objData = FRM_DS_GetTestData("Forms_SelfEmployedIncome", "SetBusiness", strRowID)
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FM1084X177_BusinessName")) Then
+		GUI_WebEdit_Set objParentObject.WebEdit("html id:=TextBox1"), FRM_DS_GetValue(objData, "FM1084X177_BusinessName")  
+	End If
+	Set objData = Nothing		
+End Function
+
+
+'@}

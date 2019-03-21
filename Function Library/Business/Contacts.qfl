@@ -1,0 +1,1342 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Contacts
+'List of functions here
+'@code
+'	Function BIZ_Contacts_BorrowerContact_Add(strRowID)
+'	Function BIZ_Contacts_BorrowerContact_AddAndOriginateLoan(strRowID)
+'   Function BIZ_Contacts_BusinessContact_Add(strRowID)
+'   Function BIZ_Contacts_BusinessContact_Delete(strContactFirstName)
+'   Function BIZ_Contacts_BusinessContact_CustomFields(strRowID)
+'   Function BIZ_Contacts_BorrowerContact_Delete(strRowID)
+'   Function BIZ_Contacts_BorrowerContact_LoanTab(strLoanNumber,strRowID)
+'	Function BIZ_Contacts_BorrowerContact_Duplicate(strfieldName)
+'	Function BIZ_Contacts_BorrowerContact_Edit(strRowID,strFieldName)
+'	Function BIZ_Contacts_DeleteBorrowerContact(strfieldName,strContactName)
+'	Function BIZ_Contacts_BorrowerContactSearch(strRowID,strFieldName)
+'	Function BIZ_Contacts_BorrowerClearSearch()
+'	Function BIZ_Contacts_BorrowerSearchwithSequenceLetters(strRowID)
+'	Function BIZ_Contacts_BorrowerContactSearchwithStatus()
+'	Function BIZ_Contacts_AdvanceSearchFilter(strRowID)
+'	Function BIZ_Contacts_BorrowerContact_Reset(strRowID)
+'	Function BIZ_Contacts_BorrowerContact_PrintandExcelFile()
+'	Function BIZ_Contacts_BorrowerContact_VerifyLoanOrigination(strRowID,strFieldName)
+'	Function BIZ_Contacts_BorrowerContact_VerifyBreakLoanOrigination(strFieldName)
+'	Function BIZ_Contacts_BorrowerContact_BorrowerContactView(strRowID)
+'	Function BIZ_Contacts_ContactDetails_SetPersonalInfo(strRowId)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is used to Create new Borrower Contact
+'@code
+'    BIZ_Contacts_BorrowerContact_Add(strRowID)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+
+Function BIZ_Contacts_BorrowerContact_Add(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Add Borrower Contacts", "Use Borrower sheet data row ID: "&strRowID, Null
+	BIZ_Nav_SelectContactsTab()
+	
+	'=====click on the Borrower Contacts tab===========
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnBorrower","index:=0")
+
+	'==========Create new Borrower Contact and Enter Data SSN, Address, City, State, Zip, Phone, Home email, etc and click on the Save Icon===============
+	Dim objAvaiableContact, boolFound, objMain,objData,strFirstName,strLastName,intColIndex
+
+	Set objData            = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower", strRowID)	
+	Set objAvaiableContact = SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList","index:=0")
+	Set objMain            = SwfWindow("swfname:=MainForm")
+	
+    intColIndex = GUI_List_GetColumnIndex(objAvaiableContact, "Borrower First Name")        
+	GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList").SwfEdit("swfname:=txtBox","index:="&(intColIndex-1)), objData.Item("FirstName")
+	UTIL_Win_SendKey "{ENTER}"
+	
+	strFirstName =  objData.Item("FirstName")
+	strLastName = objData.Item("LastName")
+	boolFound = GUI_List_TextExists(objAvaiableContact,2,strFirstName)
+	
+	If Not boolFound Then
+		GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnNew")
+		
+		GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxFirstName","index:=0"), strFirstName
+		GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxLastName","index:=0"), strLastName
+		
+		If UTIL_String_IsNotEmpty(objData.Item("SSN")) Then
+		    GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxSSN"), objData.Item("SSN")
+		End If
+		
+		If UTIL_String_IsNotEmpty(objData.Item("HomePhone")) Then
+		    GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxHomePhone"), objData.Item("HomePhone")
+		End If
+		
+		GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxHomeAddress1"), objData.Item("PresentAddress")
+		GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxHomeCity"), objData.Item("PresentCity")
+		GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxHomeState"), objData.Item("PresentState")
+		GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxHomeZip"), objData.Item("PresentZip")	
+		GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxPersonalEmail"), objData.Item("HomeEmail")
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"CompanyName")) Then
+	       GUI_SwfEditor_Type objMain.SwfEditor("swfname:=txtBoxEmployerName"), FRM_DS_GetValue(objData,"CompanyName")    
+		End If
+	
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"CompanyAddress_1")) Then
+	       GUI_SwfEditor_Type objMain.SwfEditor("swfname:=txtBoxBizAddress1"), FRM_DS_GetValue(objData,"CompanyAddress_1")    
+		End If
+	
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"CompanyCity")) Then
+	       GUI_SwfEditor_Type objMain.SwfEditor("swfname:=txtBoxBizCity"), FRM_DS_GetValue(objData,"CompanyCity")    
+		End If
+	
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"CompanyState")) Then
+	       GUI_SwfEditor_Type objMain.SwfEditor("swfname:=txtBoxBizState"), FRM_DS_GetValue(objData,"CompanyState")    
+		End If
+	
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"CompanyZIP")) Then
+	       GUI_SwfEditor_Type objMain.SwfEditor("swfname:=txtBoxBizZip"), FRM_DS_GetValue(objData,"CompanyZIP") 
+			' No FrameWork Function for window Existence
+			If objMain.SwfWindow("swfname:=ZipcodeSelectorDialog").Exist(5)=True Then
+				GUI_List_ClickRow objMain.SwfWindow("swfname:=ZipcodeSelectorDialog").SwfObject("swfname:=gvCities"), Null, "City Name", FRM_DS_GetValue(objData,"CompanyCity"), True, False, False, "Double"
+			End If	    	
+		End If
+	
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"Company_JobTitle")) Then
+	   		GUI_SwfEditor_Type objMain.SwfEditor("swfname:=txtBoxJobTitle"), FRM_DS_GetValue(objData,"Company_JobTitle")
+			' No FrameWork Function for window Existence			
+			If objMain.SwfWindow("swfname:=ZipcodeSelectorDialog").Exist(5)=True Then
+				GUI_List_ClickRow objMain.SwfWindow("swfname:=ZipcodeSelectorDialog").SwfObject("swfname:=gvCities"), Null, "City Name", FRM_DS_GetValue(objData,"CompanyCity"), True, False, False, "Double"
+			End If	   		
+		End If
+		
+		GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSave","index:=0")
+		
+		FRM_Logger_ReportPassEvent "Add Borrower Contacts", "New borrower contact added: "&strLastName&", "&strFirstName, Null
+    Else
+		FRM_Logger_ReportPassEvent "Add Borrower Contacts", "Borrower contact '"&strLastName&", "&strFirstName&"' already exists", Null			
+	End If
+	
+	Set objData = Nothing
+	Set objMain = Nothing	
+	
+	BIZ_Contacts_BorrowerContact_Add =  strLastName
+	
+End Function
+
+
+
+'This function is used to Originate Loan
+'@code
+'    BIZ_Contacts_BorrowerContact_AddAndOriginateLoan(strRowID)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+
+Function BIZ_Contacts_BorrowerContact_AddAndOriginateLoan(strRowID)
+
+	BIZ_Contacts_BorrowerContact_Add(strRowID)
+	FRM_Logger_ReportInfoEvent "Originate Loan", "Use Borrower sheet data row ID: "&strRowID, Null
+	
+	'===========Highlighed Borrower Contact Name=========
+    'Set avaiableContact = SwfWindow("EncompassMenu").SwfObject("BorrowerContactsViewLst")
+	Set avaiableContact = SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList")
+	GUI_List_ClickRow avaiableContact, avaiableContact.SwfScrollBar("swfname:=vPanelScrollBar"), 2, "Blair", True, True, False, "Single"
+	
+	'=====Click on the 'Originate Loan' button=============
+	'GUI_SwfButton_Click SwfWindow("EncompassMenu").SwfButton("Originate Loan")
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfButton("swfname:=btnOriginateLoan")
+	
+	'=========- if an 'Existing Loans' menu pops up, click on the 'Create New' button=============
+	'If  GUI_Object_IsExistX(SwfWindow("EncompassMenu").SwfWindow("Existing Loans"), 10) Then
+	'GUI_SwfButton_Click SwfWindow("EncompassMenu").SwfWindow("Existing Loans").SwfButton("Create New")
+	'End If
+	
+	If GUI_Object_IsExistX(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MatchedLoansForm"),10) Then
+	   GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MatchedLoansForm").SwfButton("swfname:=btnCreateNew")
+	End If
+	
+	'======Click Continue button==========
+'	If GUI_Object_IsExistX(SwfWindow("EncompassMenu").SwfWindow("Originate Loan"), 10) Then
+'	   GUI_SwfButton_Click SwfWindow("EncompassMenu").SwfWindow("Originate Loan").SwfButton("Continue")
+'	   GUI_WinButton_Click SwfWindow("swfname:=MainForm").Dialog("index:=0").WinButton("text:=.*No")
+'	End If
+	
+	If GUI_Object_IsExistX(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=LoanOriginationDlg"), 10) Then
+		GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=LoanOriginationDlg").SwfButton("swfname:=btnContinue")
+		'GUI_WinButton_Click SwfWindow("swfname:=MainForm").Dialog("index:=0").WinButton("text:=.*No")
+	End If
+	
+'	GUI_Object_WaitTillExistX SwfWindow("EncompassMenu").SwfLabel("User Defined Custom FIELD"), 120
+	BIZ_Forms_Open "Borrower Summary - Origination"
+	GUI_Object_ValidateText SwfWindow("swfname:=MainForm").SwfLabel("swfname:=titleLbl","index:=0"), "Borrower Summary - Origination", "Form Title"
+	
+End Function
+
+
+
+'This function is used to Create new Business Contact
+'@code
+'    BIZ_Contacts_BusinessContact_Add(strRowID)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+
+Function BIZ_Contacts_BusinessContact_Add(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Add Business Contacts", "Use AddBusinessContact sheet data row ID: "&strRowID, Null
+	BIZ_Nav_SelectContactsTab()
+	
+	'=====click on the Business Contacts tab===========
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnBizPartner"),40
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnBizPartner")
+
+	'==========Create new Business Contact and Enter Data Company Name, Contact First Name, Contact Last Name, Contact Title, Work Phone, Work Cell, Work email, etc and click on the Save Icon===============
+	Dim objAvailableContact, objData,objScrollBar
+
+	Set objData             = FRM_DS_GetTestData("Contacts", "AddBusinessContact", strRowID)	
+	Set objAvailableContact = SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList")
+	Set objScrollBar        = objAvailableContact.SwfScrollBar("swfname:=vPanelScrollBar")
+	
+	'=================Used below logic because of screen resolution issue==========
+    If SwfWindow("swfname:=MainForm").SwfObject("swfname:=groupContainer2").Exist Then
+        GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=collapsibleSplitter1")
+    End If
+    
+	SwfWindow("swfname:=MainForm").Minimize
+    SwfWindow("swfname:=MainForm").Maximize
+	Wait g_LongWaitLarge + g_LongWaitLarge  'Explicit wait added Due to Sync
+	
+	If not GUI_List_ClickRow(objAvailableContact,objScrollBar,"Company Name",FRM_DS_GetValue(objData, "CompanyName"),True,True,False,"Single") Then
+		   GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnNew")
+		
+		If Not SwfWindow("swfname:=MainForm").SwfObject("swfname:=groupContainer2").Exist(2) Then
+        	   GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=collapsibleSplitter1")
+    	End If
+		
+		'===============changes done by Jaymala to add all the fields===================
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ContactFirstName")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxFirstName"), FRM_DS_GetValue(objData, "ContactFirstName")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ContactLastName")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxLastName"), FRM_DS_GetValue(objData, "ContactLastName")	
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Salutation")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxSalutation"), FRM_DS_GetValue(objData, "Salutation")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "HomePhone")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxHomePhone"), FRM_DS_GetValue(objData, "HomePhone")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "WorkPhone")) Then
+	       GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxWorkPhone"), FRM_DS_GetValue(objData, "WorkPhone")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "WorkCell")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxMobilePhone"), FRM_DS_GetValue(objData, "WorkCell")		
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CellPhone")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxMobilePhone"), FRM_DS_GetValue(objData, "CellPhone")		
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "FaxNumber")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxFaxNumber"), FRM_DS_GetValue(objData, "FaxNumber")		
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "HomeEmail")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxPersonalEmail"), FRM_DS_GetValue(objData, "HomeEmail")		
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "WorkEmail")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxBizEmail"), FRM_DS_GetValue(objData, "WorkEmail")			
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ContactLicense")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxPersonalInfoLicNumber"), FRM_DS_GetValue(objData, "ContactLicense")			
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LICAuthName")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxPersonalInfoLicAuthNAme"), FRM_DS_GetValue(objData, "LICAuthName")			
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LICAuthType")) Then
+		   GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfComboBox("swfname:=comboBoxPersonalInfoLicAuthType"), FRM_DS_GetValue(objData, "LICAuthType")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LICStateCode")) Then
+		   GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfComboBox("swfname:=comboBoxPersonalInfoLicState"), FRM_DS_GetValue(objData, "LICStateCode")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LICIssueDate")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpPersonalInfoLicIssueDate.*"), FRM_DS_GetValue(objData, "LICIssueDate")			
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Mail")) Then
+		   GUI_SwfCheckbox_Set SwfWindow("swfname:=MainForm").SwfCheckBox("swfname:=chkBoxNoSpam"), FRM_DS_GetValue(objData, "Mail")			
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Public")) Then
+		   GUI_SwfCheckbox_Set SwfWindow("swfname:=MainForm").SwfCheckBox("swfname:=chkBoxAccess"), FRM_DS_GetValue(objData, "Public")
+		   
+           If FRM_DS_GetValue(objData, "Public") Then
+              GUI_SwfList_Select SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ContactGroupSelectionDlg").SwfListView("swfname:=listView1"),"Companywide"
+              GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ContactGroupSelectionDlg").Swfbutton("swfname:=btnOK")
+           End If			
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Category")) Then
+		   GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfComboBox("swfname:=cmbBoxCategoryID"), FRM_DS_GetValue(objData, "Category")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CompanyName")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxCompanyName"), FRM_DS_GetValue(objData, "CompanyName")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CompanyAddress1")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxBizAddress1"), FRM_DS_GetValue(objData, "CompanyAddress1")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CompanyAddress2")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxBizAddress2"), FRM_DS_GetValue(objData, "CompanyAddress2")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "City")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxBizCity"), FRM_DS_GetValue(objData, "City")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "State")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxBizState"), FRM_DS_GetValue(objData, "State")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Zip")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxBizZip"), FRM_DS_GetValue(objData, "Zip")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Fees")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxFees"), FRM_DS_GetValue(objData, "Fees")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "WebURL")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxBizWebUrl"),FRM_DS_GetValue(objData, "WebURL")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ContactTitle")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxJobtitle"),FRM_DS_GetValue(objData, "ContactTitle")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CompanyLicense")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxLicenseNumber"),FRM_DS_GetValue(objData, "CompanyLicense")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LICAuthNameCompany")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBoxBizAuthName"),FRM_DS_GetValue(objData, "LICAuthNameCompany")			
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LICAuthTypeCompany")) Then
+		   GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfComboBox("swfname:=comboBoxBizInfoLicAuthType"),FRM_DS_GetValue(objData, "LICAuthTypeCompany")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LICStateCodeCompany")) Then
+		   GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfComboBox("swfname:=comboBoxBizInfoLicState"), FRM_DS_GetValue(objData, "LICStateCodeCompany")
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "LICIssueDateCompany")) Then
+		   GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtDate","swfname path:=txtDate;dpBizLicIssueDate.*"), FRM_DS_GetValue(objData, "LICIssueDateCompany")			
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryAccountNo")) Then
+		   GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=0"), FRM_DS_GetValue(objData, "CategoryAccountNo")		
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryABANo")) Then
+		   GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=1"), FRM_DS_GetValue(objData, "CategoryABANo")		
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryOrgID")) Then
+		   GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=1"), FRM_DS_GetValue(objData, "CategoryOrgID")		
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Category")) AND FRM_DS_GetValue(objData, "Category") = "Investor" Then
+		
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryMrtClause")) Then
+		      GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=0"), FRM_DS_GetValue(objData, "CategoryMrtClause")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryCompanyName")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=1"), FRM_DS_GetValue(objData, "CategoryCompanyName")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryContactName")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=2"), FRM_DS_GetValue(objData, "CategoryContactName")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryAddress")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=4"), FRM_DS_GetValue(objData, "CategoryAddress")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryCity")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=5"), FRM_DS_GetValue(objData, "CategoryCity")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryState")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=8"), FRM_DS_GetValue(objData, "CategoryState")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryZip")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=7"), FRM_DS_GetValue(objData, "CategoryZip")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryContactno")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=6"), FRM_DS_GetValue(objData, "CategoryContactno")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryFaxNo")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=3"), FRM_DS_GetValue(objData, "CategoryFaxNo")		
+		   End If
+		End If
+		
+		If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Category")) AND FRM_DS_GetValue(objData, "Category") = "Lender" Then
+		   
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryMrtClause")) Then
+		      GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=2"), FRM_DS_GetValue(objData, "CategoryMrtClause")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryCompanyName")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=3"), FRM_DS_GetValue(objData, "CategoryCompanyName")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryContactName")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=5"), FRM_DS_GetValue(objData, "CategoryContactName")		
+  		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryAddress")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=6"), FRM_DS_GetValue(objData, "CategoryAddress")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryCity")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=9"), FRM_DS_GetValue(objData, "CategoryCity")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryState")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=8"), FRM_DS_GetValue(objData, "CategoryState")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryZip")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=7"), FRM_DS_GetValue(objData, "CategoryZip")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryContactno")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=4"), FRM_DS_GetValue(objData, "CategoryContactno")		
+		   End If
+			
+		   If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "CategoryFaxNo")) Then
+			  GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=0"), FRM_DS_GetValue(objData, "CategoryFaxNo")		
+		   End If		
+		End If
+		
+		GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSave")
+		GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=collapsibleSplitter1")
+	
+		FRM_Logger_ReportPassEvent "Add Business Contacts", "New business contact added: "&FRM_DS_GetValue(objData, "CompanyName"), Null
+    Else
+		FRM_Logger_ReportPassEvent "Add Business Contacts", "Business contact '"&FRM_DS_GetValue(objData, "CompanyName")&"' already exists", Null		
+	End If
+	
+	Set objData             = Nothing	
+	Set objAvailableContact = Nothing
+	Set objScrollBar        = Nothing
+	
+End Function
+
+
+
+'This function is used to add data in Business Contacts Custom Fields tab
+'@code
+'    BIZ_Contacts_BusinessContact_CustomFields(strRowID)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+
+Function BIZ_Contacts_BusinessContact_CustomFields(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Add Business Contacts Custom Fields", "Use BusinessContactCustomFields sheet data row ID: "&strRowID, Null
+	Dim objData	
+	'=====click on the Business Contacts Custom Fields tab===========
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControl1"),"Business Contact Custom Fields"
+
+	Set objData = FRM_DS_GetTestData("Contacts", "BusinessContactCustomFields", strRowID)	
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "RefFrequency")) Then
+	   GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfComboBox("swfname path:=;pnlLeftData;panel1;pnlLeft;CustomFieldsControl.*","index:=0"),FRM_DS_GetValue(objData,"RefFrequency")
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MarketingActivity")) Then
+	   GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=0"),FRM_DS_GetValue(objData,"MarketingActivity")	
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "ActivityDate")) Then
+	   GUI_WinEdit_Set SwfWindow("swfname:=MainForm").WinEdit("index:=1"), FRM_DS_GetValue(objData,"ActivityDate")
+	End If
+	
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSave")
+	
+	Set objData = Nothing
+	
+End Function
+
+
+
+'This function is used to delete existing contact
+'@code
+' BIZ_Contacts_BusinessContact_Delete(strContactFirstName)
+'@endcode
+'@param strContactFirstName - Contact first name
+
+Function BIZ_Contacts_BusinessContact_Delete(strFieldName,strFieldValue)
+
+	BIZ_Nav_SelectContactsTab()
+	
+	'=====click on the Business Contacts tab===========
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnBizPartner")
+	GUI_Object_WaitTillExist SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")
+	
+	Dim objAvailableContact, objData,objScrollBar
+
+	Set objAvailableContact = SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList")
+	Set objScrollBar = objAvailableContact.SwfScrollBar("swfname:=vPanelScrollBar")
+	
+	'=================Used below logic because of screen resolution issue==========
+    If SwfWindow("swfname:=MainForm").SwfObject("swfname:=groupContainer2").Exist Then
+       Wait 2
+       GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=collapsibleSplitter1")
+    End If
+    
+    If SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch").GetROProperty("enabled") = True Then
+	   GUI_SwfButton_Click SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")
+	End If
+	
+	If strFieldName = "CompanyName" Then
+	   GUI_SwfEdit_Type SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=0"),strFieldValue
+    ElseIf strFieldName = "ContactFirstName" Then
+       GUI_SwfEdit_Type SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=1"),strFieldValue 
+    ElseIf strFieldName = "ContactLastName" Then
+       GUI_SwfEdit_Type SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=2"),strFieldValue 
+	ElseIf strFieldName = "ContactTitle" Then
+       GUI_SwfEdit_Type SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=3"),strFieldValue 
+	ElseIf strFieldName = "WorkPhone" Then
+       GUI_SwfEdit_Type SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=4"),strFieldValue 
+	ElseIf strFieldName = "CellPhone" Then
+       GUI_SwfEdit_Type SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=5"),strFieldValue 
+	ElseIf strFieldName = "WorkEmail" Then
+       GUI_SwfEdit_Type SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=6"),strFieldValue 
+	End If
+	
+    Set WshShell = CreateObject("WScript.Shell")
+    
+    '=============Press Enter=======
+	WshShell.SendKeys "{ENTER}"
+	
+	'============Get the Total Rows in table===============
+	intRowCount = objAvailableContact.Object.Items.Count
+	
+	If intRowCount > 0 Then
+	    For i = 0 To intRowCount-1
+	        GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnDelete")
+		    GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SWfWindow("swfname:=ConfirmDialog").SwfButton("swfname:=yesButton") 
+	    Next
+	End If
+	
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")
+		
+End Function
+
+
+
+'This function is used to Delete Borrower Contact
+'@code
+'    BIZ_Contacts_BorrowerContact_Delete(strRowID)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+
+Function BIZ_Contacts_BorrowerContact_Delete(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Add Borrower Contacts", "Use Borrower sheet data row ID: "&strRowID, Null
+	BIZ_Nav_SelectContactsTab()
+	
+	'=====click on the Borrower Contacts tab===========
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnBorrower","index:=0")
+	Dim objAvaiableContact, boolFound
+
+	Set objData = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower", strRowID)	
+	Set objAvaiableContact = SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList","index:=0")
+    intColIndex = GUI_List_GetColumnIndex(objAvaiableContact, "Borrower First Name")        
+	GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList").SwfEdit("swfname:=txtBox","index:="&(intColIndex-1)), objData.Item("FirstName")
+	UTIL_Win_SendKey "{ENTER}"
+	
+	boolFound = GUI_List_TextExists(objAvaiableContact,2,objData.Item("FirstName"))
+	If boolFound Then
+	   GUI_List_ClickOnCell objAvaiableContact,objScrollBar,1,2,True,False,False,"Single"
+       GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnDelete")	
+       GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ConfirmDialog").SwfButton("swfname:=yesButton") 
+	End If
+	
+	Set objData = Nothing	
+	
+End Function
+
+
+
+'This function is used to Verify the Loans in Borrower Contact in Loan Tab
+'@code
+'    BIZ_Contacts_BorrowerContact_LoanTab(strLoanNumber)
+'@endcode
+'@param strLoanNumber - Loan Number for the Loan Created
+'@param strRowID - Row Id used to find the line in the data sheet
+
+Function BIZ_Contacts_BorrowerContact_LoanTab(strLoanNumber,strRowID)
+
+	FRM_Logger_ReportInfoEvent "Borrower Contacts - Click on Loan Tab", "Verify Loan ID "&strLoanNumber, Null
+	Dim objAvaiableContact, boolFound
+	BIZ_Nav_SelectContactsTab()
+		
+	'=====click on the Borrower Contacts tab===========
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnBorrower","index:=0")
+
+	Set objData = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower", strRowID)	
+	Set objAvaiableContact = SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList","index:=0")
+    intColIndex = GUI_List_GetColumnIndex(objAvaiableContact, "Borrower First Name")        
+	GUI_SwfEdit_Set SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList").SwfEdit("swfname:=txtBox","index:="&(intColIndex-1)), objData.Item("FirstName")
+	UTIL_Win_SendKey "{ENTER}"
+	
+	boolFound = GUI_List_TextExists(objAvaiableContact,2,objData.Item("FirstName"))
+	If boolFound Then
+	   GUI_List_ClickOnCell objAvaiableContact,objScrollBar,1,2,True,False,False,"Single"
+	   GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=BorrowerTabForm").SwfTab("swfname:=tabControl1"),"Loans"
+	   boolFound = GUI_List_ClickRow(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=BorrowerTabForm").SwfObject("swfname:=gvLoanList"),objScrollBar,1,strLoanNumber,True,False,False,"Single")
+	   
+	   If boolFound Then
+	      FRM_Logger_ReportPassEvent "Loan Details Should exist in Loan tab For the Borrower Selected","Loan Details Exist , Loan Number :"&strLoanNumber, Null
+	    Else 
+	      FRM_Logger_ReportFailEvent "Loan Details Should exist in Loan tab For the Borrower Selected","Loan Details Exist , Loan Number :"&strLoanNumber, Null
+	   End If
+    End If
+   
+	Set objData = Nothing	
+	
+End Function
+
+
+
+'This function is used to Duplicate Borrower Contact
+'@code
+'    BIZ_Contacts_BorrowerContact_Duplicate(strfieldName)
+'@endcode
+'@param strfieldName - Last name of Borrower contact
+
+Function BIZ_Contacts_BorrowerContact_Duplicate(strfieldName)
+	
+	FRM_Logger_ReportInfoEvent "Duplicate Borrower Contact", "Validation of Duplicate Borrower Contact", Null
+	Dim objSettings,objContactList,objScrollbar,objBorrowerLName,intPreRowCt,intAfterRowCt
+	
+	Set objSettings        = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objContactList     = objSettings.SwfObject("swfname:=gvContactList")
+	Set objScrollbar       = objContactList.SwfScrollBar("swfname:=vPanelScrollBar")
+	Set objBorrowerLName   = SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=2")
+	
+	If GUI_Object_IsEnabled(SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")) Then
+	   GUI_SwfButton_Click SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")
+	End If	
+	
+	GUI_SwfEdit_Set objBorrowerLName, strfieldName
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=siBtnRefresh")
+	GUI_Object_WaitTillExistX objContactList, 100 
+	intPreRowCt = GUI_List_GetRowCount (objContactList,"Borrower Last Name",strfieldName)
+	GUI_List_ClickRow objContactList, objScrollbar, "Borrower Last Name", strfieldName, True, True, False, "Single"
+	GUI_SwfObject_Click objsettings.SwfObject("swfname:=btnDuplicate")
+	GUI_Object_WaitTillExistX objContactList, 200 
+	intAfterRowCt = GUI_List_GetRowCount (objContactList,"Borrower Last Name",strfieldName)
+		
+	If(intAfterRowCt - intPreRowCt = 1) Then 
+	   FRM_Logger_ReportPassEvent "Validate Duplicate Borrower Contact","Borrower Contact Duplicate '"&strfieldName&"' has created and Rowcount: "&intAfterRowCt,Null
+	Else
+	   FRM_Logger_ReportFailEvent "Validate Duplicate Borrower Contact","Borrower Contact Duplicate '"&strfieldName&"' has not created",Null
+	End If
+	
+	Set objSettings 	   = Nothing
+	Set objContactList     = Nothing
+	Set objScrollbar 	   = Nothing
+	Set objBorrowerLName   = Nothing
+	
+End Function
+
+
+
+'This function is used to Edit Borrower Contact
+'@code
+'    Function BIZ_Contacts_BorrowerContact_Edit(strRowID,strFieldName)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+'@param strFieldName - Borrower Contact Last Name
+
+ Function BIZ_Contacts_BorrowerContact_Edit(strRowID,strFieldName)
+
+	FRM_Logger_ReportInfoEvent "Click On Edit button", "Validate Edit BorrowerContact", Null
+	Dim objTestData,objSettings,objBorrowerList,objContactList,objScrollbar,strFirstName,strLastName
+	
+	Set objTestData        = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower",strRowID)
+	Set objSettings        = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objBorrowerList    = objSettings.SwfWindow("swfname:=BorrowerTabForm").SwfWindow("swfname:=BorrowerInfo1Form")
+	Set objContactList     = objSettings.SwfObject("swfname:=gvContactList")
+	Set objScrollbar       = objSettings.SwfScrollBar("swfname:=vPanelScrollBar")
+	
+	GUI_List_ClickRow objContactList, objScrollbar, "Borrower Last Name", strFieldName, True, True, False, "Single"
+	strFirstName =  FRM_DS_GetValue(objTestData,"FirstName")
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objTestData,"FirstName")) Then
+	   GUI_SwfEditor_Type objBorrowerList.SwfEdit("swfname:=txtBoxFirstName"), strFirstName 
+	End If
+	
+	strLastName =  FRM_DS_GetValue(objTestData,"LastName")
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objTestData,"LastName")) Then
+	   GUI_SwfEditor_Type objBorrowerList.SwfEdit("swfname:=txtBoxLastName"), strLastName
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objTestData,"HomePhone")) Then
+	   GUI_SwfEditor_Type objBorrowerList.SwfEdit("swfname:=txtBoxHomePhone"), FRM_DS_GetValue(objTestData,"HomePhone")
+	End If
+    
+    If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objTestData,"Company_JobTitle")) Then
+       GUI_SwfEditor_Type objSettings.SwfWindow("swfname:=BorrowerTabForm").SwfWindow("swfname:=BorrowerInfo1Form").SwfEditor("swfname:=txtBoxJobTitle"), FRM_DS_GetValue(objTestData,"Company_JobTitle") 	   
+    End If
+
+	If GUI_Object_IsExist(objsettings.SwfObject("swfname:=btnSave")) And GUI_Object_IsEnabled (objsettings.SwfObject("swfname:=btnSave"))=True Then
+	   GUI_SwfObject_Click objsettings.SwfObject("swfname:=btnSave")
+	End If
+		
+	BIZ_Contacts_BorrowerContact_Edit = strFirstName &";"&strLastName	
+		
+	Set objTestData        = Nothing
+    Set objSettings        = Nothing
+	Set objBorrowerList    = Nothing
+    Set objContactList     = Nothing
+    Set objScrollbar       = Nothing
+
+End Function
+
+
+
+'This function is used to Delete Borrower Contact
+'We have created this function to delete multiple contacts, where as existing function "BIZ_Contacts_BorrowerContact_Delete" handling deletion of single contact.
+'@code
+'    BIZ_Contacts_DeleteBorrowerContact(strfieldName,strContactName)
+'@endcode
+'@param strfieldName   - The name of a Borrower Contact
+'@param strContactName - Borrower Contact Last Name
+
+Function BIZ_Contacts_DeleteBorrowerContact(strfieldName,strContactName)
+	
+	FRM_Logger_ReportInfoEvent "Click On Delete button", "Validate Delete BorrowerContact", Null
+	
+	Dim objSettings,objContactList,objScrollbar,objConfirmDialog
+	Set objSettings        = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objContactList     = objSettings.SwfObject("swfname:=gvContactList")
+	Set objScrollbar       = objContactList.SwfScrollBar("swfname:=vPanelScrollBar")
+	Set objConfirmDialog   = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ConfirmDialog")
+	    
+	GUI_List_ClickRow objContactList, objScrollbar, "Borrower Last Name", strfieldName, True, True, False, "Single"
+	objContactList.Type  micCtrlDwn
+	GUI_List_ClickRow objContactList, objScrollbar, "Borrower Last Name", strContactName, True, True, False, "Single"
+	objContactList.Type  micCtrlUp
+	GUI_SwfObject_Click objsettings.SwfObject("swfname:=btnDelete")
+	GUI_Object_WaitTillExistX objConfirmDialog,30
+	GUI_DialogObject_Encompass_Yes objConfirmDialog,"Yes"
+	GUI_DialogObject_Encompass_Yes objConfirmDialog,"Yes"
+	GUI_Object_WaitTillExistX objContactList, 200 
+	
+	Wait g_ShortWaitMedium 'Due To Sync Issue We Are Explicitly Passing Wait Statement
+	
+	'As we need to verify deletion of contacts ,calling report events
+	If(GUI_List_TextExists(objContactList, 0, strfieldName))= False and GUI_List_TextExists(objContactList, 0, strContactName)=False Then
+	   FRM_Logger_ReportPassEvent "Delete Borrower Contact","Borrower Contact "&strfieldName&" and "&strContactName&" are successfuly deleted",Null
+	Else
+	   FRM_Logger_ReportFailEvent "Delete Borrower Contact","Borrower Contact "&strfieldName&" and "&strContactName&" are not deleted",Null
+	End If
+	
+    Set objSettings        = Nothing
+    Set objContactList     = Nothing
+    Set objScrollbar       = Nothing
+	Set objConfirmDialog   = Nothing
+	
+	End Function
+	
+	
+	
+'This function is used for Verification of Simple Search Borrower Contact with Borrower First name and Last name
+'@code
+'    Function BIZ_Contacts_BorrowerSearch(strRowID,strFieldName)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+'@param strFieldName - The name of a Borrower Contact
+
+ Function BIZ_Contacts_BorrowerContactSearch(strRowID,strFieldName)
+ 
+	FRM_Logger_ReportInfoEvent "Verification of Simple Search Borrower Contact", "Use Borrower sheet data row ID: "&strRowID, Null
+	
+	Dim objSettings,objContactList,objBorrowerFName,objBorrowerLName,intRowCount,strBorrowerDetails
+	Set objSettings        = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objContactList     = objSettings.SwfObject("swfname:=gvContactList")
+	Set objBorrowerFName   = SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=1")
+	Set objBorrowerLName   = SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=2")
+	
+	BIZ_Nav_SelectContactsTab()
+	
+	'Click on the Borrower Contacts tab
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnBorrower","index:=0")
+	strBorrowerDetails = BIZ_Contacts_BorrowerContact_Edit (strRowID,strFieldName)
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")
+	GUI_Object_WaitTillExistX objBorrowerFName,60
+	GUI_SwfEdit_Set objBorrowerFName, split(strBorrowerDetails,";")(0)	
+	GUI_SwfEdit_Set objBorrowerLName, split(strBorrowerDetails,";")(1)	
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=siBtnRefresh")
+	GUI_Object_WaitTillExistX objContactList,100
+	 
+	Wait g_ShortWaitMedium 'Due To Sync Issue We Are Explicitly Passing Wait Statement
+	
+	intRowCount = objContactList.Object.Items.Count
+	
+	If (Cint(intRowCount) > 0) Then
+		FRM_Logger_ReportPassEvent "search borrower contact","Borrower Contact Searched successfully with "&strBorrowerDetails&"",Null
+	Else
+	    FRM_Logger_ReportFailEvent "search borrower contact","Borrower Contact "&strBorrowerDetails&" is not found",Null
+	End If 
+			
+    Set objSettings        = Nothing
+    Set objContactList     = Nothing
+	Set objBorrowerFName   = Nothing
+	Set objBorrowerLName   = Nothing
+
+End Function
+
+
+
+'Verification of Clear Search Borrower Contact 
+'@code
+'    Function BIZ_Contacts_BorrowerClearSearch()
+'@endcode
+
+ Function BIZ_Contacts_BorrowerClearSearch()
+ 
+	FRM_Logger_ReportInfoEvent "Clear Search Borrower Contact", "Verification of Clear Search Borrower Contact", Null
+	
+	Dim objSettings,objContactList,strPreRowCount,strAfterRowCount
+	
+	Set objSettings    = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objContactList = objSettings.SwfObject("swfname:=gvContactList")
+	
+	strPreRowCount=GUI_Object_GetPropertyValue (objSettings.SwfLabel("swfname:=lblNumberOfItems"),"text")
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")
+	GUI_Object_WaitTillExistX objContactList,60
+	strAfterRowCount=GUI_Object_GetPropertyValue (objSettings.SwfLabel("swfname:=lblNumberOfItems"),"text")
+	
+	If(CInt(strAfterRowCount) > CInt(strPreRowCount)) Then
+	   FRM_Logger_ReportPassEvent "Clear Search validation","All Borrower contacts are displayed",Null
+	Else 
+	   FRM_Logger_ReportFailEvent "Clear Search validation","All Borrower contacts are not displayed",Null
+	End If
+	
+	GUI_Object_ValidateDisabled SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch"),"ClearSearch"
+	
+    Set objSettings      = Nothing
+    Set objContactList   = Nothing
+   
+End Function
+
+
+
+'Verification of Borrower Contact Search with Sequence Letters 
+'@code
+'    Function BIZ_Contacts_BorrowerSearchwithSequenceLetters(strRowID)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+
+Function BIZ_Contacts_BorrowerSearchwithSequenceLetters(strRowID)
+ 
+	FRM_Logger_ReportInfoEvent "Verification of Borrower Contact Search with Sequence Letters", "Use Borrower sheet data row ID: "&strRowID, Null
+	
+	Dim objData,objSettings,objBorrowerEdit,strSearchText,strPreRowCount,strAfterRowCount
+	Set objData 	       = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower",strRowID)
+	Set objSettings        = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objBorrowerEdit	   = SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=1")
+		
+	If GUI_Object_IsEnabled(SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")) Then
+	   GUI_SwfButton_Click SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")
+	End If
+		
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"SearchText")) Then	
+	   strSearchText =  FRM_DS_GetValue(objData,"SearchText")
+	   GUI_SwfEdit_Set objBorrowerEdit, strSearchText
+	End If
+	
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=siBtnRefresh")
+ 	GUI_Object_WaitTillExistX objSettings.SwfLabel("swfname:=lblNumberOfItems"),60	
+ 	strPreRowCount=GUI_Object_GetPropertyValue (objSettings.SwfLabel("swfname:=lblNumberOfItems"),"text")
+ 	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")
+	GUI_Object_WaitTillExistX objSettings.SwfLabel("swfname:=lblNumberOfItems"),60
+	strAfterRowCount=GUI_Object_GetPropertyValue (objSettings.SwfLabel("swfname:=lblNumberOfItems"),"text")
+		
+	If(CInt(strAfterRowCount) > CInt(strPreRowCount)) Then
+	   FRM_Logger_ReportPassEvent "Clear Search validation","All Borrower contacts are displayed with search text '"&strSearchText&"'",Null
+	Else 
+	   FRM_Logger_ReportFailEvent "Clear Search validation","Borrower contacts are not displayed",Null
+	End If
+	
+	If GUI_Object_IsEnabled(SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")) Then
+	   GUI_SwfButton_Click SwfWindow("swfname:=MainForm").Swfbutton("swfname:=btnClearSearch")
+	End If
+			
+	Set objData            = Nothing
+    Set objSettings        = Nothing
+    Set objBorrowerEdit    = Nothing
+	
+End Function
+
+
+
+'Verification of Borrower Contact Search with Status 
+'@code
+'    Function BIZ_Contacts_BorrowerContactSearchwithStatus()
+'@endcode
+
+Function BIZ_Contacts_BorrowerContactSearchwithStatus()
+ 
+	FRM_Logger_ReportInfoEvent "Borrower Contact Search with Status", "Verification of Borrower Contact Search with Status", Null
+	
+	Dim strStatus
+	GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfComboBox("micclass:=SwfComboBox","index:=3"),1
+	strStatus = GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").SwfLabel("swfname:=lblFilter"),"text")
+	
+	If(Instr(1,strStatus,"Status"))=1 then
+	   FRM_Logger_ReportPassEvent "select status","Borrower Contact Searched with Status "&strStatus,Null
+	Else
+	   FRM_Logger_ReportFailEvent "select status","Borrower Contact not found with Status "&strStatus,Null	
+	End If
+		
+End Function
+
+
+
+'This function is used to Verify Advance Search Filter
+'@code
+'    	BIZ_Contacts_AdvanceSearchFilter(strRowID)
+'@endcode
+'@Param:strRowID - Row Id used to find the line in the data sheet
+
+Function BIZ_Contacts_AdvanceSearchFilter(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Verify Advance Search Filter", "Use Borrower sheet data row ID: "&strRowID, Null
+
+	Dim objData,objSettings,objBorrowerList,objContactSettings,objContactList,objSettingsDialog
+	Dim strDescval,strFieldValue,strRowCount,intRowCount,strBorrowerContact,strAmount
+	Set objData            = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower", strRowID)	
+	Set objSettings        = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objBorrowerList    = objSettings.SwfWindow("swfname:=BorrowerTabForm").SwfWindow("swfname:=BorrowerInfo2Form")
+	Set objContactList     = SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvContactList")
+	Set objContactSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ContactAdvSearchDialog")
+	Set objSettingsDialog  = objContactSettings.SwfWindow("swfname:=AddEditFilterDialog")
+	
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnNew")
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"FirstName")) Then
+	   GUI_SwfEditor_Type objSettings.SwfEdit("swfname:=txtBoxFirstName"), Cstr(FRM_DS_GetValue(objData,"FirstName") )
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"LastName")) Then
+	   GUI_SwfEditor_Type objSettings.SwfEdit("swfname:=txtBoxLastName"), Cstr(FRM_DS_GetValue(objData,"LastName")) 
+	End If
+	
+	GUI_SwfObject_Click objsettings.SwfObject("swfname:=btnSave")
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControl1"),"Extra"
+	GUI_Object_WaitTillExistX objBorrowerList,100
+	GUI_Object_ValidateExists objBorrowerList.SwfObject("swfname:=gcContactProperty"),10,"Contact Properties"
+	GUI_Object_ValidateExists objBorrowerList.SwfObject("swfname:=gcCampaign"),10,"Campaign Information"
+	GUI_Object_ValidateExists objBorrowerList.SwfObject("swfname:=gcAppointment"),10,"Appointments"
+	GUI_Object_ValidateExists objBorrowerList.SwfObject("swfname:=gcGroup"),10,"My Groups"
+	
+	GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfComboBox("swfname:=cmbBoxContactType"),2
+	GUI_SwfComboBox_Select SwfWindow("swfname:=MainForm").SwfComboBox("swfname:=cmbBoxStatus"),1
+	GUI_SwfObject_Click objsettings.SwfObject("swfname:=btnSave")
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfButton("swfname:=btnAdvSearch"),60
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfButton("swfname:=btnAdvSearch")
+		
+	GUI_Object_WaitTillExistX objContactSettings,30 
+    GUI_SwfObject_Click objContactSettings.SwfObject("swfname:=btnAddFilter")
+    GUI_Object_WaitTillExistX objSettingsDialog,10 
+	GUI_SwfObject_Click objSettingsDialog.SwfObject("swfname:=btnFieldList")
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "Field")) Then
+	   strFieldValue = FRM_DS_GetValue(objData, "Field")
+	   GUI_SwfEdit_Set objSettingsDialog.SwfWindow("swfname:=ReportFieldSelector").SwfEdit("Swfname:=txtFind"), strFieldValue
+	End If
+		
+	GUI_Object_WaitTillExistX objSettingsDialog, 200 
+	GUI_SwfButton_Click objSettingsDialog.SwfWindow("swfname:=ReportFieldSelector").swfbutton("swfname:=btnFind")
+	GUI_SwfButton_Click objSettingsDialog.SwfWindow("swfname:=ReportFieldSelector").SwfObject("swfname:=controlStrip").swfbutton("swfname:=btnOK")
+	GUI_Object_WaitTillExistX objSettingsDialog.SwfComboBox("swfname:=cboOperator"),30  		
+	GUI_SwfComboBox_Select objSettingsDialog.SwfComboBox("swfname:=cboOperator"),FRM_DS_GetValue(objData, "Operator")
+	GUI_Dialog_Encompass_OK "OK"	
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MinValue")) Then
+	   GUI_SwfEdit_Set objSettingsDialog.SwfEdit("Swfname:=txtMinNumber"), (FRM_DS_GetValue(objData, "MinValue")) 
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData, "MaxValue")) Then
+	   GUI_SwfEdit_Set objSettingsDialog.SwfEdit("Swfname:=txtMaxNumber"), FRM_DS_GetValue(objData, "MaxValue")
+	End If
+	
+	strDescval=Cstr(FRM_DS_GetValue(objData, "MinValue")) & " and " & Cstr(FRM_DS_GetValue(objData, "MaxValue"))
+	GUI_Object_WaitTillExistX objSettingsDialog.swfbutton("swfname:=btnOK"),20
+	GUI_SwfButton_Click objSettingsDialog.swfbutton("swfname:=btnOK")
+	GUI_Object_WaitTillExistX objContactSettings.SwfWindow("swfname:=RelatedLoanMatchDialog").swfbutton("swfname:=btnOK") ,20
+	GUI_SwfButton_Click objContactSettings.SwfWindow("swfname:=RelatedLoanMatchDialog").swfbutton("swfname:=btnOK")
+	strRowCount = objContactSettings.SwfObject("swfname:=gvFilters").Object.Items.Count
+	
+	For i = 0 To strRowCount  - 1
+		strAmount = Cstr(objContactSettings.SwfObject("swfname:=gvFilters").Object.Items.Item(i).Subitems.Item(3).Text)
+		If strAmount = strDescval Then
+		   IfFound = True
+		Exit For
+		End If 
+	Next
+	
+	FRM_VerifyEqual strAmount,strDescval,"Comparing Values "&strAmount,"Values should match"
+	GUI_SwfButton_Click objContactSettings.swfbutton("swfname:=btnOK")
+	intRowCount = objContactList.Object.Items.Count
+	strBorrowerContact = objContactList.Object.Items.Item(1).Subitems.Item(1).Text
+	
+	If (intRowCount >=1) Then
+		FRM_Logger_ReportPassEvent "Advance Search validation","Borrower contacts is displayed with '"&strBorrowerContact&"'",Null
+	Else 
+		FRM_Logger_ReportFailEvent "Advance Search validation","Borrower contacts is not displayed with '"&strBorrowerContact&"'",Null
+	End If
+	
+	BIZ_Contacts_BorrowerClearSearch()
+					
+	Set objData            = Nothing
+	Set objBorrowerList    = Nothing
+	Set objSettings        = Nothing
+	Set objContactList     = Nothing
+	Set objContactSettings = Nothing
+	Set objSettingsDialog  = Nothing
+	
+End Function
+
+
+
+'This function is used to Reset Borrower Contact
+'@code
+'    Function BIZ_Contacts_BorrowerContact_Reset(strRowID)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+
+ Function BIZ_Contacts_BorrowerContact_Reset(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Click On Reset button", "Use Borrower sheet data row ID: "&strRowID, Null
+	
+	Dim objData,objSettings,objBorrowerList,objContactList
+	Set objData         = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower",strRowID)
+	Set objSettings     = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objBorrowerList = objSettings.SwfWindow("swfname:=BorrowerTabForm").SwfWindow("swfname:=BorrowerInfo1Form")
+	Set objContactList  = objSettings.SwfObject("swfname:=gvContactList")
+	
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnNew")
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"FirstName")) Then
+	   GUI_SwfEditor_Type objBorrowerList.SwfEdit("swfname:=txtBoxFirstName"), Cstr(FRM_DS_GetValue(objData,"FirstName") )
+	End If
+	
+	If UTIL_String_IsNotEmpty(FRM_DS_GetValue(objData,"LastName")) Then
+	   GUI_SwfEditor_Type objBorrowerList.SwfEdit("swfname:=txtBoxLastName"), Cstr(FRM_DS_GetValue(objData,"LastName")) 
+	End If
+	
+	If GUI_Object_IsExist(objsettings.SwfObject("swfname:=btnRefresh")) And GUI_Object_IsEnabled(objsettings.SwfObject("swfname:=btnRefresh"))=True Then
+	   GUI_SwfObject_Click objsettings.SwfObject("swfname:=btnRefresh")
+	End If
+	GUI_WinButton_Click SwfWindow("swfname:=MainForm").Dialog("text:=Encompass").winButton("text:=Cancel")
+	
+	If GUI_Object_IsExist(objsettings.SwfObject("swfname:=btnRefresh")) And GUI_Object_IsEnabled(objsettings.SwfObject("swfname:=btnRefresh"))=True Then
+	   GUI_SwfObject_Click objsettings.SwfObject("swfname:=btnRefresh")
+	End If
+	
+	GUI_Dialog_Encompass_OK "OK"
+	GUI_Object_ValidateDisabled objsettings.SwfObject("swfname:=btnRefresh"),"RefreshButton"
+	
+	Set objData         = Nothing
+    Set objSettings     = Nothing
+	Set objBorrowerList = Nothing
+    Set objContactList  = Nothing
+    
+End Function
+
+
+
+'This function is to click Print and ExcelFile Borrower Contact
+'@code
+'    Function BIZ_Contacts_BorrowerContact_PrintandExcelFile()
+'@endcode
+
+ Function BIZ_Contacts_BorrowerContact_PrintandExcelFile()
+
+	FRM_Logger_ReportInfoEvent "Click On Print and Excel objects", "To click On Print and Excel objects", Null
+	
+	Dim objSettings,objContactList,intRowCount,ColumnText
+	Set objSettings    = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objContactList = objSettings.SwfObject("swfname:=gvContactList")
+		
+	GUI_Object_WaitTillExistX objContactList,100
+	For i=0 to 3 step 1
+	    objContactList.Type  micCtrlDwn
+		intRowCount = objContactList.Object.Items.Item(i).Subitems.Item(3).Text
+		ColumnText =  GUI_List_GetCellData(objContactList, i, 1)
+		GUI_List_ActOnRow objContactList,i, True,True,False,"Single"
+	Next
+	objContactList.Type  micCtrlUp
+	
+	GUI_SwfObject_Click objsettings.SwfObject("swfname:=btnPrint")
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ContactPrintDialog").SwfButton("swfname:=btnPreview")
+	wait g_LongWaitLarge*2 ' Due To Sync Issue We Are Explicitly Passing Wait Statement
+	GUI_Window_Close SwfWindow("swfname:=MainForm").SwfWindow("swfname:=PdfPreviewDialog")
+	GUI_SwfObject_Click objSettings.SwfObject("swfname:=btnExport")
+	wait g_LongWaitLarge*2 ' Due To Sync Issue We Are Explicitly Passing Wait Statement
+		
+    Set objSettings    = Nothing
+    Set objContactList = Nothing
+   
+End Function
+
+
+
+'This function is used to Verify Loan Origination
+'@code
+'    BIZ_Contacts_BorrowerContact_VerifyLoanOrigination(strRowID,strFieldName)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+'@param strFieldName - Borrower Contact Last Name
+
+Function BIZ_Contacts_BorrowerContact_VerifyLoanOrigination(strRowID,strFieldName)
+
+	FRM_Logger_ReportInfoEvent "Add and Break Originate Loan", "Use Borrower sheet data row ID: "&strRowID, Null
+	
+	Dim objData,objSettings,objContactList,objScrollbar,objContactDialog,objStatusOnlineDialog,strLoanNumber,intRowIndex
+	Set objData               = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower",strRowID)
+	Set objSettings           = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objContactList        = objSettings.SwfObject("swfname:=gvContactList")
+	Set objContactDialog      = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=LoanOriginationDlg")
+	Set objStatusOnlineDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=StatusOnlineDialog")
+	Set objScrollbar          = objSettings.SwfScrollBar("swfname:=vPanelScrollBar")
+	
+	BIZ_Contacts_BorrowerContact_Add(strRowID)
+	
+	GUI_List_ClickRow objContactList, objScrollbar, "Borrower Last Name", strFieldName, True, True, False, "Single"
+	GUI_SwfButton_Click objSettings.SwfButton("swfname:=btnOriginateLoan")
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MatchedLoansForm"),10
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MatchedLoansForm").SwfButton("swfname:=btnCreateNew")
+	GUI_Object_WaitTillExistX objContactDialog.SwfButton("swfname:=btnAddCoBorrower"),100
+	GUI_SwfButton_Click objContactDialog.SwfButton("swfname:=btnAddCoBorrower")
+	GUI_Object_WaitTillExistX objContactDialog.SwfWindow("swfname:=BorrowerContactPickList").SwfObject("swfname:=gvContacts"),100
+	GUI_SwfObject_Click objContactDialog.SwfWindow("swfname:=BorrowerContactPickList").SwfObject("swfname:=gvContacts")
+	GUI_SwfButton_Click objContactDialog.SwfWindow("swfname:=BorrowerContactPickList").SwfButton("swfname:=btnDone")
+	
+	GUI_SwfButton_Click objContactDialog.SwfButton("swfname:=btnSelectTemplate")
+	GUI_Object_WaitTillExistX objContactDialog.SwfWindow("swfname:=LoanTemplateSelectDialog").SwfComboBox("swfname:=cmbBoxFolder"),20
+	GUI_SwfComboBox_Select objContactDialog.SwfWindow("swfname:=LoanTemplateSelectDialog").SwfComboBox("swfname:=cmbBoxFolder"),"Public Loan Templates"
+	GUI_SwfButton_Click objContactDialog.SwfWindow("swfname:=LoanTemplateSelectDialog").SwfButton("swfname:=btnNew")
+	GUI_SwfComboBox_Select objContactDialog.SwfComboBox("swfname:=cmbBoxLoanFolder"),"My Pipeline"
+	
+	GUI_SwfButton_Click objContactDialog.SwfButton("swfname:=btnContinue")
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfTab("swfname:=toolsFormsTabControl"),60
+	SwfWindow("swfname:=MainForm").SwfTab("swfname:=toolsFormsTabControl").Select "Forms"
+	BIZ_Forms_Open "Borrower Summary - Origination"
+	GUI_Object_ValidateText SwfWindow("swfname:=MainForm").SwfLabel("swfname:=titleLbl","index:=0"), "Borrower Summary - Origination", "Form Title"
+	GUI_WebEdit_Set SwfWindow("swfname:=MainForm").Page("index:=0").WebEdit("htmlid:=l_1240","index:=7"), FRM_DS_GetValue(objData,"HomeMail")
+	
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=closeBtn")
+	GUI_Dialog_Encompass_Yes "Yes"
+	
+	strLoanNumber = GUI_Object_GetPropertyValue(SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=LoanPage").swfLabel("swfname:=lblLoanNumber"),"Text")
+	GUI_Dialog_Encompass_Yes "Yes"
+	GUI_Object_WaitTillExistX objStatusOnlineDialog.SwfButton("swfname:=btnPublishWC"),60
+	GUI_SwfButton_Click objStatusOnlineDialog.SwfButton("swfname:=btnPublishWC")
+	
+	GUI_Object_WaitTillExistX objStatusOnlineDialog.SwfWindow("swfname:=SendEmailDialog").SwfButton("swfname:=btnSkip"),60
+	GUI_SwfButton_Click objStatusOnlineDialog.SwfWindow("swfname:=SendEmailDialog").SwfButton("swfname:=btnSkip")	
+	GUI_Dialog_Encompass_OK "OK"
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControl1"),100
+	GUI_SwfTab_Click SwfWindow("swfname:=MainForm").SwfTab("swfname:=tabControl1"),"Loans"
+	
+	Wait g_ShortWaitMedium 'Due To Sync Issue We Are Explicitly Passing Wait Statement
+	
+	intRowIndex=GUI_List_GetRowIndex(SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvLoanList"), 1,strLoanNumber)
+    GUI_List_ValidateCellData SwfWindow("swfname:=MainForm").SwfWindow("swfname:=BorrowerTabForm").SwfObject("swfname:=gvLoanList"), intRowIndex, 1,strLoanNumber
+	
+    BIZ_Contacts_BorrowerContact_VerifyLoanOrigination = strLoanNumber
+
+	Set objData               = Nothing
+    Set objSettings           = Nothing
+    Set objContactList        = Nothing
+	Set objContactDialog      = Nothing
+	Set objStatusOnlineDialog = Nothing
+    Set objScrollbar          = Nothing
+	
+End Function
+
+
+
+'This function is used to Break Loan Origination
+'@code
+'    BIZ_Contacts_BorrowerContact_VerifyBreakLoanOrigination(strLoanNumber)
+'@endcode
+'@param strLoanNumber - Loan Number which need to be break
+
+Function BIZ_Contacts_BorrowerContact_VerifyBreakLoanOrigination(strLoanNumber)
+
+	FRM_Logger_ReportInfoEvent "Break Loan Origination", "Verify Break Loan Origination from Borrower Contact", Null
+	
+	Dim objSettings,objScrollbar,intRowIndex
+	Set objSettings  = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm").SwfWindow("swfname:=BorrowerTabForm")
+	Set objScrollbar = objSettings.SwfScrollBar("swfname:=vPanelScrollBar")
+	
+	GUI_List_ClickRow objSettings.SwfWindow("swfname:=BorrowerLoansForm").SwfObject("swfname:=gvLoanList"), objScrollbar, "Loan Number", strLoanNumber, True, False, False, "Single"
+	GUI_SwfButton_Click SwfWindow("swfname:=MainForm").SwfButton("swfname:=siBtnDisconnect")
+    GUI_Dialog_Encompass_Yes "Yes"
+    
+    intRowIndex=GUI_List_GetRowIndex (SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvLoanList"), 1,strText)
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfObject("swfname:=gvLoanList"),60
+	
+	If(intRowIndex <= 0) Then
+	   FRM_Logger_ReportPassEvent "Delete Loan Number","Loan Number is deleted",Null
+	Else
+	   FRM_Logger_ReportFailEvent "Delete Loan Number","Loan Number is not deleted",Null
+	End If
+	
+    Set objSettings  = Nothing
+    Set objScrollbar = Nothing
+	
+End Function
+
+
+
+'This function is used to Borrower ContactView
+'@code
+'    BIZ_Contacts_BorrowerContact_BorrowerContactView(strRowID)
+'@endcode
+'@param strRowID - Row Id used to find the line in the data sheet
+
+Function BIZ_Contacts_BorrowerContact_BorrowerContactView(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Borrower ContactView", "Use Borrower sheet data row ID: "&strRowID, Null
+	
+	Dim objData,objBorrowerEdit,objContactViewDialog,objManagementDialog,strViewName,strValue,strSearchText,strvalDialog,intRowIndex,strViewName1
+	Set objData              = FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower",strRowID)
+	Set objBorrowerEdit      = SwfWindow("swfname:=MainForm").SwfEdit("swfname:=txtBox","index:=1")
+	Set objContactViewDialog = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=SaveContactViewDialog")
+	Set objManagementDialog  = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=ViewManagementDialog")
+	
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSaveView"),30
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSaveView")
+	GUI_SwfRadioButton_Click objContactViewDialog.SwfRadioButton("swfname:=radNew")
+	strViewName = CStr(FRM_DS_GetValue(objData, "Input")) 
+	strValue = strViewName
+	GUI_SwfEdit_Set objContactViewDialog.SwfEdit("swfname:=txtName"),strValue
+	GUI_Object_WaitTillExistX SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSaveView"),60
+	GUI_SwfButton_Click objContactViewDialog.SwfButton("swfname:=btnOK")	
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnEditView")
+	intRowIndex = GUI_List_GetRowIndex(objManagementDialog.SwfObject("swfname:=gvViews"), "Name", strValue)
+	
+	If (intRowIndex >= 0) Then
+		GUI_List_ValidateCellData objManagementDialog.SwfObject("swfname:=gvViews"), intRowIndex, "Default", "Yes"
+	End If
+	
+	GUI_SwfButton_Click objManagementDialog.SwfButton("swfname:=btnClose")
+	strSearchText =  FRM_DS_GetValue(objData,"SearchText")
+	GUI_SwfEdit_Set objBorrowerEdit, strSearchText
+ 	UTIL_Win_SendKey "{ENTER}" 
+ 	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSaveView")
+	GUI_SwfRadioButton_Click objContactViewDialog.SwfRadioButton("swfname:=radNew")
+	GUI_SwfEdit_Set objContactViewDialog.SwfEdit("swfname:=txtName"),strValue
+	GUI_SwfButton_Click objContactViewDialog.SwfButton("swfname:=btnOK")
+	
+	GUI_Object_WaitTillExistX objContactViewDialog.Dialog("text:=Encompass"),60
+	strvalDialog= Replace(FRM_DS_GetValue(objData,"StaticMsg"),"#",strValue)
+	FRM_Logger_ReportInfoEvent "Validating Encompass Dialog Box Existance", "Encompass Dialog Box Exists", Null
+	GUI_Object_ValidateText objContactViewDialog.Dialog("text:=Encompass").Static("nativeclass:=Static","window id:=65535"),strvalDialog,"Popup Dialog's Static Message"
+
+	GUI_WinButton_Click objContactViewDialog.Dialog("text:=Encompass").WinButton("text:=OK")
+	strViewName1 = CStr(FRM_DS_GetValue(objData, "Value")) 
+	GUI_SwfEdit_Set objContactViewDialog.SwfEdit("swfname:=txtName"),strViewName1
+	GUI_SwfButton_Click objContactViewDialog.SwfButton("swfname:=btnOK")
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnEditView")
+	
+	intRowIndex = GUI_List_GetRowIndex(objManagementDialog.SwfObject("swfname:=gvViews"), "Name", strViewName1)
+	
+	If (intRowIndex >= 0) Then
+	    GUI_List_ValidateCellData objManagementDialog.SwfObject("swfname:=gvViews"),intRowIndex , "Default", "Yes"
+	End If
+	
+	GUI_SwfButton_Click objManagementDialog.SwfButton("swfname:=btnClose")
+	
+	Set objData              = Nothing
+    Set objContactList       = Nothing
+	Set objContactViewDialog = Nothing
+	Set objManagementDialog  = Nothing
+   
+End Function
+
+
+
+'This function is to set basic loan info  first name, last name, application date 
+'@code
+'    BIZ_Contacts_ContactDetails_SetPersonalInfo(strRowId)
+'@endcode
+'@param strRowId- RowId of test dat in Excel spread sheet
+
+Function BIZ_Contacts_ContactDetails_SetPersonalInfo(strRowId)
+	
+	FRM_Logger_ReportInfoEvent "Set contact info with Basic data","Set Contact details First,Middle and Last Name using row id" &strRowId,Null
+	
+	Dim objSettings,objData,strFirstName,strLastName,strMiddleName
+	
+	Set objSettings = SwfWindow("swfname:=MainForm").SwfWindow("swfname:=MainScreen").SwfWindow("swfname:=ContactMainForm").SwfWindow("swfname:=BorrowerListForm")
+	Set objData 	= FRM_DS_GetTestData("Forms_BorrowerSummaryOrigination", "SetBorrower", strRowID)
+	
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnBorrower","index:=0")
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnNew")
+	
+	strFirstName  = FRM_DS_GetValue(objData,"FirstName")
+	strLastName   = FRM_DS_GetValue(objData,"LastName")
+	strMiddleName = FRM_DS_GetValue(objData,"MiddleName")
+	
+	If UTIL_String_IsNotEmpty(strFirstName) Then
+	   GUI_SwfEditor_Type objSettings.SwfEdit("swfname:=txtBoxFirstName"), Cstr(strFirstName)
+	End If
+	
+	If UTIL_String_IsNotEmpty(strLastName) Then
+	   GUI_SwfEditor_Type objSettings.SwfEdit("swfname:=txtMiddleName"), Cstr(strMiddleName) 
+	End If
+	
+	If UTIL_String_IsNotEmpty(strMiddleName) Then
+	   GUI_SwfEditor_Type objSettings.SwfEdit("swfname:=txtBoxLastName"), Cstr(strLastName) 
+	End If
+	
+	GUI_SwfObject_Click SwfWindow("swfname:=MainForm").SwfObject("swfname:=btnSave")
+	
+	arrBorrowerDetails = Array(strFirstName,strMiddleName,strLastName)
+
+	Set objSettings = Nothing
+	Set objData		= Nothing
+	
+	BIZ_Contacts_ContactDetails_SetPersonalInfo = arrBorrowerDetails
+		
+End Function 
+
+
+'@}

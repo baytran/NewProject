@@ -1,0 +1,13 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Settings_FundingTemplates BIZ_Settings_FundingTemplates
+'
+' List of functions here
+' @code
+' 	Function BIZ_FundingTemplate_DeleteExisting(strFundingTemplate)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+
+'@}

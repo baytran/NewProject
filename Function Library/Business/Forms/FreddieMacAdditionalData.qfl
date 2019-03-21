@@ -1,0 +1,31 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_Forms_FHAManagement BIZ_Forms_FHAManagement
+'
+' List of functions here
+'@code
+'   Function BIZ_SetLenderInformation(strRowID)
+'@endcode
+' @{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is to set FHA Management Details on Basic Info Tab
+'@code
+'    BIZ_SetLenderInformation(strRowID)
+'@endcode
+
+Function BIZ_SetLenderInformation(strRowID)
+
+	FRM_Logger_ReportInfoEvent "Freddie Mac Additional Data", "Set Lender Information tab in the Freddie Mac Additional data datasheet", null
+    
+    BIZ_Forms_Open "Freddie Mac Additional Data"
+	Set objParentObject = SwfWindow("swfname:=MainForm").Page("title:=.*","index:=0")
+	
+	Set objData = FRM_DS_GetTestData("Forms_FreddieMacAdditionalData", "LendorInformation", strRowID)	
+    
+	GUI_WebEdit_Set objParentObject.WebEdit("html id:=l_682"), FRM_DS_GetValue(objData, "682_FirstPaymentDate") 
+
+	FRM_Logger_ReportPassEvent "Freddie Mac Additional Data", "Lender Details are entered for the Loan", null
+
+End Function
+
+'@} 

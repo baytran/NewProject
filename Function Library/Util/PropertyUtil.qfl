@@ -1,0 +1,190 @@
+'''''''''''''''''''''''''''''''''''''''''''
+' @defgroup: PropertyUtil UTIL_PropertyUtil
+' This is the function group for dealing with properties file
+'
+' List of functions here
+' @code
+'   Function UTIL_Prop_ReadValue(strFilePath, strPropName) 
+'   Function UTIL_Prop_SetMultiplePropValues(strFilePath, strPropNameValuePair) 
+'   Function UTIL_Prop_SetValue(strFilePath, strPropName, strPropValue) 
+'   Function UTIL_Prop_ResetProperty(strFilePath, strPropName) 
+'   Function UTIL_Prop_ResetAll(strFilePath) 
+' @endcode
+'
+' @{
+''''''''''''''''''''''''''''''''''''''''''
+
+
+'Reads a value of a property file in a propert file
+'@code
+'   UTIL_Prop_ReadValue(strFilePath, strPropName) 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropName - property name 
+'
+'@return value of the property, returns empty if not found
+
+Function UTIL_Prop_ReadValue(strFilePath, strPropName) 
+
+    Dim objFso : Set objFso = CreateObject( "Scripting.FileSystemObject" ) 
+    UTIL_AssertTrue objFso.FileExists(strFilePath), "UTIL_Prop_ReadValue", _ 
+        "Check '"& strFilePath & "' exists." 
+        
+    Dim objFile : Set objFile = objFso.OpenTextFile( strFilePath )
+    Dim strValue : strValue = ""
+    
+    Do Until objFile.AtEndOfStream
+        Dim strLine : strLine = Trim( objFile.ReadLine )
+        If "" <> strLine And "#" <> Left( strLine, 1 ) Then
+            Dim aParts : aParts = Split( strLine, "=" )
+            If UBound( aParts ) = 1 Then                        
+                If Trim(LCase(aParts(0))) = LCase(strPropName) Then
+                    strValue = Trim( aParts( 1 ) )
+                    Exit Do
+                End If   
+            End If
+        End If
+    Loop
+    
+    objFile.Close
+    Set objFile = Nothing
+    Set objFso = Nothing
+
+    UTIL_Prop_ReadValue = strValue
+    
+End Function
+
+
+
+'Sets values for multiple properties in a propert file
+'             if a property is not currently in the property file, it will be added
+'@code
+'   UTIL_Prop_SetMultiplePropValues("C:\temp\test.properties, "name1=tom") 
+'   UTIL_Prop_SetMultiplePropValues("C:\temp\test.properties, "name1=tom,isAccepted-false") 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropNameValuePair - property name and value to be set. <br>
+'               Multiple properties can be sent, the string must be in the format of 
+'               prop1=value1,prop2=value2,prop3=value3
+
+Function UTIL_Prop_SetMultiplePropValues(strFilePath, strPropNameValuePair) 
+
+    const ForReading = 1, ForWriting = 2, ForAppending = 8
+    
+    arrFields = Split(strPropNameValuePair, ",", -1, 1)    
+    For i = 0 to UBound(arrFields)
+        arrFieldNameValue = Split(arrFields(i), "=", -1, 1) 
+        UTIL_Prop_SetValue strFilePath, Trim(arrFieldNameValue(0)), Trim(arrFieldNameValue(1))
+    Next     
+    
+End Function
+
+
+
+'Sets a value of a property file in a propert file
+'             if a property is not currently in the property file, it will be added
+'@code
+'   UTIL_Prop_SetValue("C:\Temp\temp.properties", "loanNumber", "8934839834") 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropName - property name 
+'@param strPropValue - property value 
+
+Function UTIL_Prop_SetValue(strFilePath, strPropName, strPropValue) 
+
+    const ForReading = 1, ForWriting = 2, ForAppending = 8
+
+    Set objFso = CreateObject("Scripting.FileSystemObject")
+    UTIL_AssertTrue objFso.FileExists(strFilePath), "UTIL_Prop_SetValue", _ 
+        "Check '"& strFilePath & "' exists." 
+        
+    Set objPropFile = objFso.OpenTextFile(strFilePath, ForReading, True, 0)  
+    Set objTempFile = objFso.OpenTextFile(strFilePath &".tmp", ForWriting, True)
+    
+    boolFound = False
+    Do While Not objPropFile.AtEndOfStream
+        strLine = objPropFile.Readline
+        arrPropertyValue = split(strLine,"=")
+        If UBound(arrPropertyValue) = 1 Then
+            If LCase(arrPropertyValue(0)) = LCase(strPropName) Then  
+                strLine = strPropName & "=" & strPropValue                
+                boolFound = True
+            End If    
+        End If
+        objTempFile.WriteLine strLine     
+    Loop       
+    
+    If  objPropFile.AtEndOfStream and Not boolFound Then
+        objTempFile.WriteLine strPropName & "=" & strPropValue
+    End If      
+    
+    objPropFile.Close
+    objTempFile.Close
+    objFso.DeleteFile(strFilePath)
+    objFso.MoveFile strFilePath & ".tmp", strFilePath  
+    
+    Set objPropFile = Nothing
+    Set objTempFile = Nothing
+    Set objFso = Nothing   
+End Function
+
+
+
+'Resets the value of a property of empty string
+'@code
+'   UTIL_Prop_ResetProperty(strFilePath, strPropName) 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropName - property name 
+
+Function UTIL_Prop_ResetProperty(strFilePath, strPropName) 
+
+    UTIL_Prop_SetValue strFilePath, strPropName, ""
+    
+End Function
+
+
+
+'Resets all properties in a file to empty string
+'@code
+'   UTIL_Prop_ResetAll(strFilePath) 
+'@endcode
+'@param strFilePath - property file path
+'@param strPropName - property name 
+
+Function UTIL_Prop_ResetAll(strFilePath) 
+
+    const ForReading = 1, ForWriting = 2, ForAppending = 8
+    Set objFso = CreateObject("Scripting.FileSystemObject")
+    UTIL_AssertTrue objFso.FileExists(strFilePath), "UTIL_Prop_ResetAll", _ 
+        "Check '"& strFilePath & "' exists." 
+        
+    Set objPropFile = objFso.OpenTextFile(strFilePath, ForReading, True, 0)  
+    Set objTempFile = objFso.OpenTextFile(strFilePath &".tmp", ForAppending, True)
+        
+    Do 
+        strLine = objPropFile.Readline
+        arrPropertyValue = split(strLine,"=")
+        If UBound(arrPropertyValue) = 1 Then  
+            strLine = arrPropertyValue(0) & "=" 
+            objTempFile.WriteLine strLine
+            boolFound = true
+        Else 
+            objTempFile.WriteLine strLine
+        End If      
+    Loop While Not objPropFile.AtEndOfStream                
+
+    objPropFile.Close
+    objTempFile.Close
+    objFso.DeleteFile(strFilePath)
+    objFso.MoveFile strFilePath & ".tmp", strFilePath    
+    
+    Set objPropFile = Nothing
+    Set objTempFile = Nothing
+    Set objFso = Nothing       
+    
+End Function
+
+
+
+'@}

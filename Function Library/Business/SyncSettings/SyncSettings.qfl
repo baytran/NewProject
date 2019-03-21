@@ -1,0 +1,78 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'@defgroup BIZ_SyncSettings BIZ_SyncSettings
+'
+' List of functions here
+'@code
+'   Function BIZ_SyncSettings_ClickArrow()
+'   Function Biz_SyncSettings_SelectSettingsToolBarItem(strItem)
+'@endcode
+'@{
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This function is for clicking the sync arrow button
+'@code
+'    BIZ_SyncSettings_ClickArrow()
+'@endcode
+
+Function BIZ_SyncSettings_ClickArrow()
+	
+	FRM_Logger_ReportInfoEvent "BIZ_SyncSettings_ClickArrow", "Click Sync Arrow button", Null
+	
+	Set objNotification = SwfWindow("swfname:=SettingsToolMain").SwfWindow("swfname:=NewRecordNotificationDlg")
+	GUI_SwfButton_Click SwfWindow("swfname:=SettingsToolMain").SwfButton("swfname:=btnLeftToRight")
+	Wait g_LongWaitLarge
+	If GUI_Object_IsExistX(SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK"), 150) Then
+		SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK").highlight
+	 	GUI_SwfButton_Click SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK")
+		Wait g_LongWaitLarge
+	End If
+
+	If GUI_Object_IsExistX(SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK"), 100) Then
+		SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK").highlight
+	 	GUI_SwfButton_Click SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK")
+		Wait g_LongWaitLarge
+	End If
+	
+	If GUI_Object_IsExistX(SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK"), 100) Then
+		SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK").highlight
+	 	GUI_SwfButton_Click SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK")
+		Wait g_LongWaitLarge
+	End If
+	
+	If GUI_Object_IsExistX(objNotification.SwfButton("swfname:=btnYes"), 150) Then
+	 	objNotification.SwfButton("swfname:=btnYes").highlight
+		GUI_SwfButton_Click objNotification.SwfButton("swfname:=btnYes")
+		If GUI_Object_IsExistX(objNotification.SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK"), 300) Then
+			objNotification.SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK").highlight
+	 		GUI_SwfButton_Click objNotification.SwfWindow("swfname:=FileSystemSelectionDialog").SwfButton("swfname:=btnOK")
+		End If
+		Wait g_LongWaitLarge
+	End If
+	
+	
+End Function
+
+
+
+'This function is for selecting Item in Settings ToolBar
+'@code
+'    Biz_SyncSettings_SelectSettingsToolBarItem(strItem)
+'@endcode
+
+Function Biz_SyncSettings_SelectSettingsToolBarItem(strItem)
+	
+	FRM_Logger_ReportInfoEvent "Biz_SyncSettings_SelectSettingsToolBarItem", "select Item '"&strItem&"'in Settings ToolBar", Null
+	
+	Dim objMianMenu
+	Set objMianMenu = SwfWindow("swfname:=SettingsToolMain").SwfToolbar("swfname:=menuStrip1")
+    	
+    GUI_SwfToolbar_ShowDropdown objMianMenu,"Settings"		
+    GUI_SwfToolbar_Select objMianMenu, "Settings;"&strItem
+    Wait g_ShortWaitMedium
+    
+    Set objMianMenu = Nothing
+    
+End Function
+
+
+'@}
